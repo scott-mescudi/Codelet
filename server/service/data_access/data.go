@@ -19,8 +19,7 @@ func ConnectToDatabase(postgresURI string) (*pgx.Conn, error) {
 	return conn, nil
 }
 
-
-func  PrepareStatements(queries map[string]string, conn *pgx.Conn) (*pgx.Conn, error) {
+func PrepareStatements(queries map[string]string, conn *pgx.Conn) (*pgx.Conn, error) {
 	for name, query := range queries {
 		_, err := conn.Prepare(context.Background(), name, query)
 		if err != nil {
@@ -30,12 +29,23 @@ func  PrepareStatements(queries map[string]string, conn *pgx.Conn) (*pgx.Conn, e
 	return conn, nil
 }
 
-
 func AddUser(dbConn *pgx.Conn, username, email, role, password string) error {
 	_, err := dbConn.Exec(context.Background(), "add_user", username, email, role, password)
 	if err != nil {
-		return  err
+		return err
 	}
 
 	return nil
+}
+
+
+func GetUserPasswordHash(dbConn *pgx.Conn, email string) (int, string, error) {
+	var id int
+	var hash string
+	row := dbConn.QueryRow(context.Background(), "get_user_password", email)
+	if err := row.Scan(&hash, &id); err != nil {
+		return -1, "", err
+	}
+
+	return id, hash, nil
 }

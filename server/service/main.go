@@ -24,6 +24,7 @@ func main() {
 
 	query := map[string]string{
 		"add_user": `INSERT INTO users(username, email, role, password_hash) VALUES($1, $2, $3, $4)`,
+		"get_user_password": `SELECT password_hash, id FROM users WHERE email=$1`,
 	}
 
 	db, err = dataAccess.PrepareStatements(query, db)
@@ -36,9 +37,11 @@ func main() {
 	app.HandleFunc("/api/v1/register", srv.Signup)
 	app.HandleFunc("/api/v1/login", srv.Login)
 	app.HandleFunc("/api/v1/update/password", srv.ChangePassword)
-	
+	app.HandleFunc("/api/v1/logout", srv.Logout) // middleware
+	app.HandleFunc("/api/v1/refresh", srv.Refresh) // middleware
+
 	if err := http.ListenAndServe(":8080", app); err != nil {
 		log.Fatalln(err)
 	}
-	
+
 }
