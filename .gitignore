@@ -1,0 +1,45 @@
+# Node.js / Next.js
+node_modules/
+.next/
+out/
+*.log
+*.env
+
+# Yarn and npm lock files (optional)
+yarn.lock
+package-lock.json
+
+# Next.js build output
+.next/
+
+# Build output directories
+dist/
+build/
+
+# Vercel deployment
+.vercel/
+
+# Go
+# Go binary executables
+/bin/
+/obj/
+
+# Go build cache
+*.out
+*.exe
+*.test
+*.log
+
+# Vendor directory (if you use Go modules)
+vendor/
+
+# IDEs / Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# OS files
+Thumbs.db
+Desktop.ini

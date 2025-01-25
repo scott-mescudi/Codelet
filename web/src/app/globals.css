@@ -1,0 +1,10 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+body {
+  min-height: 100dvh;
+  background-color: black;
+  font-family: Arial, Helvetica, sans-serif;
+}
