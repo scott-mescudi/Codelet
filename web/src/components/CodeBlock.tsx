@@ -27,7 +27,7 @@ export function CodeBox({ code, fileName, extension }: codeBoxProps) {
     return (
         <>
         <div className="h-fit w-fit group flex flex-col">
-            <div className="bg-neutral-800 relative w-full gap-2 flex flex-row h-10 rounded-t-xl">
+            <div className="bg-neutral-800 select-none relative w-full gap-2 flex flex-row h-10 rounded-t-xl">
                 <div className=" w-fit flex px-2 py-2 flex-row gap-3 h-full">
                     <div className="size-6 rounded-full bg-red-700"></div>
                     <div className="size-6 rounded-full bg-green-700"></div>
