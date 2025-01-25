@@ -1,8 +1,10 @@
 package api
 
+import "github.com/jackc/pgx/v5"
 
-
-type Server struct {}
+type Server struct {
+	Db *pgx.Conn
+}
 
 type userLogin struct {
 	Email    string `json:"email"`

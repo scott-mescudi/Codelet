@@ -7,7 +7,7 @@ import (
 
 
 func (s *Server) Login(w http.ResponseWriter, r *http.Request) {
-
+	
 }
 
 func (s *Server) Signup(w http.ResponseWriter, r *http.Request) {
