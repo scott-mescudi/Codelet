@@ -1,0 +1,22 @@
+services:
+  codelet_database:
+    image: postgres:latest
+    container_name: codelet_database
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password123
+      POSTGRES_DB: codelet_database
+      PGPORT: 5433
+    ports:
+      - "3100:5433"
+    volumes:
+      - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - codelet_database-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d codelet_database -h localhost -p 5433"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  codelet_database-data:
