@@ -27,6 +27,15 @@ func  PrepareStatements(queries map[string]string, conn *pgx.Conn) (*pgx.Conn, e
 			return nil, err
 		}
 	}
-
 	return conn, nil
+}
+
+
+func AddUser(dbConn *pgx.Conn, username, email, role, password string) error {
+	_, err := dbConn.Exec(context.Background(), "add_user", username, email, role, password)
+	if err != nil {
+		return  err
+	}
+
+	return nil
 }

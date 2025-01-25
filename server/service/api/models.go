@@ -6,12 +6,12 @@ type Server struct {
 	Db *pgx.Conn
 }
 
-type userLogin struct {
+type UserLogin struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 }
 
-type userSignup struct {
+type UserSignup struct {
 	Username string `json:"username"`
 	Email    string `json:"email"`
 	Password string `json:"password"`
