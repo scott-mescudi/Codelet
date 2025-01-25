@@ -47,7 +47,7 @@
 
 - go + fiber for gateway
 - go + grpc for services
-- postgresql
+- supabase
 - docker
 - memcached
 
