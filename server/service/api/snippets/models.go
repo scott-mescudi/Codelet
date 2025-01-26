@@ -17,8 +17,6 @@ type Snippet struct {
 	Description string   `json:"description"`
 }
 
-
-
 type DeleteSnippet struct {
 	Id     int `json:"id"`
 	Userid int `json:"userid"`

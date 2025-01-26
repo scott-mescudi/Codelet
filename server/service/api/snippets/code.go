@@ -19,7 +19,6 @@ var SnippetPool = &sync.Pool{
 
 var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
-
 func (s *SnippetService) AddSnippet(w http.ResponseWriter, r *http.Request) {
 	if r.Header.Get("Content-Type") != "application/json" {
 		errs.ErrorWithJson(w, http.StatusBadRequest, "Content-Type must be 'application/json'")
@@ -38,14 +37,12 @@ func (s *SnippetService) AddSnippet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	
 	var info = SnippetPool.Get().(*Snippet)
 	defer SnippetPool.Put(info)
 	if err := json.NewDecoder(r.Body).Decode(&info); err != nil {
 		errs.ErrorWithJson(w, http.StatusBadRequest, "unable to parse request body")
 		return
 	}
-
 
 	if info.Title == "" {
 		errs.ErrorWithJson(w, http.StatusBadRequest, "missing title")
@@ -62,37 +59,31 @@ func (s *SnippetService) AddSnippet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-
 	if len(info.Code) > 3072 {
 		errs.ErrorWithJson(w, http.StatusNotAcceptable, "code too large")
 		return
 	}
-
 
 	if err := dba.AddSnippet(s.Db, userID, info.Language, info.Description, info.Title, info.Code, info.Private, info.Tags, time.Now(), time.Now()); err != nil {
 		errs.ErrorWithJson(w, http.StatusInternalServerError, "failed to add snippet to database")
 		return
 	}
 
-
 	w.WriteHeader(http.StatusCreated)
 }
 
-
-func (s *SnippetService) GetAllSnippetsFromUser(w http.ResponseWriter, r *http.Request) {
+func (s *SnippetService) GetSnippetsFromUser(w http.ResponseWriter, r *http.Request) {
 	useridStr := r.Header.Get("X-USERID")
 	if useridStr == "" {
 		errs.ErrorWithJson(w, http.StatusBadRequest, "missing 'X-USERID' header")
 		return
 	}
 
-
 	userID, err := strconv.Atoi(useridStr)
 	if err != nil {
 		errs.ErrorWithJson(w, http.StatusInternalServerError, "invalid 'X-USERID' header format")
 		return
 	}
-
 
 	params := r.URL.Query()
 	limitstr := params.Get("limit")
@@ -131,12 +122,10 @@ func (s *SnippetService) GetAllSnippetsFromUser(w http.ResponseWriter, r *http.R
 		}
 	}
 
-
 	if len(snippets) == 0 {
 		errs.ErrorWithJson(w, http.StatusNotFound, "no snippets found for user")
 		return
 	}
-
 
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(snippets); err != nil {

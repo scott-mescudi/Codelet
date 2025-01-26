@@ -26,7 +26,7 @@ func AuthMiddleware(next http.HandlerFunc) http.Handler {
 
 		if tokenType != ACCESS {
 			w.WriteHeader(http.StatusForbidden)
-			return			
+			return
 		}
 
 		r.Header.Add("X-USERID", strconv.Itoa(userID))

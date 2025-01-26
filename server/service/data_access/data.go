@@ -6,7 +6,6 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	cmp "github.com/scott-mescudi/codelet/shared/compression"
-
 )
 
 func ConnectToDatabase(postgresURI string) (*pgx.Conn, error) {
@@ -62,7 +61,6 @@ func GetUserPasswordHashViaID(dbConn *pgx.Conn, id int) (string, error) {
 	return hash, nil
 }
 
-
 func UpdatePassword(dbConn *pgx.Conn, passwordHash string, userID int) error {
 	_, err := dbConn.Exec(context.Background(), "update_user_password", passwordHash, userID)
 	if err != nil {
@@ -78,10 +76,10 @@ func AddRefreshToken(dbConn *pgx.Conn, acessToken string, userID int) error {
 		return err
 	}
 
-	return nil	
+	return nil
 }
 
-func GetRefreshToken(dbConn *pgx.Conn, userID int) (string, error){
+func GetRefreshToken(dbConn *pgx.Conn, userID int) (string, error) {
 	var refreshToken string
 	row := dbConn.QueryRow(context.Background(), "get_refresh_token", userID)
 	if err := row.Scan(&refreshToken); err != nil {
@@ -94,15 +92,15 @@ func GetRefreshToken(dbConn *pgx.Conn, userID int) (string, error){
 func AddSnippet(dbConn *pgx.Conn, userID int, language, description, title string, code string, private bool, tags []string, created time.Time, updated time.Time) error {
 	compressed, err := cmp.CompressZSTD([]byte(code))
 	if err != nil {
-		return  err
+		return err
 	}
-	
+
 	_, err = dbConn.Exec(context.Background(), "add_snippet", userID, language, title, compressed, description, private, tags, created, updated)
 	if err != nil {
 		return err
 	}
 
-	return nil	
+	return nil
 }
 
 func GetSnippetsByUserID(dbConn *pgx.Conn, userID, limit, offset int) ([]DBsnippet, error) {
@@ -111,8 +109,7 @@ func GetSnippetsByUserID(dbConn *pgx.Conn, userID, limit, offset int) ([]DBsnipp
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close() 
-
+	defer rows.Close()
 
 	for rows.Next() {
 		var snippet DBsnippet
@@ -134,7 +131,6 @@ func GetSnippetsByUserID(dbConn *pgx.Conn, userID, limit, offset int) ([]DBsnipp
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
-	
 
 	return data, nil
 
@@ -146,8 +142,7 @@ func GetAllSnippetsByUserID(dbConn *pgx.Conn, userID int) ([]DBsnippet, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close() 
-
+	defer rows.Close()
 
 	for rows.Next() {
 		var snippet DBsnippet
@@ -169,7 +164,6 @@ func GetAllSnippetsByUserID(dbConn *pgx.Conn, userID int) ([]DBsnippet, error) {
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
-	
 
 	return data, nil
 
