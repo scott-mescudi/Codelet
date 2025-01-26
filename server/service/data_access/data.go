@@ -68,3 +68,22 @@ func UpdatePassword(dbConn *pgx.Conn, passwordHash string, userID int) error {
 
 	return nil
 }
+
+func AddRefreshToken(dbConn *pgx.Conn, acessToken string, userID int) error {
+	_, err := dbConn.Exec(context.Background(), "add_refresh_token", acessToken, userID)
+	if err != nil {
+		return err
+	}
+
+	return nil	
+}
+
+func GetRefreshToken(dbConn *pgx.Conn, userID int) (string, error){
+	var refreshToken string
+	row := dbConn.QueryRow(context.Background(), "get_refresh_token", userID)
+	if err := row.Scan(&refreshToken); err != nil {
+		return "", err
+	}
+
+	return refreshToken, nil
+}

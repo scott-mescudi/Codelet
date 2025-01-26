@@ -1,6 +1,8 @@
-package api
+package users
 
 import (
+
+	"fmt"
 	"net/http"
 	"strconv"
 	"sync"
@@ -78,7 +80,7 @@ func (s *UserService) Signup(w http.ResponseWriter, r *http.Request) {
 
 	err = dba.AddUser(s.Db, info.Username, info.Email, info.Role, string(hashedPassword))
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		w.WriteHeader(http.StatusConflict)
 		return
 	}
 
@@ -121,8 +123,13 @@ func (s *UserService) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	accessToken := auth.GenerateHMac(userID, ACCESS, time.Now().Add(1*time.Hour))
+	accessToken := auth.GenerateHMac(userID, ACCESS, time.Now().Add(15 * time.Minute))
 	refreshToken := auth.GenerateHMac(userID, REFRESH, time.Now().Add(48*time.Hour))
+	
+	if err := dba.AddRefreshToken(s.Db, refreshToken, userID); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return	
+	}
 
 	http.SetCookie(w, &http.Cookie{
 		Name:     "CODELET-JWT-REFRESH-TOKEN",
@@ -132,6 +139,7 @@ func (s *UserService) Login(w http.ResponseWriter, r *http.Request) {
 		SameSite: http.SameSiteNoneMode,
 		Secure:   true,
 	})
+
 
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(map[string]string{"acess_token": accessToken}); err != nil {
@@ -143,6 +151,11 @@ func (s *UserService) Login(w http.ResponseWriter, r *http.Request) {
 func (s *UserService) Refresh(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie("CODELET-JWT-REFRESH-TOKEN")
 	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	if cookie.Value == "" {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
@@ -163,8 +176,26 @@ func (s *UserService) Refresh(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	accessToken := auth.GenerateHMac(userID, ACCESS, time.Now().Add(1*time.Hour))
+	dbToken, err := dba.GetRefreshToken(s.Db, userID)
+	if err != nil {
+		fmt.Println(err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	if cookie.Value != dbToken {
+		fmt.Println("here")
+		w.WriteHeader(http.StatusForbidden)
+		return
+	}
+
+	accessToken := auth.GenerateHMac(userID, ACCESS, time.Now().Add(15 * time.Minute))
 	refreshToken := auth.GenerateHMac(userID, REFRESH, time.Now().Add(48*time.Hour))
+
+	if err := dba.AddRefreshToken(s.Db, refreshToken, userID); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return	
+	}
 
 	http.SetCookie(w, &http.Cookie{
 		Name:     "CODELET-JWT-REFRESH-TOKEN",
@@ -185,6 +216,19 @@ func (s *UserService) Refresh(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *UserService) Logout(w http.ResponseWriter, r *http.Request) {
+	useridStr := r.Header.Get("X-USERID")
+	if useridStr == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	userID, err := strconv.Atoi(useridStr)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+
 	http.SetCookie(w, &http.Cookie{
 		Name:     "CODELET-JWT-REFRESH-TOKEN",
 		Value:    "",
@@ -193,6 +237,11 @@ func (s *UserService) Logout(w http.ResponseWriter, r *http.Request) {
 		SameSite: http.SameSiteNoneMode,
 		Secure:   true,
 	})
+
+	if err := dba.AddRefreshToken(s.Db, "", userID); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return	
+	}
 
 	w.WriteHeader(http.StatusOK)
 }

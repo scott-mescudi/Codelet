@@ -1,4 +1,4 @@
-package api
+package users
 
 import "github.com/jackc/pgx/v5"
 
@@ -21,18 +21,4 @@ type UserSignup struct {
 type ChangePassword struct {
 	OldPassword string `json:"old_password"`
 	NewPassword string `json:"new_password"`
-}
-
-type AddSnippet struct {
-	Userid      int      `json:"userid"`
-	Language    string   `json:"language"`
-	Title       string   `json:"title"`
-	Code        string   `json:"code"`
-	Description string   `json:"description"`
-	Tags        []string `json:"tags"`
-}
-
-type DeleteSnippet struct {
-	Id     int `json:"id"`
-	Userid int `json:"userid"`
 }

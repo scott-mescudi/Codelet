@@ -30,6 +30,10 @@ func main() {
 		"get_user_password":    `SELECT password_hash, id FROM users WHERE email=$1`,
 		"get_user_password_via_id":    `SELECT password_hash FROM users WHERE id=$1`,
 		"update_user_password": `UPDATE users SET password_hash=$1 WHERE id=$2`,
+		"add_refresh_token" : `UPDATE users SET refresh_token=$1 WHERE id=$2`,
+		"get_refresh_token" : `SELECT refresh_token FROM users WHERE id=$1`,
+		"add_snippet" : `INSERT INTO snippets(userid, language, title, code, description, private, tags, created, updated) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+		"get_all_snippet_by_userid" : `SELECT (language, title, code, description, private, tags, created, updated) FROM snippets WHERE userid=$1`,
 	}
 
 	db, err = dataAccess.PrepareStatements(query, db)
@@ -43,7 +47,7 @@ func main() {
 	app.HandleFunc("/api/v1/login", srv.Login)
 	app.Handle("/api/v1/update/password", middleware.AuthMiddleware(srv.ChangePassword)) 
 	app.Handle("/api/v1/logout", middleware.AuthMiddleware(srv.Logout))  
-	app.Handle("/api/v1/refresh", middleware.AuthMiddleware(srv.Refresh))
+	app.HandleFunc("/api/v1/refresh", srv.Refresh)
 
 	if err := http.ListenAndServe(":8080", app); err != nil {
 		log.Fatalln(err)
