@@ -40,6 +40,11 @@ func main() {
 	srv := userMethods.UserService{Db: db}
 	srv2 := snippetMethods.SnippetService{Db: db}
 
+	app.HandleFunc("/app/v1/ping", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("pong"))
+	})
+
 	app.HandleFunc("POST /api/v1/register", srv.Signup)
 	app.HandleFunc("POST /api/v1/login", srv.Login)
 	app.HandleFunc("GET /api/v1/refresh", srv.Refresh)
