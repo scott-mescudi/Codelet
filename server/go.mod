@@ -6,6 +6,7 @@ require (
 	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/jackc/pgx/v5 v5.7.2
 	github.com/json-iterator/go v1.1.12
+	github.com/klauspost/compress v1.17.11
 	golang.org/x/crypto v0.31.0
 )
 

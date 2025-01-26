@@ -1,12 +1,14 @@
 package snippets
 
-import "github.com/jackc/pgx/v5"
+import (
+	"github.com/jackc/pgx/v5"
+)
 
 type SnippetService struct {
 	Db *pgx.Conn
 }
 
-type AddSnippet struct {
+type Snippet struct {
 	Language    string   `json:"language"`
 	Title       string   `json:"title"`
 	Code        string   `json:"code"`
@@ -14,6 +16,8 @@ type AddSnippet struct {
 	Tags        []string `json:"tags"`
 	Description string   `json:"description"`
 }
+
+
 
 type DeleteSnippet struct {
 	Id     int `json:"id"`
