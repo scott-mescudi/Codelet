@@ -12,6 +12,7 @@ import (
 )
 
 var json = jsoniter.ConfigCompatibleWithStandardLibrary
+
 const ACCESS = 0
 const REFRESH = 1
 
@@ -24,6 +25,12 @@ var SignupPool = &sync.Pool{
 var LoginPool = &sync.Pool{
 	New: func() any {
 		return &UserLogin{}
+	},
+}
+
+var UpdatePasswordPool = &sync.Pool{
+	New: func() any {
+		return &ChangePassword{}
 	},
 }
 
@@ -113,8 +120,8 @@ func (s *Server) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	accessToken := auth.GenerateHMac(userID, ACCESS, time.Now().Add(1 * time.Hour))
-	refreshToken := auth.GenerateHMac(userID, REFRESH, time.Now().Add(48 * time.Hour))
+	accessToken := auth.GenerateHMac(userID, ACCESS, time.Now().Add(1*time.Hour))
+	refreshToken := auth.GenerateHMac(userID, REFRESH, time.Now().Add(48*time.Hour))
 
 	http.SetCookie(w, &http.Cookie{
 		Name:     "CODELET-JWT-REFRESH-TOKEN",
@@ -122,18 +129,17 @@ func (s *Server) Login(w http.ResponseWriter, r *http.Request) {
 		Expires:  time.Now().Add(48 * time.Hour),
 		HttpOnly: true,
 		SameSite: http.SameSiteNoneMode,
-		Secure:  true,
-
+		Secure:   true,
 	})
 
 	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(map[string]string{"acess_token":accessToken}); err != nil {
+	if err := json.NewEncoder(w).Encode(map[string]string{"acess_token": accessToken}); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 }
 
-func (s *Server) Refresh(w http.ResponseWriter, r *http.Request){
+func (s *Server) Refresh(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie("CODELET-JWT-REFRESH-TOKEN")
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
@@ -146,18 +152,18 @@ func (s *Server) Refresh(w http.ResponseWriter, r *http.Request){
 		return
 	}
 
-	if tokenType != REFRESH{
+	if tokenType != REFRESH {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	if userID == -1 {
 		w.WriteHeader(http.StatusBadRequest)
-		return		
+		return
 	}
 
-	accessToken := auth.GenerateHMac(userID, ACCESS, time.Now().Add(1 * time.Hour))
-	refreshToken := auth.GenerateHMac(userID, REFRESH, time.Now().Add(48 * time.Hour))
+	accessToken := auth.GenerateHMac(userID, ACCESS, time.Now().Add(1*time.Hour))
+	refreshToken := auth.GenerateHMac(userID, REFRESH, time.Now().Add(48*time.Hour))
 
 	http.SetCookie(w, &http.Cookie{
 		Name:     "CODELET-JWT-REFRESH-TOKEN",
@@ -165,31 +171,73 @@ func (s *Server) Refresh(w http.ResponseWriter, r *http.Request){
 		Expires:  time.Now().Add(48 * time.Hour),
 		HttpOnly: true,
 		SameSite: http.SameSiteNoneMode,
-		Secure:  true,
-
+		Secure:   true,
 	})
 
 	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(map[string]string{"acess_token":accessToken}); err != nil {
+	if err := json.NewEncoder(w).Encode(map[string]string{"acess_token": accessToken}); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
 }
-func (s *Server) Logout(w http.ResponseWriter, r *http.Request){
+
+func (s *Server) Logout(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, &http.Cookie{
 		Name:     "CODELET-JWT-REFRESH-TOKEN",
 		Value:    "",
 		Expires:  time.Now(),
 		HttpOnly: true,
 		SameSite: http.SameSiteNoneMode,
-		Secure:  true,
+		Secure:   true,
 	})
 
 	w.WriteHeader(http.StatusOK)
 }
 
 func (s *Server) ChangePassword(w http.ResponseWriter, r *http.Request) {
+	if r.Header.Get("Content-Type") != "application/json" {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Header().Set("Content-Type", "application/json")
+		w.Write([]byte(`{"error": "Invalid content type, expected application/json"}`))
+		return
+	}
 
+	var info = UpdatePasswordPool.Get().(*ChangePassword)
+	defer SignupPool.Put(info)
+	if err := json.NewDecoder(r.Body).Decode(&info); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	if info.OldPassword == "" || info.NewPassword == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	userID, passwordHash, err := dba.GetUserPasswordHash(s.Db, info.Email)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	if err := bcrypt.CompareHashAndPassword([]byte(passwordHash), []byte(info.OldPassword)); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	hashedNewPassword, err := bcrypt.GenerateFromPassword([]byte(info.NewPassword), bcrypt.DefaultCost)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	err = dba.UpdatePassword(s.Db, string(hashedNewPassword), userID)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
 }

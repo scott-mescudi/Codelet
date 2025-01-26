@@ -38,7 +38,6 @@ func AddUser(dbConn *pgx.Conn, username, email, role, password string) error {
 	return nil
 }
 
-
 func GetUserPasswordHash(dbConn *pgx.Conn, email string) (int, string, error) {
 	var id int
 	var hash string
@@ -48,4 +47,13 @@ func GetUserPasswordHash(dbConn *pgx.Conn, email string) (int, string, error) {
 	}
 
 	return id, hash, nil
+}
+
+func UpdatePassword(dbConn *pgx.Conn, passwordHash string, userID int) error {
+	_, err := dbConn.Exec(context.Background(), "update_user_password", passwordHash, userID)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
