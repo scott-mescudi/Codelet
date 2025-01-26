@@ -5,7 +5,7 @@ import (
 	"log"
 	"net/http"
 
-	methods "github.com/scott-mescudi/codelet/service/api"
+	userMethods "github.com/scott-mescudi/codelet/service/api/users"
 	dataAccess "github.com/scott-mescudi/codelet/service/data_access"
 	middleware "github.com/scott-mescudi/codelet/service/middleware"
 )
@@ -37,7 +37,7 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	srv := methods.Server{Db: db}
+	srv := userMethods.UserService{Db: db}
 
 	app.HandleFunc("/api/v1/register", srv.Signup)
 	app.HandleFunc("/api/v1/login", srv.Login)

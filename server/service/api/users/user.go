@@ -35,7 +35,7 @@ var UpdatePasswordPool = &sync.Pool{
 	},
 }
 
-func (s *Server) Signup(w http.ResponseWriter, r *http.Request) {
+func (s *UserService) Signup(w http.ResponseWriter, r *http.Request) {
 	if r.Header.Get("Content-Type") != "application/json" {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Header().Set("Content-Type", "application/json")
@@ -85,7 +85,7 @@ func (s *Server) Signup(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 }
 
-func (s *Server) Login(w http.ResponseWriter, r *http.Request) {
+func (s *UserService) Login(w http.ResponseWriter, r *http.Request) {
 	if r.Header.Get("Content-Type") != "application/json" {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Header().Set("Content-Type", "application/json")
@@ -140,7 +140,7 @@ func (s *Server) Login(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (s *Server) Refresh(w http.ResponseWriter, r *http.Request) {
+func (s *UserService) Refresh(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie("CODELET-JWT-REFRESH-TOKEN")
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
@@ -184,7 +184,7 @@ func (s *Server) Refresh(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func (s *Server) Logout(w http.ResponseWriter, r *http.Request) {
+func (s *UserService) Logout(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, &http.Cookie{
 		Name:     "CODELET-JWT-REFRESH-TOKEN",
 		Value:    "",
@@ -197,7 +197,7 @@ func (s *Server) Logout(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func (s *Server) ChangePassword(w http.ResponseWriter, r *http.Request) {
+func (s *UserService) ChangePassword(w http.ResponseWriter, r *http.Request) {
 	if r.Header.Get("Content-Type") != "application/json" {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Header().Set("Content-Type", "application/json")
