@@ -7,7 +7,10 @@ import (
 
 	methods "github.com/scott-mescudi/codelet/service/api"
 	dataAccess "github.com/scott-mescudi/codelet/service/data_access"
+	middleware "github.com/scott-mescudi/codelet/service/middleware"
 )
+
+
 
 func main() {
 	app := http.NewServeMux()
@@ -25,6 +28,7 @@ func main() {
 	query := map[string]string{
 		"add_user":             `INSERT INTO users(username, email, role, password_hash) VALUES($1, $2, $3, $4)`,
 		"get_user_password":    `SELECT password_hash, id FROM users WHERE email=$1`,
+		"get_user_password_via_id":    `SELECT password_hash FROM users WHERE id=$1`,
 		"update_user_password": `UPDATE users SET password_hash=$1 WHERE id=$2`,
 	}
 
@@ -37,9 +41,9 @@ func main() {
 
 	app.HandleFunc("/api/v1/register", srv.Signup)
 	app.HandleFunc("/api/v1/login", srv.Login)
-	app.HandleFunc("/api/v1/update/password", srv.ChangePassword)
-	app.HandleFunc("/api/v1/logout", srv.Logout)   // middleware
-	app.HandleFunc("/api/v1/refresh", srv.Refresh) // middleware
+	app.Handle("/api/v1/update/password", middleware.AuthMiddleware(srv.ChangePassword)) 
+	app.Handle("/api/v1/logout", middleware.AuthMiddleware(srv.Logout))  
+	app.Handle("/api/v1/refresh", middleware.AuthMiddleware(srv.Refresh))
 
 	if err := http.ListenAndServe(":8080", app); err != nil {
 		log.Fatalln(err)

@@ -2,6 +2,7 @@ package api
 
 import (
 	"net/http"
+	"strconv"
 	"sync"
 	"time"
 
@@ -93,7 +94,7 @@ func (s *Server) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var info = LoginPool.Get().(*UserLogin)
-	defer SignupPool.Put(info)
+	defer LoginPool.Put(info)
 	if err := json.NewDecoder(r.Body).Decode(&info); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -205,7 +206,7 @@ func (s *Server) ChangePassword(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var info = UpdatePasswordPool.Get().(*ChangePassword)
-	defer SignupPool.Put(info)
+	defer UpdatePasswordPool.Put(info)
 	if err := json.NewDecoder(r.Body).Decode(&info); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -216,7 +217,19 @@ func (s *Server) ChangePassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userID, passwordHash, err := dba.GetUserPasswordHash(s.Db, info.Email)
+	useridStr := r.Header.Get("X-USERID")
+	if useridStr == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	userID, err := strconv.Atoi(useridStr)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	passwordHash, err := dba.GetUserPasswordHashViaID(s.Db, userID)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
