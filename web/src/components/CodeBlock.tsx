@@ -45,7 +45,7 @@ export function CodeBox({ code, fileName, extension }: codeBoxProps) {
             </div>
             <div className="sm:w-[50dvw] w-[80dvw] relative aspect-video rounded-b-xl scrollbar-track-[black] scrollbar-thumb-neutral-800 scrollbar-thin overflow-auto px-8  bg-[#0b0e14]">
 
-                <pre className="text-white text-md">
+                <pre className="text-white text-sm">
                     {code}
                 </pre>
             </div>
