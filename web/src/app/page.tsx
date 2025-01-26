@@ -30,7 +30,9 @@ if err := http.ListenAndServe(":8080", app); err != nil {
 export default function Home() {
   return (
     <>
-    <div className="w-full h-full flex  items-center justify-center">
+    <div className="w-full h-full grid gap-5  items-center justify-center">
+      <CodeBox fileName="main" extension=".jsx" code={code} />
+      <CodeBox fileName="main" extension=".jsx" code={code} />
       <CodeBox fileName="main" extension=".jsx" code={code} />
     </div>
     </>
