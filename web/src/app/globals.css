@@ -18,3 +18,10 @@ code {
 pre {
   padding-top: 0 !important;
 }
+
+
+body {
+  overflow: scroll;
+  scrollbar-color: gray transparent ;
+  scrollbar-width: thin;
+}

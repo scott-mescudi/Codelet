@@ -27,13 +27,27 @@ if err := http.ListenAndServe(":8080", app); err != nil {
 }
 `
 
+const code2 = `
+query := map[string]string{
+  "add_user":             'INSERT INTO users(username, email, role, password_hash) VALUES($1, $2, $3, $4)',
+  "get_user_password":    'SELECT password_hash, id FROM users WHERE email=$1',
+  "get_user_password_via_id":    'SELECT password_hash FROM users WHERE id=$1',
+  "update_user_password": 'UPDATE users SET password_hash=$1 WHERE id=$2',
+}
+
+db, err = dataAccess.PrepareStatements(query, db)
+
+
+`
+
 export default function Home() {
   return (
     <>
-    <div className="h-full w-full">
-      <CodeBox fileName="main" extension=".jsx" code={code} />
-      <CodeBox fileName="main" extension=".jsx" code={code} />
-      <CodeBox fileName="main" extension=".jsx" code={code} />
+    <div className="h-1/2 w-full grid grid-cols-3 gap-5 px-8 mx-0">
+      <div className="h-fit w-fit p-4 rounded-lg bg-neutral-950 flex flex-col">
+        <CodeBox style="hover:scale-[102%] will-change-transform duration-500 ease-in-out" fileName="main" extension=".jsx" code={code} />
+        
+      </div>
     </div>
     </>
   );

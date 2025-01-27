@@ -8,9 +8,10 @@ interface codeBoxProps {
     code: string,
     fileName: string,
     extension: string
+    style: string,
 }
 
-export function CodeBox({ code, fileName, extension }: codeBoxProps) {
+export function CodeBox({ code, fileName, extension, style }: codeBoxProps) {
     const [copied, setCopied] = useState<boolean>(false)
 
     const handleClick = (text:string) =>{
@@ -31,15 +32,15 @@ export function CodeBox({ code, fileName, extension }: codeBoxProps) {
         fontSize: '0.875rem',
         borderRadius: '0',
         margin: 'none',
-  
+        height: '100%',
         background: 'transparent',
     };
 
 
     return (
         <>
-        <div className="w-1/2 group flex flex-col">
-            <div className="bg-neutral-900 select-none relative w-full gap-2 flex flex-row h-10 rounded-t-xl">
+        <div className={`w-full h-full group flex flex-col ${style}`}>
+            <div className="bg-neutral-900 select-none relative w-full gap-2 flex flex-row h-1/12 rounded-t-xl">
                 <div className="w-fit flex px-2 py-2 flex-row gap-3 h-full">
                     <div className="h-full aspect-square rounded-full bg-red-700"></div>
                     <div className="h-full aspect-square rounded-full bg-green-700"></div>
@@ -49,7 +50,7 @@ export function CodeBox({ code, fileName, extension }: codeBoxProps) {
                     <div className='h-full p-2'>
                         <img className='h-full' src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg" />
                     </div>
-                    <p className="text-xl font-semibold text-white">{fileName}{extension}</p>
+                    <p className="text-lg font-semibold text-white">{fileName}{extension}</p>
                 </div>
                 <div id="copy" className="absolute z-10 mt-12 mr-5 w-fit h-fit opacity-0 group-hover:opacity-100 duration-200 ease-in-out top-0 right-0 bg-black bg-opacity-50 rounded-lg text-[white]">
                     <button onClick={() => handleClick(code)} className="text-sm px-3 py-1">{copied ? "Copied!" : "Copy"}</button>
