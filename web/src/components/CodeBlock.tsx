@@ -1,6 +1,8 @@
 'use client'
 
 import { useEffect, useState } from "react"
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism'; 
 
 interface codeBoxProps {
     code: string,
@@ -24,6 +26,15 @@ export function CodeBox({ code, fileName, extension }: codeBoxProps) {
         return () => {clearTimeout(tt)}
     }, [copied])
 
+    const customStyle = {
+        lineHeight: '1.25rem',
+        fontSize: '0.875rem',
+        borderRadius: '0',
+        margin: 'none',
+        background: 'transparent',
+    };
+
+
     return (
         <>
         <div className="h-fit w-fit group flex flex-col">
@@ -43,12 +54,16 @@ export function CodeBox({ code, fileName, extension }: codeBoxProps) {
                     <button onClick={() => handleClick(code)} className="text-sm px-3 py-1">{copied ? "Copied!" : "Copy"}</button>
                 </div>
             </div>
-            <div className="sm:w-[50dvw] w-[80dvw] relative aspect-video rounded-b-xl scrollbar-track-[black] scrollbar-thumb-neutral-800 scrollbar-thin overflow-auto px-8  bg-[#0b0e14]">
 
-                <pre className="text-white text-sm">
+            <div className="sm:w-[50dvw] w-[80dvw] relative aspect-video rounded-b-xl scrollbar-track-[black] scrollbar-thumb-neutral-800 scrollbar-thin overflow-auto  bg-[#0b0e14]">
+                <SyntaxHighlighter language="go" style={oneDark} customStyle={customStyle} >
                     {code}
-                </pre>
+                </SyntaxHighlighter>
             </div>
+
+
+
+      
         </div>
 
         </>
