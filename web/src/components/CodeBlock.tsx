@@ -38,12 +38,12 @@ export function CodeBox({ code, fileName, extension }: codeBoxProps) {
 
     return (
         <>
-        <div className="h-fit w-fit group flex flex-col">
+        <div className="w-1/2 group flex flex-col">
             <div className="bg-neutral-800 select-none relative w-full gap-2 flex flex-row h-10 rounded-t-xl">
-                <div className=" w-fit flex px-2 py-2 flex-row gap-3 h-full">
-                    <div className="size-6 rounded-full bg-red-700"></div>
-                    <div className="size-6 rounded-full bg-green-700"></div>
-                    <div className="size-6 rounded-full bg-yellow-500"></div>
+                <div className="w-fit flex px-2 py-2 flex-row gap-3 h-full">
+                    <div className="h-full aspect-square rounded-full bg-red-700"></div>
+                    <div className="h-full aspect-square rounded-full bg-green-700"></div>
+                    <div className="h-full aspect-square rounded-full bg-yellow-500"></div>
                 </div>
                 <div className="w-fit bg-[#0b0e14] pr-3 rounded-t-lg mt-1 gap-1 overflow-hidden h-full flex flex-row justify-start items-center ">
                     <div className='h-full p-2'>
@@ -56,15 +56,11 @@ export function CodeBox({ code, fileName, extension }: codeBoxProps) {
                 </div>
             </div>
 
-            <div className="sm:w-[50dvw] w-[80dvw] relative aspect-video rounded-b-xl scrollbar-track-[black] scrollbar-thumb-neutral-800 scrollbar-thin overflow-auto  bg-[#0b0e14]">
+            <div className="sm:w-full w-full aspect-video rounded-b-xl scrollbar-track-[black] scrollbar-thumb-neutral-800 scrollbar-thin overflow-auto  bg-[#0b0e14]">
                 <SyntaxHighlighter language="go" style={oneDark} customStyle={customStyle} >
                     {code}
                 </SyntaxHighlighter>
             </div>
-
-
-
-      
         </div>
 
         </>
