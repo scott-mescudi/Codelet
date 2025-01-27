@@ -39,7 +39,7 @@ export function CodeBox({ code, fileName, extension }: codeBoxProps) {
     return (
         <>
         <div className="w-1/2 group flex flex-col">
-            <div className="bg-neutral-800 select-none relative w-full gap-2 flex flex-row h-10 rounded-t-xl">
+            <div className="bg-neutral-900 select-none relative w-full gap-2 flex flex-row h-10 rounded-t-xl">
                 <div className="w-fit flex px-2 py-2 flex-row gap-3 h-full">
                     <div className="h-full aspect-square rounded-full bg-red-700"></div>
                     <div className="h-full aspect-square rounded-full bg-green-700"></div>
