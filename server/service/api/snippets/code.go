@@ -72,7 +72,7 @@ func (s *SnippetService) AddSnippet(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 }
 
-func (s *SnippetService) GetSnippetsFromUser(w http.ResponseWriter, r *http.Request) {
+func (s *SnippetService) GetUserSnippets(w http.ResponseWriter, r *http.Request) {
 	useridStr := r.Header.Get("X-USERID")
 	if useridStr == "" {
 		errs.ErrorWithJson(w, http.StatusBadRequest, "missing 'X-USERID' header")
@@ -88,6 +88,7 @@ func (s *SnippetService) GetSnippetsFromUser(w http.ResponseWriter, r *http.Requ
 	params := r.URL.Query()
 	limitstr := params.Get("limit")
 	pagestr := params.Get("page")
+	
 
 	var snippets []dba.DBsnippet
 	if limitstr != "" && pagestr != "" {
@@ -124,6 +125,56 @@ func (s *SnippetService) GetSnippetsFromUser(w http.ResponseWriter, r *http.Requ
 
 	if len(snippets) == 0 {
 		errs.ErrorWithJson(w, http.StatusNotFound, "no snippets found for user")
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(snippets); err != nil {
+		errs.ErrorWithJson(w, http.StatusInternalServerError, "failed to encode snippets as JSON")
+		return
+	}
+}
+
+
+func (s *SnippetService) GetPublicSnippets(w http.ResponseWriter, r *http.Request) {
+	params := r.URL.Query()
+	limitstr := params.Get("limit")
+	pagestr := params.Get("page")
+
+
+	if  limitstr == "" || pagestr == "" {
+		errs.ErrorWithJson(w, http.StatusBadRequest, "missing 'limit' or 'page' url parameter.")
+		return
+	}
+
+	var snippets []dba.DBsnippet
+
+	limit, err := strconv.Atoi(limitstr)
+	if err != nil {
+		errs.ErrorWithJson(w, http.StatusBadRequest, "invalid 'limit' parameter")
+		return
+	}
+
+	page, err := strconv.Atoi(pagestr)
+	if err != nil {
+		errs.ErrorWithJson(w, http.StatusBadRequest, "invalid 'page' parameter")
+		return
+	}
+
+	if limit > 100 {
+		errs.ErrorWithJson(w, http.StatusBadRequest, "max 'limit' is 100")
+		return
+	}
+
+	offset := (page - 1) * limit
+	snippets, err = dba.GetPublicSnippets(s.Db, limit, offset)
+	if err != nil {
+		errs.ErrorWithJson(w, http.StatusInternalServerError, "failed to fetch snippets from database")
+		return
+	}
+	
+	if len(snippets) == 0 {
+		errs.ErrorWithJson(w, http.StatusNotFound, "no snippets found")
 		return
 	}
 

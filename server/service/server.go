@@ -31,8 +31,7 @@ func NewCodeletServer() {
 		"add_snippet":               `INSERT INTO snippets(userid, language, title, code, description, private, tags, created, updated) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
 		"get_all_snippet_by_userid": `SELECT id, language, title, code, description, private, tags, created, updated FROM snippets WHERE userid=$1`,
 		"get_snippet_by_userid":     `SELECT id, language, title, code, description, private, tags, created, updated FROM snippets WHERE userid=$1 LIMIT $2 OFFSET $3`,
-		"get_public_snippet":     `SELECT id, language, title, code, description, private, tags, created, updated FROM snippets WHERE userid=$1 LIMIT $2 OFFSET $3`,
-
+		"get_public_snippet":        `SELECT id, language, title, code, description, private, tags, created, updated FROM snippets WHERE private=false LIMIT $1 OFFSET $2`,
 	}
 
 	db, err = dataAccess.PrepareStatements(query, db)
@@ -54,7 +53,8 @@ func NewCodeletServer() {
 	app.Handle("POST /api/v1/update/password", middleware.AuthMiddleware(srv.ChangePassword))
 	app.Handle("POST /api/v1/logout", middleware.AuthMiddleware(srv.Logout))
 	app.Handle("POST /api/v1/user/snippets", middleware.AuthMiddleware(srv2.AddSnippet))
-	app.Handle("GET /api/v1/user/snippets", middleware.AuthMiddleware(srv2.GetSnippetsFromUser))
+	app.Handle("GET /api/v1/user/snippets", middleware.AuthMiddleware(srv2.GetUserSnippets))
+	app.HandleFunc("GET /api/v1/public/snippets", srv2.GetPublicSnippets)
 
 
 	if err := http.ListenAndServe(os.Getenv("APP_PORT"), app); err != nil {

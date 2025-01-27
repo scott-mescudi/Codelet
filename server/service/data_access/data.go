@@ -168,3 +168,36 @@ func GetAllSnippetsByUserID(dbConn *pgx.Conn, userID int) ([]DBsnippet, error) {
 	return data, nil
 
 }
+
+func GetPublicSnippets(dbConn *pgx.Conn, limit, offset int) ([]DBsnippet, error) {
+	var data []DBsnippet
+	rows, err := dbConn.Query(context.Background(), "get_public_snippet", limit, offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var snippet DBsnippet
+		var code []byte
+		err := rows.Scan(&snippet.ID, &snippet.Language, &snippet.Title, &code, &snippet.Description, &snippet.Private, &snippet.Tags, &snippet.Created, &snippet.Updated)
+		if err != nil {
+			return nil, err
+		}
+
+		decompressedData, err := cmp.DecompressZSTD(code)
+		if err != nil {
+			return nil, err
+		}
+
+		snippet.Code = string(decompressedData)
+		data = append(data, snippet)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return data, nil
+
+}
