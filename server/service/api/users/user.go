@@ -2,6 +2,7 @@ package users
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 	"sync"
@@ -79,6 +80,7 @@ func (s *UserService) Signup(w http.ResponseWriter, r *http.Request) {
 
 	err = dba.AddUser(s.Db, info.Username, info.Email, info.Role, string(hashedPassword))
 	if err != nil {
+		log.Println(err)
 		w.WriteHeader(http.StatusConflict)
 		return
 	}

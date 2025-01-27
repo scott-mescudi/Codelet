@@ -1,9 +1,10 @@
-package main
+package server
 
 import (
 	"context"
 	"log"
 	"net/http"
+	"os"
 
 	snippetMethods "github.com/scott-mescudi/codelet/service/api/snippets"
 	userMethods "github.com/scott-mescudi/codelet/service/api/users"
@@ -11,10 +12,10 @@ import (
 	middleware "github.com/scott-mescudi/codelet/service/middleware"
 )
 
-func main() {
+func NewCodeletServer() {
 	app := http.NewServeMux()
 
-	db, err := dataAccess.ConnectToDatabase("postgresql://admin:password123@localhost:3100/codelet_database")
+	db, err := dataAccess.ConnectToDatabase(os.Getenv("DATABASE_URL"))
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -30,6 +31,8 @@ func main() {
 		"add_snippet":               `INSERT INTO snippets(userid, language, title, code, description, private, tags, created, updated) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
 		"get_all_snippet_by_userid": `SELECT id, language, title, code, description, private, tags, created, updated FROM snippets WHERE userid=$1`,
 		"get_snippet_by_userid":     `SELECT id, language, title, code, description, private, tags, created, updated FROM snippets WHERE userid=$1 LIMIT $2 OFFSET $3`,
+		"get_public_snippet":     `SELECT id, language, title, code, description, private, tags, created, updated FROM snippets WHERE userid=$1 LIMIT $2 OFFSET $3`,
+
 	}
 
 	db, err = dataAccess.PrepareStatements(query, db)
@@ -50,11 +53,11 @@ func main() {
 	app.HandleFunc("GET /api/v1/refresh", srv.Refresh)
 	app.Handle("POST /api/v1/update/password", middleware.AuthMiddleware(srv.ChangePassword))
 	app.Handle("POST /api/v1/logout", middleware.AuthMiddleware(srv.Logout))
-	app.Handle("POST /api/v1/snippets", middleware.AuthMiddleware(srv2.AddSnippet))
-	app.Handle("GET /api/v1/snippets", middleware.AuthMiddleware(srv2.GetSnippetsFromUser))
+	app.Handle("POST /api/v1/user/snippets", middleware.AuthMiddleware(srv2.AddSnippet))
+	app.Handle("GET /api/v1/user/snippets", middleware.AuthMiddleware(srv2.GetSnippetsFromUser))
 
-	if err := http.ListenAndServe(":8080", app); err != nil {
+
+	if err := http.ListenAndServe(os.Getenv("APP_PORT"), app); err != nil {
 		log.Fatalln(err)
 	}
-
 }
