@@ -31,6 +31,7 @@ export function CodeBox({ code, fileName, extension }: codeBoxProps) {
         fontSize: '0.875rem',
         borderRadius: '0',
         margin: 'none',
+  
         background: 'transparent',
     };
 
