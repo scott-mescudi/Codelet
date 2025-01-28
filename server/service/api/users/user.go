@@ -39,7 +39,7 @@ var UpdatePasswordPool = &sync.Pool{
 }
 
 func (s *UserService) Signup(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close() 
+	defer r.Body.Close()
 	if r.Header.Get("Content-Type") != "application/json" {
 		errs.ErrorWithJson(w, http.StatusBadRequest, "Content-Type header must be application/json")
 		return
@@ -89,7 +89,7 @@ func (s *UserService) Signup(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *UserService) Login(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close() 
+	defer r.Body.Close()
 	if r.Header.Get("Content-Type") != "application/json" {
 		errs.ErrorWithJson(w, http.StatusBadRequest, "Content-Type header must be application/json")
 		return
@@ -101,8 +101,6 @@ func (s *UserService) Login(w http.ResponseWriter, r *http.Request) {
 		errs.ErrorWithJson(w, http.StatusUnprocessableEntity, "Invalid JSON payload: "+err.Error())
 		return
 	}
-
-	
 
 	if info.Email == "" {
 		errs.ErrorWithJson(w, http.StatusBadRequest, "Email field is invalid")
@@ -152,7 +150,7 @@ func (s *UserService) Login(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *UserService) Refresh(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close() 
+	defer r.Body.Close()
 	cookie, err := r.Cookie("CODELET-JWT-REFRESH-TOKEN")
 	if err != nil {
 		errs.ErrorWithJson(w, http.StatusUnauthorized, "No refresh token provided")
@@ -218,7 +216,7 @@ func (s *UserService) Refresh(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *UserService) Logout(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close() 
+	defer r.Body.Close()
 	useridStr := r.Header.Get("X-USERID")
 	if useridStr == "" {
 		w.WriteHeader(http.StatusBadRequest)
@@ -254,7 +252,7 @@ func (s *UserService) ChangePassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	defer r.Body.Close() 
+	defer r.Body.Close()
 
 	var info = UpdatePasswordPool.Get().(*ChangePassword)
 	defer UpdatePasswordPool.Put(info)

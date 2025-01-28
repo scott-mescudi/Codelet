@@ -56,7 +56,6 @@ func NewCodeletServer() {
 	app.Handle("GET /api/v1/user/snippets", middleware.AuthMiddleware(srv2.GetUserSnippets))
 	app.HandleFunc("GET /api/v1/public/snippets", srv2.GetPublicSnippets)
 
-
 	if err := http.ListenAndServe(os.Getenv("APP_PORT"), app); err != nil {
 		log.Fatalln(err)
 	}

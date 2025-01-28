@@ -9,14 +9,14 @@ var HMACSecretKey = []byte("apeirbvpijebvejbfpvibfevqepirjvb")
 var Issuer = "codelet"
 
 type Claims struct {
-	UserID int
+	UserID    int
 	TokenType int8
 	jwt.RegisteredClaims
 }
 
 func GenerateHMac(userID int, tokenType int8, timeframe time.Time) string {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, Claims{
-		UserID: userID,
+		UserID:    userID,
 		TokenType: tokenType,
 		RegisteredClaims: jwt.RegisteredClaims{
 			Issuer:    Issuer,

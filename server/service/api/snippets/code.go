@@ -24,7 +24,7 @@ func (s *SnippetService) AddSnippet(w http.ResponseWriter, r *http.Request) {
 		errs.ErrorWithJson(w, http.StatusBadRequest, "Content-Type must be 'application/json'")
 		return
 	}
-	defer r.Body.Close() 
+	defer r.Body.Close()
 
 	useridStr := r.Header.Get("X-USERID")
 	if useridStr == "" {
@@ -74,7 +74,7 @@ func (s *SnippetService) AddSnippet(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *SnippetService) GetUserSnippets(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close() 
+	defer r.Body.Close()
 	useridStr := r.Header.Get("X-USERID")
 	if useridStr == "" {
 		errs.ErrorWithJson(w, http.StatusBadRequest, "missing 'X-USERID' header")
@@ -90,7 +90,6 @@ func (s *SnippetService) GetUserSnippets(w http.ResponseWriter, r *http.Request)
 	params := r.URL.Query()
 	limitstr := params.Get("limit")
 	pagestr := params.Get("page")
-	
 
 	var snippets []dba.DBsnippet
 	if limitstr != "" && pagestr != "" {
@@ -137,15 +136,13 @@ func (s *SnippetService) GetUserSnippets(w http.ResponseWriter, r *http.Request)
 	}
 }
 
-
 func (s *SnippetService) GetPublicSnippets(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close() 
+	defer r.Body.Close()
 	params := r.URL.Query()
 	limitstr := params.Get("limit")
 	pagestr := params.Get("page")
 
-
-	if  limitstr == "" || pagestr == "" {
+	if limitstr == "" || pagestr == "" {
 		errs.ErrorWithJson(w, http.StatusBadRequest, "missing 'limit' or 'page' url parameter.")
 		return
 	}
@@ -175,7 +172,7 @@ func (s *SnippetService) GetPublicSnippets(w http.ResponseWriter, r *http.Reques
 		errs.ErrorWithJson(w, http.StatusInternalServerError, "failed to fetch snippets from database")
 		return
 	}
-	
+
 	if len(snippets) == 0 {
 		errs.ErrorWithJson(w, http.StatusNotFound, "no snippets found")
 		return
