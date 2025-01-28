@@ -51,8 +51,8 @@ func (s *UserService) Signup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if info.Email == "" {
-		errs.ErrorWithJson(w, http.StatusBadRequest, "Email field is required")
+	if !VerifyEmail(info.Email) {
+		errs.ErrorWithJson(w, http.StatusBadRequest, "Email field is invalid")
 		return
 	}
 
@@ -100,8 +100,10 @@ func (s *UserService) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	
+
 	if info.Email == "" {
-		errs.ErrorWithJson(w, http.StatusBadRequest, "Email field is required")
+		errs.ErrorWithJson(w, http.StatusBadRequest, "Email field is invalid")
 		return
 	}
 
