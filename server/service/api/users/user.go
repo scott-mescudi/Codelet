@@ -39,6 +39,7 @@ var UpdatePasswordPool = &sync.Pool{
 }
 
 func (s *UserService) Signup(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close() 
 	if r.Header.Get("Content-Type") != "application/json" {
 		errs.ErrorWithJson(w, http.StatusBadRequest, "Content-Type header must be application/json")
 		return
@@ -47,7 +48,7 @@ func (s *UserService) Signup(w http.ResponseWriter, r *http.Request) {
 	var info = SignupPool.Get().(*UserSignup)
 	defer SignupPool.Put(info)
 	if err := json.NewDecoder(r.Body).Decode(&info); err != nil {
-		errs.ErrorWithJson(w, http.StatusBadRequest, "Invalid JSON payload: "+err.Error())
+		errs.ErrorWithJson(w, http.StatusUnprocessableEntity, "Invalid JSON payload: "+err.Error())
 		return
 	}
 
@@ -88,6 +89,7 @@ func (s *UserService) Signup(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *UserService) Login(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close() 
 	if r.Header.Get("Content-Type") != "application/json" {
 		errs.ErrorWithJson(w, http.StatusBadRequest, "Content-Type header must be application/json")
 		return
@@ -96,7 +98,7 @@ func (s *UserService) Login(w http.ResponseWriter, r *http.Request) {
 	var info = LoginPool.Get().(*UserLogin)
 	defer LoginPool.Put(info)
 	if err := json.NewDecoder(r.Body).Decode(&info); err != nil {
-		errs.ErrorWithJson(w, http.StatusBadRequest, "Invalid JSON payload: "+err.Error())
+		errs.ErrorWithJson(w, http.StatusUnprocessableEntity, "Invalid JSON payload: "+err.Error())
 		return
 	}
 
@@ -150,6 +152,7 @@ func (s *UserService) Login(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *UserService) Refresh(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close() 
 	cookie, err := r.Cookie("CODELET-JWT-REFRESH-TOKEN")
 	if err != nil {
 		errs.ErrorWithJson(w, http.StatusUnauthorized, "No refresh token provided")
@@ -215,6 +218,7 @@ func (s *UserService) Refresh(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *UserService) Logout(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close() 
 	useridStr := r.Header.Get("X-USERID")
 	if useridStr == "" {
 		w.WriteHeader(http.StatusBadRequest)
@@ -250,10 +254,12 @@ func (s *UserService) ChangePassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	defer r.Body.Close() 
+
 	var info = UpdatePasswordPool.Get().(*ChangePassword)
 	defer UpdatePasswordPool.Put(info)
 	if err := json.NewDecoder(r.Body).Decode(&info); err != nil {
-		errs.ErrorWithJson(w, http.StatusBadRequest, "Invalid JSON payload: "+err.Error())
+		errs.ErrorWithJson(w, http.StatusUnprocessableEntity, "Invalid JSON payload: "+err.Error())
 		return
 	}
 

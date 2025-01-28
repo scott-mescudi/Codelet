@@ -24,6 +24,7 @@ func (s *SnippetService) AddSnippet(w http.ResponseWriter, r *http.Request) {
 		errs.ErrorWithJson(w, http.StatusBadRequest, "Content-Type must be 'application/json'")
 		return
 	}
+	defer r.Body.Close() 
 
 	useridStr := r.Header.Get("X-USERID")
 	if useridStr == "" {
@@ -40,7 +41,7 @@ func (s *SnippetService) AddSnippet(w http.ResponseWriter, r *http.Request) {
 	var info = SnippetPool.Get().(*Snippet)
 	defer SnippetPool.Put(info)
 	if err := json.NewDecoder(r.Body).Decode(&info); err != nil {
-		errs.ErrorWithJson(w, http.StatusBadRequest, "unable to parse request body")
+		errs.ErrorWithJson(w, http.StatusUnprocessableEntity, "unable to parse request body")
 		return
 	}
 
@@ -73,6 +74,7 @@ func (s *SnippetService) AddSnippet(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *SnippetService) GetUserSnippets(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close() 
 	useridStr := r.Header.Get("X-USERID")
 	if useridStr == "" {
 		errs.ErrorWithJson(w, http.StatusBadRequest, "missing 'X-USERID' header")
@@ -137,6 +139,7 @@ func (s *SnippetService) GetUserSnippets(w http.ResponseWriter, r *http.Request)
 
 
 func (s *SnippetService) GetPublicSnippets(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close() 
 	params := r.URL.Query()
 	limitstr := params.Get("limit")
 	pagestr := params.Get("page")
