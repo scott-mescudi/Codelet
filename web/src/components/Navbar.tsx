@@ -28,7 +28,7 @@ export function Navbar() {
                     <input value={inputValue} onChange={handleChange}  type="text" className="h-full  outline-none w-full px-3 text-xl appearance-none bg-transparent text-white" placeholder="Search anything..."></input>
                 </div>
                 <div className=" h-full ml-2 aspect-square">
-                    <Image className="object-cover  rounded-full h-full w-full" src="/pfp_placeholder.png" width={500} height={500} alt="Pofile picture" />
+                    <Image draggable="false" className="object-cover  rounded-full h-full w-full" src="/pfp_placeholder.png" width={500} height={500} alt="Pofile picture" />
                 </div>
             </div>
             <div id="items" className={`${inputValue != "" ? "flex": "hidden"} max-h-96  `}>
