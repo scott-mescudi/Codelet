@@ -43,12 +43,7 @@ db, err = dataAccess.PrepareStatements(query, db)
 export default function Home() {
   return (
     <>
-    <div className="h-1/2 w-full grid grid-cols-3 gap-5 px-8 mx-0">
-      <div className="h-fit w-fit p-4 rounded-lg bg-neutral-950 flex flex-col">
-        <CodeBox style="hover:scale-[102%] will-change-transform duration-500 ease-in-out" fileName="main" extension=".jsx" code={code} />
-        
-      </div>
-    </div>
+  
     </>
   );
 }
