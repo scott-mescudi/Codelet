@@ -36,8 +36,6 @@ export function Navbar() {
                     <div className="w-full h-16 hover:scale-[102%] rounded-xl ease-in-out duration-200 bg-neutral-800"></div>
 
                 </div>
-                
-                
             </div>
         </div>
             

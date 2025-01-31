@@ -6,12 +6,10 @@ import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 interface codeBoxProps {
     code: string,
-    fileName: string,
-    extension: string
-    style: string,
+    background?: string,
 }
 
-export function CodeBox({ code, fileName, extension, style }: codeBoxProps) {
+export function CodeBox({ code, background }: codeBoxProps) {
     const [copied, setCopied] = useState<boolean>(false)
 
     const handleClick = (text:string) =>{
@@ -39,9 +37,8 @@ export function CodeBox({ code, fileName, extension, style }: codeBoxProps) {
 
     return (
         <>
-        <div className={`w-full h-full group flex flex-col ${style}`}>
-
-            <div className="sm:w-full relative w-full aspect-video rounded-b-xl scrollbar-track-[black] scrollbar-thumb-neutral-800 scrollbar-thin overflow-auto  bg-[#0b0e14]">
+        <div className="w-full h-full group flex flex-col"> 
+            <div className={`sm:w-full relative w-full aspect-video  scrollbar-track-[black] scrollbar-thumb-neutral-800 scrollbar-thin overflow-auto  ${background}`}>
                 <div id="copy" className="absolute z-10 mt-3 mr-5 w-fit h-fit opacity-0 group-hover:opacity-100 duration-200 ease-in-out top-0 right-0 bg-black bg-opacity-50 rounded-lg text-[white]">
                     <button onClick={() => handleClick(code)} className="text-sm px-3 py-1">{copied ? "Copied!" : "Copy"}</button>
                 </div>

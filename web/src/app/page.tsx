@@ -43,7 +43,9 @@ db, err = dataAccess.PrepareStatements(query, db)
 export default function Home() {
   return (
     <>
-  
+    <div className="sm:w-1/2 sm:p-x0 w-full px-5">
+      <CodeBox code={code} />
+    </div>
     </>
   );
 }
