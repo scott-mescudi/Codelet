@@ -1,4 +1,4 @@
-# Code snippets app
+# Code snippets app - NexGPT
 
 # **Features:**
 
