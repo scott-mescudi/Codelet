@@ -39,6 +39,9 @@ services:
     depends_on:
       codelet_database:
         condition: service_healthy
+    user: "${UID:-10001}:${GID:-10001}"
+    volumes:
+      - ./logs:/src/logs
     networks:
       - codelet-network
 

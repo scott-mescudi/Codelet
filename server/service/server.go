@@ -16,7 +16,11 @@ import (
 )
 
 func NewCodeletServer() {
-	file, err := os.OpenFile("./logs/codelet_server_logs.json", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
+	if err := os.MkdirAll("/src/logs", 0755); err != nil {
+		log.Fatal().Err(err).Msg("Failed to create logs directory")
+	}
+
+	file, err := os.OpenFile("/src/logs/codelet_server_logs.json", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed to open log file")
 	}

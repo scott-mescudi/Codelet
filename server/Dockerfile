@@ -55,8 +55,7 @@ RUN --mount=type=cache,target=/var/cache/apk \
         && \
         update-ca-certificates
 
-# Create a non-privileged user that the app will run under.
-# See https://docs.docker.com/go/dockerfile-user-best-practices/
+# Create user first
 ARG UID=10001
 RUN adduser \
     --disabled-password \
@@ -66,6 +65,14 @@ RUN adduser \
     --no-create-home \
     --uid "${UID}" \
     appuser
+
+# Create directories and set permissions as root
+WORKDIR /src
+RUN mkdir -p /src/logs && \
+    chown -R appuser:appuser /src && \
+    chmod -R 755 /src
+
+# Switch to appuser after setting up permissions
 USER appuser
 
 # Copy the executable from the "build" stage.
