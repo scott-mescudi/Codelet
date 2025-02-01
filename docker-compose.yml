@@ -3,12 +3,13 @@ services:
     image: postgres:latest
     container_name: codelet_database
     environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: password123
-      POSTGRES_DB: codelet_database
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
       PGPORT: 5433
     ports:
       - "3100:5433"
+    restart: unless-stopped
     volumes:
       - codelet_database-data:/var/lib/postgresql/data
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
@@ -28,6 +29,7 @@ services:
     container_name: codelet_server
     env_file:
       - .env
+    restart: unless-stopped
     environment:
       - APP_PORT=:3021
       - DATABASE_URL=${DATABASE_URL}
