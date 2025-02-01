@@ -5,7 +5,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 
 import CloseIcon from '@mui/icons-material/Close';
 import SearchIcon from '@mui/icons-material/Search';
-import { Person4 } from "@mui/icons-material";
+import { AccountBoxOutlined, ExitToApp, LoginOutlined } from "@mui/icons-material";
 import Link from "next/link";
 
 interface SearchBarProps {
@@ -66,9 +66,9 @@ function ProfilePicture() {
                 {click ? (
                     <div className="p-5 mt-5 z-10 origin-right grid rounded-lg right-0 absolute bg-black border border-opacity-15 border-white">
                         <div className="flex flex-col gap-2">
-                            <DropdownItem icon={ <Person4 fontSize="large" />} iconHoverColor="group-hover:text-white" iconBgHoverColor="group-hover:bg-red-700"  title="Login" subTitle="open login" />
-                            <DropdownItem icon={ <Person4 fontSize="large" />}  title="Login" subTitle="open login" />
-
+                            <DropdownItem icon={ <LoginOutlined fontSize="large" />}  title="Login" subTitle="Secure Login Portal" />
+                            <DropdownItem icon={ <AccountBoxOutlined fontSize="large" />}  title="Profile" subTitle="Your Dashboard" />
+                             <DropdownItem icon={ <ExitToApp fontSize="large" />} iconHoverColor="group-hover:text-white" iconBgHoverColor="group-hover:bg-red-700" title="Logout" subTitle="Sign Out Securely" />
                         </div>
                     </div>
                 ) : null}
