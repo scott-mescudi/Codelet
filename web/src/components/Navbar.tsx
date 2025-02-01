@@ -1,6 +1,6 @@
 'use client'
 import Image from "next/image";
-import { useState, useRef,useEffect  } from "react";
+import { useState, useRef, useEffect } from "react";
 
 import CloseIcon from '@mui/icons-material/Close';
 import SearchIcon from '@mui/icons-material/Search';
@@ -17,12 +17,14 @@ export function Navbar() {
     useEffect(()=>{console.log(isFocused)}, [isFocused])
 
     useEffect(() => {
-        const handleKeyPress = (event: KeyboardEvent) => {
-            if (event.key === "/") {
-                event.preventDefault();
+        const handleKeyPress = (event: KeyboardEvent) => {      
+            if (!isFocused && event.key === "/") {
+                event.preventDefault(); 
                 setIsFocused(true);
                 searchRef.current?.focus();
-            } else if (event.key === "Escape") {
+            }
+         
+            if (event.key === "Escape") {
                 setIsFocused(false);
                 searchRef.current?.blur();
             }
