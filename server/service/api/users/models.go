@@ -1,9 +1,13 @@
 package users
 
-import "github.com/jackc/pgx/v5"
+import (
+	"github.com/jackc/pgx/v5"
+	"github.com/rs/zerolog"
+)
 
 type UserService struct {
-	Db *pgx.Conn
+	Db     *pgx.Conn
+	Logger zerolog.Logger
 }
 
 type UserLogin struct {

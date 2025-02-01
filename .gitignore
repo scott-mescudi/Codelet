@@ -30,6 +30,8 @@ build/
 *.test
 *.log
 
+/logs
+*.json
 # Vendor directory (if you use Go modules)
 vendor/
 

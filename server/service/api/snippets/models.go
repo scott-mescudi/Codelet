@@ -2,10 +2,12 @@ package snippets
 
 import (
 	"github.com/jackc/pgx/v5"
+	"github.com/rs/zerolog"
 )
 
 type SnippetService struct {
-	Db *pgx.Conn
+	Db     *pgx.Conn
+	Logger zerolog.Logger
 }
 
 type Snippet struct {
