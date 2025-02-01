@@ -11,12 +11,38 @@ services:
       - "3100:5433"
     volumes:
       - codelet_database-data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U admin -d codelet_database -h localhost -p 5433"]
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - codelet-network
 
+  codelet_server:
+    build:
+      context: ./server
+      target: final
+      dockerfile: Dockerfile
+    container_name: codelet_server
+    env_file:
+      - .env
+    environment:
+      - APP_PORT=:3021
+      - DATABASE_URL=postgresql://admin:password123@codelet_database:5433/codelet_database
+      - CORS_ORIGIN=*
+    ports:
+      - "3021:3021"
+    depends_on:
+      codelet_database:
+        condition: service_healthy
+    networks:
+      - codelet-network
+
+networks:
+  codelet-network:
+    driver: bridge
 
 volumes:
   codelet_database-data:
