@@ -137,7 +137,7 @@ export function Navbar() {
 
     return (
         <>
-        <div className='sm:w-1/2 mx-3  h-fit bg-black border border-white border-opacity-15  rounded-3xl'>
+        <div className='sm:w-1/2 mx-3 top-5 mb-4 sticky h-fit bg-black border border-white border-opacity-15  rounded-3xl'>
             <div className={`w-full h-16 py-2 px-5  justify-center flex flex-row  `}>
                 <div className="rounded-full h-full flex items-center justify-center aspect-square">
                     <SearchIcon fontSize="large" className="text-white opacity-50" />
