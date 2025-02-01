@@ -6,24 +6,46 @@ import CloseIcon from '@mui/icons-material/Close';
 import SearchIcon from '@mui/icons-material/Search';
 
 export function Navbar() {
-  const [inputValue, setInputValue] = useState("");
-  const searchRef = useRef<HTMLInputElement>(null)
+    const [inputValue, setInputValue] = useState<string>("");
+    const [isFocused, setIsFocused] = useState<boolean>(false)
+    const searchRef = useRef<HTMLInputElement>(null)
 
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setInputValue(event.target.value);
-  };
-
-  useEffect(() => {
-    const handleKeyPress = (event: KeyboardEvent) => {
-      if ((event.ctrlKey && event.key === "k") ) {
-        event.preventDefault(); 
-        searchRef.current?.focus();
-      }
+    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setInputValue(event.target.value);
     };
 
-    document.addEventListener("keydown", handleKeyPress);
-    return () => document.removeEventListener("keydown", handleKeyPress);
-  }, []);
+    useEffect(()=>{console.log(isFocused)}, [isFocused])
+
+    useEffect(() => {
+        const handleKeyPress = (event: KeyboardEvent) => {
+            if (event.key === "/") {
+                event.preventDefault();
+                setIsFocused(true);
+                searchRef.current?.focus();
+            } else if (event.key === "Escape") {
+                setIsFocused(false);
+                searchRef.current?.blur();
+            }
+        };
+
+        document.addEventListener("keydown", handleKeyPress);
+        return () => document.removeEventListener("keydown", handleKeyPress);
+    }, []);
+
+    useEffect(() => {
+        const checkFocus = () => {
+            setIsFocused(document.activeElement === searchRef.current)
+        }
+
+        document.addEventListener("focusin", checkFocus)
+        document.addEventListener("focusout", checkFocus)
+
+        return () => {
+            document.removeEventListener("focusin", checkFocus)
+            document.removeEventListener("focusout", checkFocus) 
+        }
+    
+    }, [])
 
 
     return (
@@ -34,10 +56,10 @@ export function Navbar() {
                     <SearchIcon fontSize="large" className="text-white opacity-50" />
                 </div>
                 <div className="w-full relative">
-                    <div className={`h-full right-0  ${inputValue == "" ? "absolute" : "hidden"}`}>
+                    <div className={`h-full right-0  ${!isFocused ? "absolute" : "hidden"}`}>
                         <div className="h-full w-fit flex justify-center items-center ">
                             <div className="py-1 px-2 bg-neutral-900 rounded-xl">
-                                <p className="text-white text-opacity-50 font-bold">Ctrl + k</p>
+                                <p className="text-white text-opacity-50 font-bold">/</p>
                             </div>
                         </div>
                     </div>
@@ -55,13 +77,9 @@ export function Navbar() {
             <div id="items" className={`${inputValue != "" ? "flex": "hidden"} max-h-96  `}>
                 <div className="p-5 overflow-auto scrollbar scrollbar-none w-full space-y-2">
                     <div className="w-full h-16 hover:scale-[102%] animate-pulse rounded-xl ease-in-out duration-200 bg-neutral-800"></div>
-
                 </div>
             </div>
         </div>
-            
-
-            {/* <div className={`w-1/2 ${inputValue != "" ? "scale-y-100": "scale-y-0"} origin-top  h-96 duration-300 ease-in-out bg-neutral-950 rounded-b-3xl`}></div> */}
         </>
     )
 }
