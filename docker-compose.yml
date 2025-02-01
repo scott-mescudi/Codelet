@@ -30,7 +30,7 @@ services:
       - .env
     environment:
       - APP_PORT=:3021
-      - DATABASE_URL=postgresql://admin:password123@codelet_database:5433/codelet_database
+      - DATABASE_URL=${DATABASE_URL}
       - CORS_ORIGIN=*
     ports:
       - "3021:3021"
