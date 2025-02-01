@@ -20,25 +20,25 @@ services:
     networks:
       - codelet-network
 
-  # codelet_server:
-  #   build:
-  #     context: ./server
-  #     target: final
-  #     dockerfile: Dockerfile
-  #   container_name: codelet_server
-  #   env_file:
-  #     - .env
-  #   environment:
-  #     - APP_PORT=:3021
-  #     - DATABASE_URL=${DATABASE_URL}
-  #     - CORS_ORIGIN=*
-  #   ports:
-  #     - "3021:3021"
-  #   depends_on:
-  #     codelet_database:
-  #       condition: service_healthy
-  #   networks:
-  #     - codelet-network
+  codelet_server:
+    build:
+      context: ./server
+      target: final
+      dockerfile: Dockerfile
+    container_name: codelet_server
+    env_file:
+      - .env
+    environment:
+      - APP_PORT=:3021
+      - DATABASE_URL=${DATABASE_URL}
+      - CORS_ORIGIN=*
+    ports:
+      - "3021:3021"
+    depends_on:
+      codelet_database:
+        condition: service_healthy
+    networks:
+      - codelet-network
 
 networks:
   codelet-network:
