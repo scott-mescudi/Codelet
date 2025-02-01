@@ -155,7 +155,7 @@ func (s *UserService) Login(w http.ResponseWriter, r *http.Request) {
 	})
 
 	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(map[string]string{"acess_token": accessToken}); err != nil {
+	if err := json.NewEncoder(w).Encode(map[string]string{"access_token": accessToken}); err != nil {
 		s.Logger.Error().Str("function", "Login").Err(err).Msg("Failed to encode response")
 		errs.ErrorWithJson(w, http.StatusInternalServerError, "Failed to generate response")
 		return

@@ -31,6 +31,8 @@ func NewCodeletServer() {
 
 	app := http.NewServeMux()
 
+
+	logger.Info().Str("Database uri", os.Getenv("DATABASE_URL")).Msg("Trying to connect to database")
 	db, err := dataAccess.ConnectToDatabase(os.Getenv("DATABASE_URL"))
 	if err != nil {
 		logger.Fatal().Err(err).Msg("Failed to connect to database")
