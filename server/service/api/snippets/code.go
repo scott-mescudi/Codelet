@@ -3,6 +3,7 @@ package snippets
 import (
 	"net/http"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -65,7 +66,7 @@ func (s *SnippetService) AddSnippet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := dba.AddSnippet(s.Db, userID, info.Language, info.Description, info.Title, info.Code, info.Private, info.Tags, time.Now(), time.Now()); err != nil {
+	if err := dba.AddSnippet(s.Db, userID, info.Language, info.Description, info.Title, info.Code, info.Private, info.Favorite, info.Tags, time.Now(), time.Now()); err != nil {
 		errs.ErrorWithJson(w, http.StatusInternalServerError, "failed to add snippet to database")
 		return
 	}
@@ -181,6 +182,27 @@ func (s *SnippetService) GetPublicSnippets(w http.ResponseWriter, r *http.Reques
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(snippets); err != nil {
 		errs.ErrorWithJson(w, http.StatusInternalServerError, "failed to encode snippets as JSON")
+		return
+	}
+}
+
+func (s *SnippetService) DeleteSnippet(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+	path := r.URL.Path
+	idString := strings.TrimPrefix(path, "/api/v1/user/snippets/")
+	id, err := strconv.Atoi(idString)
+	if err != nil {
+		errs.ErrorWithJson(w, http.StatusUnprocessableEntity, "failed to parse snippet id in uri")
+		return
+	}
+
+	if id <= 0 {
+		errs.ErrorWithJson(w, http.StatusBadRequest, "Snippet id must be a positive integer")
+		return
+	}
+
+	if err := dba.DeleteSnippet(s.Db, id); err != nil {
+		errs.ErrorWithJson(w, http.StatusInternalServerError, "failed to delete snippet")
 		return
 	}
 }

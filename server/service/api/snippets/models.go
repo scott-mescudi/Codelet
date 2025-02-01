@@ -12,12 +12,8 @@ type Snippet struct {
 	Language    string   `json:"language"`
 	Title       string   `json:"title"`
 	Code        string   `json:"code"`
+	Favorite    bool     `json:"favorite"`
 	Private     bool     `json:"private"`
 	Tags        []string `json:"tags"`
 	Description string   `json:"description"`
-}
-
-type DeleteSnippet struct {
-	Id     int `json:"id"`
-	Userid int `json:"userid"`
 }

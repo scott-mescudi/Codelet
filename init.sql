@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS snippets (
   id SERIAL PRIMARY KEY,
   userid INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   language VARCHAR(50) NOT NULL,
+  favorite boolean DEFAULT false,
   title VARCHAR(255) NOT NULL UNIQUE,
   code BYTEA NOT NULL,
   description TEXT,

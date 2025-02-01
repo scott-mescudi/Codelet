@@ -28,10 +28,11 @@ func NewCodeletServer() {
 		"update_user_password":      `UPDATE users SET password_hash=$1 WHERE id=$2`,
 		"add_refresh_token":         `UPDATE users SET refresh_token=$1 WHERE id=$2`,
 		"get_refresh_token":         `SELECT refresh_token FROM users WHERE id=$1`,
-		"add_snippet":               `INSERT INTO snippets(userid, language, title, code, description, private, tags, created, updated) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
-		"get_all_snippet_by_userid": `SELECT id, language, title, code, description, private, tags, created, updated FROM snippets WHERE userid=$1`,
-		"get_snippet_by_userid":     `SELECT id, language, title, code, description, private, tags, created, updated FROM snippets WHERE userid=$1 LIMIT $2 OFFSET $3`,
-		"get_public_snippet":        `SELECT id, language, title, code, description, private, tags, created, updated FROM snippets WHERE private=false LIMIT $1 OFFSET $2`,
+		"add_snippet":               `INSERT INTO snippets(userid, language, title, code, description, private, tags, created, updated, favorite) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+		"get_all_snippet_by_userid": `SELECT id, language, title, code, description, private, tags, created, updated, favorite FROM snippets WHERE userid=$1`,
+		"get_snippet_by_userid":     `SELECT id, language, title, code, description, private, tags, created, updated, favorite FROM snippets WHERE userid=$1 LIMIT $2 OFFSET $3`,
+		"get_public_snippet":        `SELECT id, language, title, code, description, private, tags, created, updated, favorite FROM snippets WHERE private=false LIMIT $1 OFFSET $2`,
+		"delete_snippet":            `DELETE FROM snippets WHERE id=$1`,
 	}
 
 	db, err = dataAccess.PrepareStatements(query, db)
@@ -52,7 +53,9 @@ func NewCodeletServer() {
 	app.HandleFunc("GET /api/v1/refresh", srv.Refresh)
 	app.Handle("POST /api/v1/update/password", middleware.AuthMiddleware(srv.ChangePassword))
 	app.Handle("POST /api/v1/logout", middleware.AuthMiddleware(srv.Logout))
+
 	app.Handle("POST /api/v1/user/snippets", middleware.AuthMiddleware(srv2.AddSnippet))
+	app.Handle("DELETE /api/v1/user/snippets/{id}", middleware.AuthMiddleware(srv2.DeleteSnippet))
 	app.Handle("GET /api/v1/user/snippets", middleware.AuthMiddleware(srv2.GetUserSnippets))
 	app.HandleFunc("GET /api/v1/public/snippets", srv2.GetPublicSnippets)
 
