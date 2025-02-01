@@ -164,7 +164,6 @@ func (s *UserService) Login(w http.ResponseWriter, r *http.Request) {
 	s.Logger.Info().Str("function", "Login").Str("origin", r.RemoteAddr).Msg("User logged in successfully")
 }
 
-
 func (s *UserService) Refresh(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	cookie, err := r.Cookie("CODELET-JWT-REFRESH-TOKEN")
@@ -240,7 +239,6 @@ func (s *UserService) Refresh(w http.ResponseWriter, r *http.Request) {
 	s.Logger.Info().Str("function", "Refresh").Str("origin", r.RemoteAddr).Msg("Refresh token successfully renewed")
 	w.WriteHeader(http.StatusOK)
 }
-
 
 func (s *UserService) Logout(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()

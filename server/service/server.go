@@ -29,7 +29,7 @@ func NewCodeletServer() {
 
 	db, err := dataAccess.ConnectToDatabase(os.Getenv("DATABASE_URL"))
 	if err != nil {
-		fmt.Println(err)
+		logger.Fatal().Err(err).Msg("Failed to connect to database")
 		return
 	}
 	defer db.Close(context.Background())
@@ -50,9 +50,11 @@ func NewCodeletServer() {
 
 	db, err = dataAccess.PrepareStatements(query, db)
 	if err != nil {
-		fmt.Println(err)
+		logger.Fatal().Err(err).Msg("Failed to prepared SQL statements")
 		return
 	}
+
+	logger.Info().Msg("Prepared SQL statements")
 
 	srv := userMethods.UserService{Db: db}
 	srv2 := snippetMethods.SnippetService{Db: db, Logger: logger}
@@ -73,6 +75,7 @@ func NewCodeletServer() {
 	app.Handle("GET /api/v1/user/snippets", middleware.AuthMiddleware(srv2.GetUserSnippets))
 	app.HandleFunc("GET /api/v1/public/snippets", srv2.GetPublicSnippets)
 
+	logger.Info().Msg(fmt.Sprintf("Server started on port %v", os.Getenv("APP_PORT")))
 	if err := http.ListenAndServe(os.Getenv("APP_PORT"), app); err != nil {
 		fmt.Println(err)
 		return
