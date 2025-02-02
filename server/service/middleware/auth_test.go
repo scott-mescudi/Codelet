@@ -8,7 +8,6 @@ import (
 	"time"
 
 	auth "github.com/scott-mescudi/codelet/shared/auth"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestAuthMiddleware(t *testing.T) {
@@ -68,10 +67,14 @@ func TestAuthMiddleware(t *testing.T) {
 			}))
 			handler.ServeHTTP(rw, req)
 
-			assert.Equal(t, tt.expectCode, rw.Code)
+			if rw.Code != tt.expectCode {
+				t.Error("Codes dont match")
+			}
 
 			if tt.expectCode == http.StatusOK {
-				assert.Equal(t, strconv.Itoa(tt.userID), req.Header.Get("X-USERID"))
+				if strconv.Itoa(tt.userID) != req.Header.Get("X-USERID"){
+					t.Errorf("Expected userID %d but got %s", tt.userID, req.Header.Get("X-USERID"))
+				}
 			}
 		})
 	}
