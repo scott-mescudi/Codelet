@@ -43,10 +43,7 @@ db, err = dataAccess.PrepareStatements(query, db)
 export default function Home() {
   return (
     <>
-    <div className="sm:w-full flex flex-col gap-5 sm:p-x0 w-full px-5">
-      <div className="h-screen w-full bg-neutral-black border border-opacity-15 border-white rounded-2xl"></div>
-      <div className="h-screen w-full bg-neutral-black border border-opacity-15 border-white rounded-2xl"></div>
-    </div>
+  
     </>
   );
 }
