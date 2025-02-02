@@ -371,7 +371,7 @@ func TestRefresh(t *testing.T) {
 			t.Fatal("No cookies set in login response")
 		}
 
-		refreshReq := httptest.NewRequest("POST", "/api/v1/refresh", nil)
+		refreshReq := httptest.NewRequest("GET", "/api/v1/refresh", nil)
 		refreshRec := httptest.NewRecorder()
 
 		app.Refresh(refreshRec, refreshReq)
@@ -386,7 +386,7 @@ func TestRefresh(t *testing.T) {
 			t.Fatal("No cookies set in login response")
 		}
 
-		refreshReq := httptest.NewRequest("POST", "/api/v1/refresh", nil)
+		refreshReq := httptest.NewRequest("GET", "/api/v1/refresh", nil)
 		refreshReq.Header.Set("Authorization", info.Token)
 		for _, cookie := range cookies {
 			refreshReq.AddCookie(cookie)
@@ -457,5 +457,94 @@ func TestLogout(t *testing.T) {
 			t.Fatal("Failed to delete cookie")
 		}
 	})
-	
+
+}
+
+func TestChangePassword(t *testing.T) {
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte("hashedpassword123"), bcrypt.DefaultCost)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	conn, clean, err := setupTestDB(fmt.Sprintf(`INSERT INTO users (username, email, role, password_hash) VALUES ('fakeuser', 'fakeuser@example.com', 'user', '%s');`, string(hashedPassword)))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer clean()
+
+	app := &UserService{Db: conn, Logger: zerolog.New(os.Stdout)}
+
+	body, err := json.Marshal(UserLogin{Email: "fakeuser@example.com", Password: "hashedpassword123"})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	loginReq := httptest.NewRequest("POST", "/api/v1/login", bytes.NewReader(body))
+	loginReq.Header.Set("Content-Type", "application/json")
+	loginRec := httptest.NewRecorder()
+
+	app.Login(loginRec, loginReq)
+
+	var rr struct {
+		Token string `json:"access_token"`
+	}
+
+	if err := json.NewDecoder(loginRec.Body).Decode(&rr); err != nil {
+		t.Fatal(err)
+	}
+
+	tests := []struct {
+		name string
+		info ChangePassword
+		expected int
+	}{
+		{
+			name: "Valid Change",
+			info: ChangePassword{
+				OldPassword: "hashedpassword123",
+				NewPassword: "sigma",
+			},
+			expected: http.StatusOK,
+		},
+		{
+			name: "Invalid oldpassword",
+			info: ChangePassword{
+				OldPassword: "sigmas",
+				NewPassword: "lokoms",
+			},
+			expected: http.StatusUnauthorized,
+		},
+		{
+			name: "Empty fields",
+			info: ChangePassword{
+				OldPassword: "",
+				NewPassword: "",
+			},
+			expected: http.StatusBadRequest,
+		},
+	}
+
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			body, err := json.Marshal(tt.info)
+			if err != nil {
+				t.Fatal(err)
+			}
+			
+			Req := httptest.NewRequest("POST", "/api/v1/update/password", bytes.NewReader(body))
+			Req.Header.Set("Content-Type", "application/json")
+			Req.Header.Set("Authorization", rr.Token)
+			Req.Header.Set("X-USERID", "1")
+			Rec := httptest.NewRecorder()	
+
+			
+			app.ChangePassword(Rec, Req)
+			
+			if Rec.Code != tt.expected {
+				t.Errorf("Expected status %v, got %v", tt.expected, Rec.Code)
+			}
+		})
+	}
+
 }

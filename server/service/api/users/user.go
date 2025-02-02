@@ -317,7 +317,7 @@ func (s *UserService) ChangePassword(w http.ResponseWriter, r *http.Request) {
 
 	if err := bcrypt.CompareHashAndPassword([]byte(passwordHash), []byte(info.OldPassword)); err != nil {
 		s.Logger.Warn().Str("function", "ChangePassword").Str("origin", r.RemoteAddr).Msg("Old password does not match")
-		w.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
