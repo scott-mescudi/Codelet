@@ -20,9 +20,9 @@ func TestAuthMiddleware(t *testing.T) {
 		userID     int
 	}{
 		{
-			name:  "Valid Token",
+			name: "Valid Token",
 			setupAuth: func() (string, error) {
-				return auth.GenerateHMac(123, ACCESS, time.Now().Add(2 * time.Minute)), nil 
+				return auth.GenerateHMac(123, ACCESS, time.Now().Add(2*time.Minute)), nil
 			},
 			expectCode: http.StatusOK,
 			userID:     123,
@@ -33,16 +33,16 @@ func TestAuthMiddleware(t *testing.T) {
 			expectCode: http.StatusForbidden,
 		},
 		{
-			name:  "Invalid Token",
+			name: "Invalid Token",
 			setupAuth: func() (string, error) {
 				return "invalid.token.string", nil
 			},
 			expectCode: http.StatusForbidden,
 		},
 		{
-			name:  "Wrong Token Type",
+			name: "Wrong Token Type",
 			setupAuth: func() (string, error) {
-				return auth.GenerateHMac(123, REFRESH, time.Now().Add(2 * time.Minute)), nil // Wrong token type
+				return auth.GenerateHMac(123, REFRESH, time.Now().Add(2*time.Minute)), nil // Wrong token type
 			},
 			expectCode: http.StatusForbidden,
 		},

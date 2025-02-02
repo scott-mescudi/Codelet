@@ -494,8 +494,8 @@ func TestChangePassword(t *testing.T) {
 	}
 
 	tests := []struct {
-		name string
-		info ChangePassword
+		name     string
+		info     ChangePassword
 		expected int
 	}{
 		{
@@ -524,23 +524,21 @@ func TestChangePassword(t *testing.T) {
 		},
 	}
 
-
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			body, err := json.Marshal(tt.info)
 			if err != nil {
 				t.Fatal(err)
 			}
-			
+
 			Req := httptest.NewRequest("POST", "/api/v1/update/password", bytes.NewReader(body))
 			Req.Header.Set("Content-Type", "application/json")
 			Req.Header.Set("Authorization", rr.Token)
 			Req.Header.Set("X-USERID", "1")
-			Rec := httptest.NewRecorder()	
+			Rec := httptest.NewRecorder()
 
-			
 			app.ChangePassword(Rec, Req)
-			
+
 			if Rec.Code != tt.expected {
 				t.Errorf("Expected status %v, got %v", tt.expected, Rec.Code)
 			}
