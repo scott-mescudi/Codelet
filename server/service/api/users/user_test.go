@@ -365,6 +365,21 @@ func TestRefresh(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	t.Run("Missing Refresh token", func(t *testing.T) {
+		cookies := loginRec.Result().Cookies()
+		if len(cookies) == 0 {
+			t.Fatal("No cookies set in login response")
+		}
+
+		refreshReq := httptest.NewRequest("POST", "/api/v1/refresh", nil)
+		refreshRec := httptest.NewRecorder()
+
+		app.Refresh(refreshRec, refreshReq)
+		if refreshRec.Code != http.StatusUnauthorized {
+			t.Errorf("Expected 200 got %v", refreshRec.Code)
+		}
+	})
+
 	t.Run("Valid Refresh", func(t *testing.T) {
 		cookies := loginRec.Result().Cookies()
 		if len(cookies) == 0 {
@@ -383,4 +398,64 @@ func TestRefresh(t *testing.T) {
 			t.Errorf("Expected 200 got %v", refreshRec.Code)
 		}
 	})
+}
+
+func TestLogout(t *testing.T) {
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte("hashedpassword123"), bcrypt.DefaultCost)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	conn, clean, err := setupTestDB(fmt.Sprintf(`INSERT INTO users (username, email, role, password_hash) VALUES ('fakeuser', 'fakeuser@example.com', 'user', '%s');`, string(hashedPassword)))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer clean()
+
+	app := &UserService{Db: conn, Logger: zerolog.New(os.Stdout)}
+
+	body, err := json.Marshal(UserLogin{Email: "fakeuser@example.com", Password: "hashedpassword123"})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	loginReq := httptest.NewRequest("POST", "/api/v1/login", bytes.NewReader(body))
+	loginReq.Header.Set("Content-Type", "application/json")
+	loginRec := httptest.NewRecorder()
+
+	app.Login(loginRec, loginReq)
+
+	var info struct {
+		Token string `json:"access_token"`
+	}
+
+	if err := json.NewDecoder(loginRec.Body).Decode(&info); err != nil {
+		t.Fatal(err)
+	}
+
+	t.Run("Valid logout", func(t *testing.T) {
+		cookies := loginRec.Result().Cookies()
+		logoutReq := httptest.NewRequest("POST", "/api/v1/logout", nil)
+		logoutReq.Header.Set("Content-Type", "application/json")
+		logoutRec := httptest.NewRecorder()
+
+		for _, cookie := range cookies {
+			logoutReq.AddCookie(cookie)
+		}
+
+		app.Logout(logoutRec, logoutReq)
+
+		var cookie string
+		row := conn.QueryRow(context.Background(), "SELECT access_token FROM users WHERE id=1")
+		row.Scan(&cookie)
+
+		if cookie != "" {
+			t.Fatal("Failed to delete cookie in database")
+		}
+
+		if len(logoutRec.Result().Cookies()) != 0 {
+			t.Fatal("Failed to delete cookie")
+		}
+	})
+	
 }
