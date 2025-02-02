@@ -15,6 +15,7 @@ import (
 	_ "github.com/lib/pq"
 	"github.com/rs/zerolog"
 	dba "github.com/scott-mescudi/codelet/service/data_access"
+	"github.com/scott-mescudi/codelet/service/middleware"
 	"github.com/testcontainers/testcontainers-go/modules/postgres"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -443,7 +444,8 @@ func TestLogout(t *testing.T) {
 			logoutReq.AddCookie(cookie)
 		}
 
-		app.Logout(logoutRec, logoutReq)
+		handler := middleware.AuthMiddleware(http.HandlerFunc(app.Logout))
+		handler.ServeHTTP(loginRec, logoutReq)
 
 		var cookie string
 		row := conn.QueryRow(context.Background(), "SELECT access_token FROM users WHERE id=1")
@@ -534,10 +536,10 @@ func TestChangePassword(t *testing.T) {
 			Req := httptest.NewRequest("POST", "/api/v1/update/password", bytes.NewReader(body))
 			Req.Header.Set("Content-Type", "application/json")
 			Req.Header.Set("Authorization", rr.Token)
-			Req.Header.Set("X-USERID", "1")
 			Rec := httptest.NewRecorder()
 
-			app.ChangePassword(Rec, Req)
+			handler := middleware.AuthMiddleware(http.HandlerFunc(app.ChangePassword))
+			handler.ServeHTTP(Rec, Req)
 
 			if Rec.Code != tt.expected {
 				t.Errorf("Expected status %v, got %v", tt.expected, Rec.Code)

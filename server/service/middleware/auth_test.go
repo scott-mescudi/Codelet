@@ -72,7 +72,7 @@ func TestAuthMiddleware(t *testing.T) {
 			}
 
 			if tt.expectCode == http.StatusOK {
-				if strconv.Itoa(tt.userID) != req.Header.Get("X-USERID"){
+				if strconv.Itoa(tt.userID) != req.Header.Get("X-USERID") {
 					t.Errorf("Expected userID %d but got %s", tt.userID, req.Header.Get("X-USERID"))
 				}
 			}
