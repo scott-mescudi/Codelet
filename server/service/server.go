@@ -1,7 +1,6 @@
 package server
 
 import (
-	"context"
 	"fmt"
 
 	"net/http"
@@ -38,29 +37,24 @@ func NewCodeletServer() {
 		logger.Fatal().Err(err).Msg("Failed to connect to database")
 		return
 	}
-	defer db.Close(context.Background())
+	defer db.Close()
+	logger.Info().Msg("Connected to database")
 
-	query := map[string]string{
-		"add_user":                  `INSERT INTO users(username, email, role, password_hash) VALUES($1, $2, $3, $4)`,
-		"get_user_password":         `SELECT password_hash, id FROM users WHERE email=$1`,
-		"get_user_password_via_id":  `SELECT password_hash FROM users WHERE id=$1`,
-		"update_user_password":      `UPDATE users SET password_hash=$1 WHERE id=$2`,
-		"add_refresh_token":         `UPDATE users SET refresh_token=$1 WHERE id=$2`,
-		"get_refresh_token":         `SELECT refresh_token FROM users WHERE id=$1`,
-		"add_snippet":               `INSERT INTO snippets(userid, language, title, code, description, private, tags, created, updated, favorite) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
-		"get_all_snippet_by_userid": `SELECT id, language, title, code, description, private, tags, created, updated, favorite FROM snippets WHERE userid=$1`,
-		"get_snippet_by_userid":     `SELECT id, language, title, code, description, private, tags, created, updated, favorite FROM snippets WHERE userid=$1 LIMIT $2 OFFSET $3`,
-		"get_public_snippet":        `SELECT id, language, title, code, description, private, tags, created, updated, favorite FROM snippets WHERE private=false LIMIT $1 OFFSET $2`,
-		"delete_snippet":            `DELETE FROM snippets WHERE id=$1`,
-	}
+	// query := map[string]string{
+	// 	"add_user":                  `INSERT INTO users(username, email, role, password_hash) VALUES($1, $2, $3, $4)`,
+	// 	"get_user_password":         `SELECT password_hash, id FROM users WHERE email=$1`,
+	// 	"get_user_password_via_id":  `SELECT password_hash FROM users WHERE id=$1`,
+	// 	"update_user_password":      `UPDATE users SET password_hash=$1 WHERE id=$2`,
+	// 	"add_refresh_token":         `UPDATE users SET refresh_token=$1 WHERE id=$2`,
+	// 	"get_refresh_token":         `SELECT refresh_token FROM users WHERE id=$1`,
+	// 	"add_snippet":               `INSERT INTO snippets(userid, language, title, code, description, private, tags, created, updated, favorite) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+	// 	"get_all_snippet_by_userid": `SELECT id, language, title, code, description, private, tags, created, updated, favorite FROM snippets WHERE userid=$1`,
+	// 	"get_snippet_by_userid":     `SELECT id, language, title, code, description, private, tags, created, updated, favorite FROM snippets WHERE userid=$1 LIMIT $2 OFFSET $3`,
+	// 	"get_public_snippet":        `SELECT id, language, title, code, description, private, tags, created, updated, favorite FROM snippets WHERE private=false LIMIT $1 OFFSET $2`,
+	// 	"delete_snippet":            `DELETE FROM snippets WHERE id=$1`,
+	// }
 
-	db, err = dataAccess.PrepareStatements(query, db)
-	if err != nil {
-		logger.Fatal().Err(err).Msg("Failed to prepared SQL statements")
-		return
-	}
 
-	logger.Info().Msg("Prepared SQL statements")
 
 	srv := userMethods.UserService{Db: db}
 	srv2 := snippetMethods.SnippetService{Db: db, Logger: logger}

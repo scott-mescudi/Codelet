@@ -2,18 +2,19 @@ package dataaccess
 
 import (
 	"context"
-	"github.com/jackc/pgx/v5"
-	cmp "github.com/scott-mescudi/codelet/shared/compression"
 	"time"
+
+	"github.com/jackc/pgx/v5/pgxpool"
+	cmp "github.com/scott-mescudi/codelet/shared/compression"
 )
 
-func AddSnippet(dbConn *pgx.Conn, userID int, language, description, title string, code string, private, favorite bool, tags []string, created time.Time, updated time.Time) error {
+func AddSnippet(dbConn *pgxpool.Pool, userID int, language, description, title string, code string, private, favorite bool, tags []string, created time.Time, updated time.Time) error {
 	compressed, err := cmp.CompressZSTD([]byte(code))
 	if err != nil {
 		return err
 	}
 
-	_, err = dbConn.Exec(context.Background(), "add_snippet", userID, language, title, compressed, description, private, tags, created, updated, favorite)
+	_, err = dbConn.Exec(context.Background(), "INSERT INTO snippets(userid, language, title, code, description, private, tags, created, updated, favorite) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)", userID, language, title, compressed, description, private, tags, created, updated, favorite)
 	if err != nil {
 		return err
 	}
@@ -21,9 +22,9 @@ func AddSnippet(dbConn *pgx.Conn, userID int, language, description, title strin
 	return nil
 }
 
-func GetSnippetsByUserID(dbConn *pgx.Conn, userID, limit, offset int) ([]DBsnippet, error) {
+func GetSnippetsByUserID(dbConn *pgxpool.Pool, userID, limit, offset int) ([]DBsnippet, error) {
 	var data []DBsnippet
-	rows, err := dbConn.Query(context.Background(), "get_snippet_by_userid", userID, limit, offset)
+	rows, err := dbConn.Query(context.Background(), "SELECT id, language, title, code, description, private, tags, created, updated, favorite FROM snippets WHERE userid=$1 LIMIT $2 OFFSET $3", userID, limit, offset)
 	if err != nil {
 		return nil, err
 	}
@@ -54,9 +55,9 @@ func GetSnippetsByUserID(dbConn *pgx.Conn, userID, limit, offset int) ([]DBsnipp
 
 }
 
-func GetAllSnippetsByUserID(dbConn *pgx.Conn, userID int) ([]DBsnippet, error) {
+func GetAllSnippetsByUserID(dbConn *pgxpool.Pool, userID int) ([]DBsnippet, error) {
 	var data []DBsnippet
-	rows, err := dbConn.Query(context.Background(), "get_all_snippet_by_userid", userID)
+	rows, err := dbConn.Query(context.Background(), "SELECT id, language, title, code, description, private, tags, created, updated, favorite FROM snippets WHERE userid=$1", userID)
 	if err != nil {
 		return nil, err
 	}
@@ -87,9 +88,9 @@ func GetAllSnippetsByUserID(dbConn *pgx.Conn, userID int) ([]DBsnippet, error) {
 
 }
 
-func GetPublicSnippets(dbConn *pgx.Conn, limit, offset int) ([]DBsnippet, error) {
+func GetPublicSnippets(dbConn *pgxpool.Pool, limit, offset int) ([]DBsnippet, error) {
 	var data []DBsnippet
-	rows, err := dbConn.Query(context.Background(), "get_public_snippet", limit, offset)
+	rows, err := dbConn.Query(context.Background(), "SELECT id, language, title, code, description, private, tags, created, updated, favorite FROM snippets WHERE private=false LIMIT $1 OFFSET $2", limit, offset)
 	if err != nil {
 		return nil, err
 	}
@@ -120,14 +121,14 @@ func GetPublicSnippets(dbConn *pgx.Conn, limit, offset int) ([]DBsnippet, error)
 
 }
 
-func DeleteSnippet(dbConn *pgx.Conn, snippetID int) error {
+func DeleteSnippet(dbConn *pgxpool.Pool, snippetID int) error {
 	tx, err := dbConn.Begin(context.Background())
 	if err != nil {
 		return err
 	}
 	defer tx.Rollback(context.Background())
 
-	_, err = dbConn.Exec(context.Background(), "delete_snippet", snippetID)
+	_, err = dbConn.Exec(context.Background(), "DELETE FROM snippets WHERE id=$1", snippetID)
 	if err != nil {
 		return err
 	}

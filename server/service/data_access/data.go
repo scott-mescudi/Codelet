@@ -2,35 +2,34 @@ package dataaccess
 
 import (
 	"context"
+	"fmt"
 
-	"github.com/jackc/pgx/v5"
+
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func ConnectToDatabase(postgresURI string) (*pgx.Conn, error) {
-	conn, err := pgx.Connect(context.Background(), postgresURI)
+func ConnectToDatabase(postgresURI string) (*pgxpool.Pool, error) {
+	config, err := pgxpool.ParseConfig(postgresURI)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("unable to parse database URL: %w", err)
 	}
 
-	if err := conn.Ping(context.Background()); err != nil {
-		return nil, err
+	dbPool, err := pgxpool.NewWithConfig(context.Background(), config)
+	if err != nil {
+		return nil, fmt.Errorf("unable to create connection pool: %w", err)
 	}
 
-	return conn, nil
+	// Ensure the database is reachable
+	if err := dbPool.Ping(context.Background()); err != nil {
+		dbPool.Close()
+		return nil, fmt.Errorf("unable to ping database: %w", err)
+	}
+
+	return dbPool, nil
 }
 
-func PrepareStatements(queries map[string]string, conn *pgx.Conn) (*pgx.Conn, error) {
-	for name, query := range queries {
-		_, err := conn.Prepare(context.Background(), name, query)
-		if err != nil {
-			return nil, err
-		}
-	}
-	return conn, nil
-}
-
-func AddUser(dbConn *pgx.Conn, username, email, role, password string) error {
-	_, err := dbConn.Exec(context.Background(), "add_user", username, email, role, password)
+func AddUser(dbConn *pgxpool.Pool, username, email, role, password string) error {
+	_, err := dbConn.Exec(context.Background(), "INSERT INTO users(username, email, role, password_hash) VALUES($1, $2, $3, $4)", username, email, role, password)
 	if err != nil {
 		return err
 	}
@@ -38,10 +37,10 @@ func AddUser(dbConn *pgx.Conn, username, email, role, password string) error {
 	return nil
 }
 
-func GetUserPasswordHash(dbConn *pgx.Conn, email string) (int, string, error) {
+func GetUserPasswordHash(dbConn *pgxpool.Pool, email string) (int, string, error) {
 	var id int
 	var hash string
-	row := dbConn.QueryRow(context.Background(), "get_user_password", email)
+	row := dbConn.QueryRow(context.Background(), "SELECT password_hash, id FROM users WHERE email=$1", email)
 	if err := row.Scan(&hash, &id); err != nil {
 		return -1, "", err
 	}
@@ -49,9 +48,9 @@ func GetUserPasswordHash(dbConn *pgx.Conn, email string) (int, string, error) {
 	return id, hash, nil
 }
 
-func GetUserPasswordHashViaID(dbConn *pgx.Conn, id int) (string, error) {
+func GetUserPasswordHashViaID(dbConn *pgxpool.Pool, id int) (string, error) {
 	var hash string
-	row := dbConn.QueryRow(context.Background(), "get_user_password_via_id", id)
+	row := dbConn.QueryRow(context.Background(), "SELECT password_hash FROM users WHERE id=$1", id)
 	if err := row.Scan(&hash); err != nil {
 		return "", err
 	}
@@ -59,8 +58,8 @@ func GetUserPasswordHashViaID(dbConn *pgx.Conn, id int) (string, error) {
 	return hash, nil
 }
 
-func UpdatePassword(dbConn *pgx.Conn, passwordHash string, userID int) error {
-	_, err := dbConn.Exec(context.Background(), "update_user_password", passwordHash, userID)
+func UpdatePassword(dbConn *pgxpool.Pool, passwordHash string, userID int) error {
+	_, err := dbConn.Exec(context.Background(), "UPDATE users SET password_hash=$1 WHERE id=$2", passwordHash, userID)
 	if err != nil {
 		return err
 	}
@@ -68,8 +67,8 @@ func UpdatePassword(dbConn *pgx.Conn, passwordHash string, userID int) error {
 	return nil
 }
 
-func AddRefreshToken(dbConn *pgx.Conn, acessToken string, userID int) error {
-	_, err := dbConn.Exec(context.Background(), "add_refresh_token", acessToken, userID)
+func AddRefreshToken(dbConn *pgxpool.Pool, acessToken string, userID int) error {
+	_, err := dbConn.Exec(context.Background(), "UPDATE users SET refresh_token=$1 WHERE id=$2", acessToken, userID)
 	if err != nil {
 		return err
 	}
@@ -77,9 +76,9 @@ func AddRefreshToken(dbConn *pgx.Conn, acessToken string, userID int) error {
 	return nil
 }
 
-func GetRefreshToken(dbConn *pgx.Conn, userID int) (string, error) {
+func GetRefreshToken(dbConn *pgxpool.Pool, userID int) (string, error) {
 	var refreshToken string
-	row := dbConn.QueryRow(context.Background(), "get_refresh_token", userID)
+	row := dbConn.QueryRow(context.Background(), "SELECT refresh_token FROM users WHERE id=$1", userID)
 	if err := row.Scan(&refreshToken); err != nil {
 		return "", err
 	}
