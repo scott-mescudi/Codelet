@@ -101,27 +101,86 @@ func TestSignup(t *testing.T) {
 
 	app := &UserService{Db: conn, Logger: zerolog.New(os.Stdout)}
 
-	user := UserSignup{
-		Username: "jacky",
-		Email:    "sigma@sigma.com",
-		Password: "flstudiosucks",
-		Role:     "admin",
+	validTests := []struct {
+		name     string
+		user     UserSignup
+		expected int
+	}{
+		{
+			name: "Valid user",
+			user: UserSignup{
+				Username: "jacky",
+				Email:    "sigma@sigma.com",
+				Password: "flstudiosucks",
+				Role:     "admin",
+			},
+
+			expected: http.StatusCreated,
+		},
+		{
+			name: "Invalid email",
+			user: UserSignup{
+				Username: "j",
+				Email:    "sigma@.com",
+				Password: "flstudiosucks",
+				Role:     "admin",
+			},
+
+			expected: http.StatusBadRequest,
+		},
+		{
+			name: "Missing password",
+			user: UserSignup{
+				Username: "jacky",
+				Email:    "sigma@sigma.com",
+				Password: "",
+				Role:     "admin",
+			},
+
+			expected: http.StatusBadRequest,
+		},
+		{
+			name: "Missing username",
+			user: UserSignup{
+				Username: "",
+				Email:    "sigma@sigma.com",
+				Password: "ksghd",
+				Role:     "admin",
+			},
+
+			expected: http.StatusBadRequest,
+		},
+		{
+			name: "Missing role",
+			user: UserSignup{
+				Username: "dsnf",
+				Email:    "sigma@sigma.com",
+				Password: "skdj",
+				Role:     "",
+			},
+
+			expected: http.StatusBadRequest,
+		},
 	}
 
-	body, err := json.Marshal(user)
-	if err != nil {
-		t.Error(err)
-		return
-	}
+	for _, tt := range validTests {
+		t.Run(tt.name, func(t *testing.T) {
+			body, err := json.Marshal(tt.user)
+			if err != nil {
+				t.Error(err)
+				return
+			}
 
-	req := httptest.NewRequest("POST", "/api/v1/register", bytes.NewReader(body))
-	req.Header.Set("Content-Type", "application/json")
-	rec := httptest.NewRecorder()
+			req := httptest.NewRequest("POST", "/api/v1/register", bytes.NewReader(body))
+			req.Header.Set("Content-Type", "application/json")
+			rec := httptest.NewRecorder()
 
-	app.Signup(rec, req)
+			app.Signup(rec, req)
 
-	if rec.Code != http.StatusCreated {
-		t.Errorf("Expected status CREATED, got %v", rec.Code)
+			if rec.Code != tt.expected {
+				t.Errorf("Expected status %v, got %v", tt.expected, rec.Code)
+			}
+		})
 	}
 
 	defer clean()
