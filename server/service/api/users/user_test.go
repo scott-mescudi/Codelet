@@ -93,7 +93,7 @@ func setupTestDB(testData string) (*pgxpool.Pool, func(), error) {
 }
 
 func TestSignup(t *testing.T) {
-	conn, clean, err := setupTestDB(``)
+	conn, clean, err := setupTestDB(`INSERT INTO users (username, email, role, password_hash) VALUES ('fakeuser', 'fakeuser@example.com', 'user', 'hashedpassword123');`)
 	if err != nil {
 		t.Error(err)
 		return
@@ -145,7 +145,7 @@ func TestSignup(t *testing.T) {
 				Username: "",
 				Email:    "sigma@sigma.com",
 				Password: "ksghd",
-				Role:     "admin",
+				Role:     "user",
 			},
 
 			expected: http.StatusBadRequest,
@@ -157,6 +157,17 @@ func TestSignup(t *testing.T) {
 				Email:    "sigma@sigma.com",
 				Password: "skdj",
 				Role:     "",
+			},
+
+			expected: http.StatusBadRequest,
+		},
+		{
+			name: "Conflict",
+			user: UserSignup{
+				Username: "fakeuser",
+				Email:    "fakeuser@example.com",
+				Password: "hashedpassword123",
+				Role:     "admin",
 			},
 
 			expected: http.StatusBadRequest,
@@ -182,6 +193,43 @@ func TestSignup(t *testing.T) {
 			}
 		})
 	}
+
+
+	t.Run("Malformed json", func(t *testing.T) {
+		body, err := json.Marshal("")
+		if err != nil {
+			t.Error(err)
+			return
+		}
+
+		req := httptest.NewRequest("POST", "/api/v1/register", bytes.NewReader(body))
+		req.Header.Set("Content-Type", "application/json")
+		rec := httptest.NewRecorder()
+
+		app.Signup(rec, req)
+
+		if rec.Code != http.StatusUnprocessableEntity {
+			t.Errorf("Expected status %v, got %v", http.StatusUnprocessableEntity, rec.Code)
+		}
+	})
+
+	t.Run("Invalid Content-Type", func(t *testing.T) {
+		body, err := json.Marshal("")
+		if err != nil {
+			t.Error(err)
+			return
+		}
+
+		req := httptest.NewRequest("POST", "/api/v1/register", bytes.NewReader(body))
+		req.Header.Set("Content-Type", "text/plain")
+		rec := httptest.NewRecorder()
+
+		app.Signup(rec, req)
+
+		if rec.Code != http.StatusUnprocessableEntity {
+			t.Errorf("Expected status %v, got %v", http.StatusUnprocessableEntity, rec.Code)
+		}
+	})
 
 	defer clean()
 }

@@ -41,7 +41,7 @@ func (s *UserService) Signup(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	if r.Header.Get("Content-Type") != "application/json" {
 		s.Logger.Warn().Str("function", "Signup").Str("origin", r.RemoteAddr).Msg("Invalid Content-Type, expected application/json")
-		errs.ErrorWithJson(w, http.StatusBadRequest, "Content-Type header must be application/json")
+		errs.ErrorWithJson(w, http.StatusUnprocessableEntity, "Content-Type header must be application/json")
 		return
 	}
 
@@ -99,7 +99,7 @@ func (s *UserService) Login(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	if r.Header.Get("Content-Type") != "application/json" {
 		s.Logger.Warn().Str("function", "Login").Str("origin", r.RemoteAddr).Msg("Invalid Content-Type, expected application/json")
-		errs.ErrorWithJson(w, http.StatusBadRequest, "Content-Type header must be application/json")
+		errs.ErrorWithJson(w, http.StatusUnprocessableEntity, "Content-Type header must be application/json")
 		return
 	}
 
@@ -274,7 +274,7 @@ func (s *UserService) Logout(w http.ResponseWriter, r *http.Request) {
 func (s *UserService) ChangePassword(w http.ResponseWriter, r *http.Request) {
 	if r.Header.Get("Content-Type") != "application/json" {
 		s.Logger.Warn().Str("function", "ChangePassword").Str("origin", r.RemoteAddr).Msg("Invalid Content-Type, expected application/json")
-		errs.ErrorWithJson(w, http.StatusBadRequest, "Content-Type header must be application/json")
+		errs.ErrorWithJson(w, http.StatusUnprocessableEntity, "Content-Type header must be application/json")
 		return
 	}
 
