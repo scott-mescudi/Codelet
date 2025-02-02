@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+
 	"testing"
 	"time"
 
@@ -15,6 +16,7 @@ import (
 	"github.com/rs/zerolog"
 	dba "github.com/scott-mescudi/codelet/service/data_access"
 	"github.com/testcontainers/testcontainers-go/modules/postgres"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func setupTestDB(testData string) (*pgxpool.Pool, func(), error) {
@@ -194,7 +196,6 @@ func TestSignup(t *testing.T) {
 		})
 	}
 
-
 	t.Run("Malformed json", func(t *testing.T) {
 		body, err := json.Marshal("")
 		if err != nil {
@@ -231,5 +232,110 @@ func TestSignup(t *testing.T) {
 		}
 	})
 
-	defer clean()
+	clean()
+}
+
+func TestLogin(t *testing.T) {
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte("hashedpassword123"), bcrypt.DefaultCost)
+	if err != nil {
+		t.Error(err)
+	}
+
+	conn, clean, err := setupTestDB(fmt.Sprintf(`INSERT INTO users (username, email, role, password_hash) VALUES ('fakeuser', 'fakeuser@example.com', 'user', '%s');`, string(hashedPassword)))
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	app := &UserService{Db: conn, Logger: zerolog.New(os.Stdout)}
+
+	validTests := []struct {
+		name     string
+		info     UserLogin
+		expected int
+	}{
+		{
+			name:     "Valid login",
+			info:     UserLogin{Email: "fakeuser@example.com", Password: "hashedpassword123"},
+			expected: http.StatusOK,
+		},
+		{
+			name:     "Invalid email",
+			info:     UserLogin{Email: "fake1user@example.com", Password: "hashedpassword123"},
+			expected: http.StatusUnauthorized,
+		},
+		{
+			name:     "Invalid password",
+			info:     UserLogin{Email: "fake1user@example.com", Password: "hashedpssword123"},
+			expected: http.StatusUnauthorized,
+		},
+		{
+			name:     "Missing email",
+			info:     UserLogin{Email: "", Password: "hashedpassword123"},
+			expected: http.StatusBadRequest,
+		},
+		{
+			name:     "Missing password",
+			info:     UserLogin{Email: "fake1user@example.com", Password: ""},
+			expected: http.StatusBadRequest,
+		},
+	}
+
+	for _, tt := range validTests {
+		t.Run(tt.name, func(t *testing.T) {
+			body, err := json.Marshal(tt.info)
+			if err != nil {
+				t.Error(err)
+				return
+			}
+
+			req := httptest.NewRequest("POST", "/api/v1/login", bytes.NewReader(body))
+			req.Header.Set("Content-Type", "application/json")
+			rec := httptest.NewRecorder()
+
+			app.Login(rec, req)
+
+			if rec.Code != tt.expected {
+				t.Errorf("Expected status %v, got %v", tt.expected, rec.Code)
+			}
+		})
+	}
+
+	t.Run("Malformed json", func(t *testing.T) {
+		body, err := json.Marshal("")
+		if err != nil {
+			t.Error(err)
+			return
+		}
+
+		req := httptest.NewRequest("POST", "/api/v1/register", bytes.NewReader(body))
+		req.Header.Set("Content-Type", "application/json")
+		rec := httptest.NewRecorder()
+
+		app.Login(rec, req)
+
+		if rec.Code != http.StatusUnprocessableEntity {
+			t.Errorf("Expected status %v, got %v", http.StatusUnprocessableEntity, rec.Code)
+		}
+	})
+
+	t.Run("Invalid Content-Type", func(t *testing.T) {
+		body, err := json.Marshal("")
+		if err != nil {
+			t.Error(err)
+			return
+		}
+
+		req := httptest.NewRequest("POST", "/api/v1/register", bytes.NewReader(body))
+		req.Header.Set("Content-Type", "text/plain")
+		rec := httptest.NewRecorder()
+
+		app.Login(rec, req)
+
+		if rec.Code != http.StatusUnprocessableEntity {
+			t.Errorf("Expected status %v, got %v", http.StatusUnprocessableEntity, rec.Code)
+		}
+	})
+
+	clean()
 }
