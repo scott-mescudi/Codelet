@@ -30,7 +30,6 @@ func NewCodeletServer() {
 
 	app := http.NewServeMux()
 
-
 	logger.Info().Str("Database uri", os.Getenv("DATABASE_URL")).Msg("Trying to connect to database")
 	db, err := dataAccess.ConnectToDatabase(os.Getenv("DATABASE_URL"))
 	if err != nil {
@@ -53,8 +52,6 @@ func NewCodeletServer() {
 	// 	"get_public_snippet":        `SELECT id, language, title, code, description, private, tags, created, updated, favorite FROM snippets WHERE private=false LIMIT $1 OFFSET $2`,
 	// 	"delete_snippet":            `DELETE FROM snippets WHERE id=$1`,
 	// }
-
-
 
 	srv := userMethods.UserService{Db: db}
 	srv2 := snippetMethods.SnippetService{Db: db, Logger: logger}
