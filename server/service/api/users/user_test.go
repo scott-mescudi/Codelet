@@ -100,6 +100,7 @@ func TestSignup(t *testing.T) {
 		t.Error(err)
 		return
 	}
+	defer clean()
 
 	app := &UserService{Db: conn, Logger: zerolog.New(os.Stdout)}
 
@@ -180,8 +181,7 @@ func TestSignup(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			body, err := json.Marshal(tt.user)
 			if err != nil {
-				t.Error(err)
-				return
+				t.Fatal(err)
 			}
 
 			req := httptest.NewRequest("POST", "/api/v1/register", bytes.NewReader(body))
@@ -199,8 +199,7 @@ func TestSignup(t *testing.T) {
 	t.Run("Malformed json", func(t *testing.T) {
 		body, err := json.Marshal("")
 		if err != nil {
-			t.Error(err)
-			return
+			t.Fatal(err)
 		}
 
 		req := httptest.NewRequest("POST", "/api/v1/register", bytes.NewReader(body))
@@ -217,8 +216,7 @@ func TestSignup(t *testing.T) {
 	t.Run("Invalid Content-Type", func(t *testing.T) {
 		body, err := json.Marshal("")
 		if err != nil {
-			t.Error(err)
-			return
+			t.Fatal(err)
 		}
 
 		req := httptest.NewRequest("POST", "/api/v1/register", bytes.NewReader(body))
@@ -231,8 +229,6 @@ func TestSignup(t *testing.T) {
 			t.Errorf("Expected status %v, got %v", http.StatusUnprocessableEntity, rec.Code)
 		}
 	})
-
-	clean()
 }
 
 func TestLogin(t *testing.T) {
@@ -246,6 +242,7 @@ func TestLogin(t *testing.T) {
 		t.Error(err)
 		return
 	}
+	defer clean()
 
 	app := &UserService{Db: conn, Logger: zerolog.New(os.Stdout)}
 
@@ -285,8 +282,7 @@ func TestLogin(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			body, err := json.Marshal(tt.info)
 			if err != nil {
-				t.Error(err)
-				return
+				t.Fatal(err)
 			}
 
 			req := httptest.NewRequest("POST", "/api/v1/login", bytes.NewReader(body))
@@ -304,11 +300,10 @@ func TestLogin(t *testing.T) {
 	t.Run("Malformed json", func(t *testing.T) {
 		body, err := json.Marshal("")
 		if err != nil {
-			t.Error(err)
-			return
+			t.Fatal(err)
 		}
 
-		req := httptest.NewRequest("POST", "/api/v1/register", bytes.NewReader(body))
+		req := httptest.NewRequest("POST", "/api/v1/login", bytes.NewReader(body))
 		req.Header.Set("Content-Type", "application/json")
 		rec := httptest.NewRecorder()
 
@@ -322,11 +317,10 @@ func TestLogin(t *testing.T) {
 	t.Run("Invalid Content-Type", func(t *testing.T) {
 		body, err := json.Marshal("")
 		if err != nil {
-			t.Error(err)
-			return
+			t.Fatal(err)
 		}
 
-		req := httptest.NewRequest("POST", "/api/v1/register", bytes.NewReader(body))
+		req := httptest.NewRequest("POST", "/api/v1/login", bytes.NewReader(body))
 		req.Header.Set("Content-Type", "text/plain")
 		rec := httptest.NewRecorder()
 
@@ -336,6 +330,57 @@ func TestLogin(t *testing.T) {
 			t.Errorf("Expected status %v, got %v", http.StatusUnprocessableEntity, rec.Code)
 		}
 	})
+}
 
-	clean()
+// add more tests like expired cookie, wrong type, invalid cookie
+func TestRefresh(t *testing.T) {
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte("hashedpassword123"), bcrypt.DefaultCost)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	conn, clean, err := setupTestDB(fmt.Sprintf(`INSERT INTO users (username, email, role, password_hash) VALUES ('fakeuser', 'fakeuser@example.com', 'user', '%s');`, string(hashedPassword)))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer clean()
+
+	app := &UserService{Db: conn, Logger: zerolog.New(os.Stdout)}
+
+	body, err := json.Marshal(UserLogin{Email: "fakeuser@example.com", Password: "hashedpassword123"})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	loginReq := httptest.NewRequest("POST", "/api/v1/login", bytes.NewReader(body))
+	loginReq.Header.Set("Content-Type", "application/json")
+	loginRec := httptest.NewRecorder()
+
+	app.Login(loginRec, loginReq)
+
+	var info struct {
+		Token string `json:"access_token"`
+	}
+	if err := json.NewDecoder(loginRec.Body).Decode(&info); err != nil {
+		t.Fatal(err)
+	}
+
+	t.Run("Valid Refresh", func(t *testing.T) {
+		cookies := loginRec.Result().Cookies()
+		if len(cookies) == 0 {
+			t.Fatal("No cookies set in login response")
+		}
+
+		refreshReq := httptest.NewRequest("POST", "/api/v1/refresh", nil)
+		refreshReq.Header.Set("Authorization", info.Token)
+		for _, cookie := range cookies {
+			refreshReq.AddCookie(cookie)
+		}
+		refreshRec := httptest.NewRecorder()
+
+		app.Refresh(refreshRec, refreshReq)
+		if refreshRec.Code != http.StatusOK {
+			t.Errorf("Expected 200 got %v", refreshRec.Code)
+		}
+	})
 }
