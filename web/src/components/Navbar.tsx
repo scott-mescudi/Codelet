@@ -63,7 +63,7 @@ function ProfilePicture() {
 
     return (
         <>
-            <div className="h-full relative ml-2 aspect-square">
+            <div className="h-full aspect-square relative ml-2">
                 <Image onClick={() => setClick((prev) => !prev)} draggable="false" className="object-cover hover:cursor-pointer rounded-full h-full w-full" src="/navbar/pfp_placeholder.png" width={500} height={500} alt="Pofile picture" />
                 {click ? (
                     <div className="p-5 mt-5 z-10 origin-right grid rounded-lg right-0 absolute bg-black border border-opacity-15 border-white">
