@@ -228,7 +228,7 @@ func (s *SnippetService) DeleteSnippet(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(idString)
 	if err != nil {
 		s.Logger.Warn().Str("function", "DeleteSnippet").Str("origin", r.RemoteAddr).Msg("failed to parse snippet id in uri")
-		errs.ErrorWithJson(w, http.StatusUnprocessableEntity, "failed to parse snippet id in uri")
+		errs.ErrorWithJson(w, http.StatusBadRequest, "failed to parse snippet id in uri")
 		return
 	}
 
@@ -240,7 +240,7 @@ func (s *SnippetService) DeleteSnippet(w http.ResponseWriter, r *http.Request) {
 
 	if err := dba.DeleteSnippet(s.Db, id); err != nil {
 		s.Logger.Error().Int("snippetID", id).Str("function", "DeleteSnippet").Str("origin", r.RemoteAddr).Msg("failed to delete snippet")
-		errs.ErrorWithJson(w, http.StatusInternalServerError, "failed to delete snippet")
+		errs.ErrorWithJson(w, http.StatusBadRequest, "failed to delete snippet")
 		return
 	}
 

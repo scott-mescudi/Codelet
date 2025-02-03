@@ -452,7 +452,6 @@ func TestGetUserSnippets(t *testing.T) {
 	})
 }
 
-
 func TestGetPublicSnippets(t *testing.T) {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte("hashedpassword123"), bcrypt.DefaultCost)
 	if err != nil {
@@ -506,7 +505,7 @@ func TestGetPublicSnippets(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-    
+
 	req := httptest.NewRequest("POST", "/api/v1/user/snippets", bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", rr.Token)
@@ -516,14 +515,13 @@ func TestGetPublicSnippets(t *testing.T) {
 
 	if rec.Code != http.StatusCreated {
 		t.Errorf("expected status code %d, got %d", http.StatusCreated, rec.Code)
-	} 
-
+	}
 
 	t.Run("Valid Request", func(t *testing.T) {
 		rec := httptest.NewRecorder()
 		req := httptest.NewRequest("GET", "/api/v1/public/snippets?page=1&limit=5", bytes.NewBuffer(body))
 
-        app.GetPublicSnippets(rec, req)
+		app.GetPublicSnippets(rec, req)
 
 		if rec.Code != http.StatusOK {
 			t.Errorf("expected status code %d, got %d", http.StatusOK, rec.Code)
@@ -534,7 +532,7 @@ func TestGetPublicSnippets(t *testing.T) {
 		rec := httptest.NewRecorder()
 		req := httptest.NewRequest("GET", "/api/v1/public/snippets", bytes.NewBuffer(body))
 
-        app.GetPublicSnippets(rec, req)
+		app.GetPublicSnippets(rec, req)
 
 		if rec.Code != http.StatusBadRequest {
 			t.Errorf("expected status code %d, got %d", http.StatusBadRequest, rec.Code)
@@ -545,7 +543,7 @@ func TestGetPublicSnippets(t *testing.T) {
 		rec := httptest.NewRecorder()
 		req := httptest.NewRequest("GET", "/api/v1/public/snippets?page=3&limit=5", bytes.NewBuffer(body))
 
-        app.GetPublicSnippets(rec, req)
+		app.GetPublicSnippets(rec, req)
 
 		if rec.Code != http.StatusNotFound {
 			t.Errorf("expected status code %d, got %d", http.StatusNotFound, rec.Code)
@@ -555,9 +553,8 @@ func TestGetPublicSnippets(t *testing.T) {
 	t.Run("limit too high", func(t *testing.T) {
 		rec := httptest.NewRecorder()
 		req := httptest.NewRequest("GET", "/api/v1/public/snippets?page=1&limit=2048", bytes.NewBuffer(body))
-		
 
-        app.GetPublicSnippets(rec, req)
+		app.GetPublicSnippets(rec, req)
 
 		if rec.Code != http.StatusBadRequest {
 			t.Errorf("expected status code %d, got %d", http.StatusBadRequest, rec.Code)
@@ -579,10 +576,116 @@ func TestGetPublicSnippets(t *testing.T) {
 		rec := httptest.NewRecorder()
 		req := httptest.NewRequest("GET", "/api/v1/public/snippets?page=-2&limit=-2048", bytes.NewBuffer(body))
 
-        app.GetPublicSnippets(rec, req)
+		app.GetPublicSnippets(rec, req)
 
 		if rec.Code != http.StatusBadRequest {
 			t.Errorf("expected status code %d, got %d", http.StatusBadRequest, rec.Code)
+		}
+	})
+
+}
+
+func TestDeleteSnippet(t *testing.T) {
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte("hashedpassword123"), bcrypt.DefaultCost)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	conn, clean, err := setupTestDB(fmt.Sprintf(`INSERT INTO users (username, email, role, password_hash) VALUES ('fakeuser', 'fakeuser@example.com', 'user', '%s');`, string(hashedPassword)))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer clean()
+
+	sp := &vsr.UserService{Db: conn, Logger: zerolog.New(os.Stdout)}
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	body, err := json.Marshal(vsr.UserLogin{Email: "fakeuser@example.com", Password: "hashedpassword123"})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	loginReq := httptest.NewRequest("POST", "/api/v1/login", bytes.NewReader(body))
+	loginReq.Header.Set("Content-Type", "application/json")
+	loginRec := httptest.NewRecorder()
+
+	sp.Login(loginRec, loginReq)
+
+	var rr struct {
+		Token string `json:"access_token"`
+	}
+
+	if err := json.NewDecoder(loginRec.Body).Decode(&rr); err != nil {
+		t.Fatal(err)
+	}
+
+	app := SnippetService{Db: conn, Logger: zerolog.New(os.Stdout)}
+
+	info := Snippet{
+		Language:    "go",
+		Title:       "go test",
+		Code:        "fmt.Println('hello)",
+		Favorite:    false,
+		Private:     false,
+		Tags:        []string{"sigma", "wobc"},
+		Description: "wljkhf",
+	}
+
+	rec := httptest.NewRecorder()
+	body, err = json.Marshal(info)
+	if err != nil {
+		t.Error(err)
+	}
+
+	req := httptest.NewRequest("POST", "/api/v1/user/snippets", bytes.NewBuffer(body))
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", rr.Token)
+
+	handler := middleware.AuthMiddleware(http.HandlerFunc(app.AddSnippet))
+	handler.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusCreated {
+		t.Errorf("expected status code %d, got %d", http.StatusCreated, rec.Code)
+	}
+
+	t.Run("Invalid id", func(t *testing.T) {
+		rec := httptest.NewRecorder()
+		req := httptest.NewRequest("DELETE", "/api/v1/user/snippets/sluyfd", nil)
+		req.Header.Set("Authorization", rr.Token)
+
+		handler := middleware.AuthMiddleware(http.HandlerFunc(app.DeleteSnippet))
+		handler.ServeHTTP(rec, req)
+
+		if rec.Code != http.StatusBadRequest {
+			t.Errorf("expected status code %d, got %d", http.StatusBadRequest, rec.Code)
+		}
+	})
+
+	t.Run("Invalid id #2", func(t *testing.T) {
+		rec := httptest.NewRecorder()
+		req := httptest.NewRequest("DELETE", "/api/v1/user/snippets/-23", nil)
+		req.Header.Set("Authorization", rr.Token)
+
+		handler := middleware.AuthMiddleware(http.HandlerFunc(app.DeleteSnippet))
+		handler.ServeHTTP(rec, req)
+
+		if rec.Code != http.StatusBadRequest {
+			t.Errorf("expected status code %d, got %d", http.StatusBadRequest, rec.Code)
+		}
+	})
+
+	t.Run("Valid Delete", func(t *testing.T) {
+		rec := httptest.NewRecorder()
+		req := httptest.NewRequest("DELETE", "/api/v1/user/snippets/1", nil)
+		req.Header.Set("Authorization", rr.Token)
+
+		handler := middleware.AuthMiddleware(http.HandlerFunc(app.DeleteSnippet))
+		handler.ServeHTTP(rec, req)
+
+		if rec.Code != http.StatusOK {
+			t.Errorf("expected status code %d, got %d", http.StatusOK, rec.Code)
 		}
 	})
 
