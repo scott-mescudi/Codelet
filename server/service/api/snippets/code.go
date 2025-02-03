@@ -187,6 +187,12 @@ func (s *SnippetService) GetPublicSnippets(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
+	if limit <= 0 || page <= 0 {
+		s.Logger.Warn().Str("function", "GetUserSnippets").Str("origin", r.RemoteAddr).Msg("limit or page is smaller or equal to 0")
+		errs.ErrorWithJson(w, http.StatusBadRequest, "'limit' and 'page' parameter must be greater than 0")
+		return
+	}
+
 	if limit > 100 {
 		s.Logger.Warn().Str("function", "GetPublicSnippets").Str("origin", r.RemoteAddr).Msg("max 'limit' is 100")
 		errs.ErrorWithJson(w, http.StatusBadRequest, "max 'limit' is 100")
