@@ -4,6 +4,7 @@ CREATE TABLE IF NOT EXISTS users (
   email VARCHAR(255) NOT NULL UNIQUE,
   role VARCHAR(20) NOT NULL CHECK (role IN ('admin', 'user', 'moderator')),
   password_hash VARCHAR(255) NOT NULL,
+  last_login TIMESTAMP,
   refresh_token text DEFAULT null,
   created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP

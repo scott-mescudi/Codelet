@@ -3,7 +3,9 @@ package dataaccess
 import (
 	"context"
 	"fmt"
+	"time"
 
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -36,15 +38,21 @@ func AddUser(dbConn *pgxpool.Pool, username, email, role, password string) error
 	return nil
 }
 
-func GetUserPasswordHash(dbConn *pgxpool.Pool, email string) (int, string, error) {
+func GetUserPasswordHashAndLastLogin(dbConn *pgxpool.Pool, email string) (int, string, *time.Time, error) {
 	var id int
 	var hash string
-	row := dbConn.QueryRow(context.Background(), "SELECT password_hash, id FROM users WHERE email=$1", email)
-	if err := row.Scan(&hash, &id); err != nil {
-		return -1, "", err
+	var ll pgtype.Timestamptz
+	row := dbConn.QueryRow(context.Background(), "SELECT password_hash, last_login, id FROM users WHERE email=$1", email)
+	if err := row.Scan(&hash, &ll, &id); err != nil {
+		return -1, "", nil, err
 	}
 
-	return id, hash, nil
+	var lastLogin *time.Time
+	if ll.Valid {
+		lastLogin = &ll.Time
+	}
+
+	return id, hash, lastLogin, nil
 }
 
 func GetUserPasswordHashViaID(dbConn *pgxpool.Pool, id int) (string, error) {
@@ -57,8 +65,17 @@ func GetUserPasswordHashViaID(dbConn *pgxpool.Pool, id int) (string, error) {
 	return hash, nil
 }
 
-func UpdatePassword(dbConn *pgxpool.Pool, passwordHash string, userID int) error {
-	_, err := dbConn.Exec(context.Background(), "UPDATE users SET password_hash=$1 WHERE id=$2", passwordHash, userID)
+func UpdatePassword(dbConn *pgxpool.Pool, passwordHash string, updatedAt time.Time, userID int) error {
+	_, err := dbConn.Exec(context.Background(), "UPDATE users SET password_hash=$1, updated=$2 WHERE id=$3", passwordHash, updatedAt, userID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func UpdateTokenAndLoginTime(dbConn *pgxpool.Pool, acessToken string, loginTime time.Time, userID int) error {
+	_, err := dbConn.Exec(context.Background(), "UPDATE users SET refresh_token=$1, last_login=$2 WHERE id=$3", acessToken, loginTime, userID)
 	if err != nil {
 		return err
 	}

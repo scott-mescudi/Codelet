@@ -52,6 +52,7 @@ func setupTestDB(testData string) (*pgxpool.Pool, func(), error) {
 		email VARCHAR(255) NOT NULL UNIQUE,
 		role VARCHAR(20) NOT NULL CHECK (role IN ('admin', 'user', 'moderator')),
 		password_hash VARCHAR(255) NOT NULL,
+		last_login TIMESTAMP,
 		refresh_token text DEFAULT null,
 		created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 		updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -196,6 +197,8 @@ func TestSignup(t *testing.T) {
 			}
 		})
 	}
+
+	t.Run("Rapid Login", func(t *testing.T) {})
 
 	t.Run("Malformed json", func(t *testing.T) {
 		body, err := json.Marshal("")
@@ -542,6 +545,7 @@ func TestChangePassword(t *testing.T) {
 			handler.ServeHTTP(Rec, Req)
 
 			if Rec.Code != tt.expected {
+				t.Log(Rec.Body)
 				t.Errorf("Expected status %v, got %v", tt.expected, Rec.Code)
 			}
 		})
