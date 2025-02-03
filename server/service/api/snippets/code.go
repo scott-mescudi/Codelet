@@ -70,7 +70,7 @@ func (s *SnippetService) AddSnippet(w http.ResponseWriter, r *http.Request) {
 
 	if len(info.Code) > 3072 {
 		s.Logger.Warn().Int("userID", userID).Str("function", "AddSnippet").Str("origin", r.RemoteAddr).Msg("Data too large")
-		errs.ErrorWithJson(w, http.StatusNotAcceptable, "code too large")
+		errs.ErrorWithJson(w, http.StatusRequestEntityTooLarge, "code too large")
 		return
 	}
 
@@ -122,6 +122,12 @@ func (s *SnippetService) GetUserSnippets(w http.ResponseWriter, r *http.Request)
 	if err != nil {
 		s.Logger.Warn().Str("function", "GetUserSnippets").Str("origin", r.RemoteAddr).Msg("invalid 'page' parameter")
 		errs.ErrorWithJson(w, http.StatusBadRequest, "invalid 'page' parameter")
+		return
+	}
+
+	if limit <= 0 || page <= 0 {
+		s.Logger.Warn().Str("function", "GetUserSnippets").Str("origin", r.RemoteAddr).Msg("limit or page is smaller or equal to 0")
+		errs.ErrorWithJson(w, http.StatusBadRequest, "'limit' and 'page' parameter must be greater than 0")
 		return
 	}
 

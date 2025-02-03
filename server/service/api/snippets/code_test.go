@@ -197,11 +197,11 @@ func TestAddUser(t *testing.T) {
 				Tags:        []string{"sigma", "wobc"},
 				Description: "wljkhf",
 			},
-			expected: http.StatusNotAcceptable,
+			expected: http.StatusRequestEntityTooLarge,
 		},
 	}
 
-	app := SnippetService{Db: sp.Db, Logger: zerolog.New(os.Stdout)}
+	app := SnippetService{Db: conn, Logger: zerolog.New(os.Stdout)}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -322,6 +322,9 @@ func TestGetUserSnippets(t *testing.T) {
 	defer clean()
 
 	sp := &vsr.UserService{Db: conn, Logger: zerolog.New(os.Stdout)}
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	body, err := json.Marshal(vsr.UserLogin{Email: "fakeuser@example.com", Password: "hashedpassword123"})
 	if err != nil {
@@ -341,4 +344,109 @@ func TestGetUserSnippets(t *testing.T) {
 	if err := json.NewDecoder(loginRec.Body).Decode(&rr); err != nil {
 		t.Fatal(err)
 	}
+
+	app := SnippetService{Db: conn, Logger: zerolog.New(os.Stdout)}
+
+	info := Snippet{
+		Language:    "go",
+		Title:       "go test",
+		Code:        "fmt.Println('hello)",
+		Favorite:    false,
+		Private:     false,
+		Tags:        []string{"sigma", "wobc"},
+		Description: "wljkhf",
+	}
+
+	rec := httptest.NewRecorder()
+	body, err = json.Marshal(info)
+	if err != nil {
+		t.Error(err)
+	}
+	req := httptest.NewRequest("POST", "/api/v1/user/snippets", bytes.NewBuffer(body))
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", rr.Token)
+
+	handler := middleware.AuthMiddleware(http.HandlerFunc(app.AddSnippet))
+	handler.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusCreated {
+		t.Errorf("expected status code %d, got %d", http.StatusCreated, rec.Code)
+	}
+
+	t.Run("Valid Request", func(t *testing.T) {
+		rec := httptest.NewRecorder()
+		req := httptest.NewRequest("GET", "/api/v1/user/snippets?page=1&limit=5", bytes.NewBuffer(body))
+		req.Header.Set("Authorization", rr.Token)
+
+		handler := middleware.AuthMiddleware(http.HandlerFunc(app.GetUserSnippets))
+		handler.ServeHTTP(rec, req)
+
+		if rec.Code != http.StatusOK {
+			t.Errorf("expected status code %d, got %d", http.StatusOK, rec.Code)
+		}
+	})
+
+	t.Run("Missing params", func(t *testing.T) {
+		rec := httptest.NewRecorder()
+		req := httptest.NewRequest("GET", "/api/v1/user/snippets", bytes.NewBuffer(body))
+		req.Header.Set("Authorization", rr.Token)
+
+		handler := middleware.AuthMiddleware(http.HandlerFunc(app.GetUserSnippets))
+		handler.ServeHTTP(rec, req)
+
+		if rec.Code != http.StatusBadRequest {
+			t.Errorf("expected status code %d, got %d", http.StatusBadRequest, rec.Code)
+		}
+	})
+
+	t.Run("Not found", func(t *testing.T) {
+		rec := httptest.NewRecorder()
+		req := httptest.NewRequest("GET", "/api/v1/user/snippets?page=3&limit=5", bytes.NewBuffer(body))
+		req.Header.Set("Authorization", rr.Token)
+
+		handler := middleware.AuthMiddleware(http.HandlerFunc(app.GetUserSnippets))
+		handler.ServeHTTP(rec, req)
+
+		if rec.Code != http.StatusNotFound {
+			t.Errorf("expected status code %d, got %d", http.StatusNotFound, rec.Code)
+		}
+	})
+
+	t.Run("limit too high", func(t *testing.T) {
+		rec := httptest.NewRecorder()
+		req := httptest.NewRequest("GET", "/api/v1/user/snippets?page=1&limit=2048", bytes.NewBuffer(body))
+		req.Header.Set("Authorization", rr.Token)
+
+		handler := middleware.AuthMiddleware(http.HandlerFunc(app.GetUserSnippets))
+		handler.ServeHTTP(rec, req)
+
+		if rec.Code != http.StatusBadRequest {
+			t.Errorf("expected status code %d, got %d", http.StatusBadRequest, rec.Code)
+		}
+	})
+
+	t.Run("No userid header", func(t *testing.T) {
+		rec := httptest.NewRecorder()
+		req := httptest.NewRequest("GET", "/api/v1/user/snippets?page=-2&limit=-2048", bytes.NewBuffer(body))
+		req.Header.Set("Authorization", rr.Token)
+
+		app.GetUserSnippets(rec, req)
+
+		if rec.Code != http.StatusBadRequest {
+			t.Errorf("expected status code %d, got %d", http.StatusBadRequest, rec.Code)
+		}
+	})
+
+	t.Run("limit and page too low", func(t *testing.T) {
+		rec := httptest.NewRecorder()
+		req := httptest.NewRequest("GET", "/api/v1/user/snippets?page=-2&limit=-2048", bytes.NewBuffer(body))
+		req.Header.Set("Authorization", rr.Token)
+
+		handler := middleware.AuthMiddleware(http.HandlerFunc(app.GetUserSnippets))
+		handler.ServeHTTP(rec, req)
+
+		if rec.Code != http.StatusBadRequest {
+			t.Errorf("expected status code %d, got %d", http.StatusBadRequest, rec.Code)
+		}
+	})
 }
