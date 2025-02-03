@@ -25,7 +25,6 @@ build/
 /obj/
 
 # Go build cache
-*.out
 *.exe
 *.test
 *.log
