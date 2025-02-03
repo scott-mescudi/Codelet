@@ -105,41 +105,38 @@ func (s *SnippetService) GetUserSnippets(w http.ResponseWriter, r *http.Request)
 	pagestr := params.Get("page")
 
 	var snippets []dba.DBsnippet
-	if limitstr != "" && pagestr != "" {
-		limit, err := strconv.Atoi(limitstr)
-		if err != nil {
-			s.Logger.Warn().Str("function", "GetUserSnippets").Str("origin", r.RemoteAddr).Msg("invalid 'limit' parameter")
-			errs.ErrorWithJson(w, http.StatusBadRequest, "invalid 'limit' parameter")
-			return
-		}
+	if limitstr == "" || pagestr == "" {
+		s.Logger.Warn().Str("function", "GetUserSnippets").Str("origin", r.RemoteAddr).Msg("missing 'limit' or 'page' parametr")
+		errs.ErrorWithJson(w, http.StatusBadRequest, "Missing 'limit' or 'page' parameter")
+		return
+	}
 
-		page, err := strconv.Atoi(pagestr)
-		if err != nil {
-			s.Logger.Warn().Str("function", "GetUserSnippets").Str("origin", r.RemoteAddr).Msg("invalid 'page' parameter")
-			errs.ErrorWithJson(w, http.StatusBadRequest, "invalid 'page' parameter")
-			return
-		}
+	limit, err := strconv.Atoi(limitstr)
+	if err != nil {
+		s.Logger.Warn().Str("function", "GetUserSnippets").Str("origin", r.RemoteAddr).Msg("invalid 'limit' parameter")
+		errs.ErrorWithJson(w, http.StatusBadRequest, "invalid 'limit' parameter")
+		return
+	}
 
-		if limit > 100 {
-			s.Logger.Warn().Str("function", "GetUserSnippets").Str("origin", r.RemoteAddr).Msg("max 'limit' is 100")
-			errs.ErrorWithJson(w, http.StatusBadRequest, "max 'limit' is 100")
-			return
-		}
+	page, err := strconv.Atoi(pagestr)
+	if err != nil {
+		s.Logger.Warn().Str("function", "GetUserSnippets").Str("origin", r.RemoteAddr).Msg("invalid 'page' parameter")
+		errs.ErrorWithJson(w, http.StatusBadRequest, "invalid 'page' parameter")
+		return
+	}
 
-		offset := (page - 1) * limit
-		snippets, err = dba.GetSnippetsByUserID(s.Db, userID, limit, offset)
-		if err != nil {
-			s.Logger.Error().Int("userID", userID).Str("function", "GetUserSnippets").Str("origin", r.RemoteAddr).Msg("failed to fetch snippets")
-			errs.ErrorWithJson(w, http.StatusInternalServerError, "failed to fetch snippets from database")
-			return
-		}
-	} else {
-		snippets, err = dba.GetAllSnippetsByUserID(s.Db, userID)
-		if err != nil {
-			s.Logger.Error().Int("userID", userID).Str("function", "GetUserSnippets").Str("origin", r.RemoteAddr).Msg("failed to fetch snippets")
-			errs.ErrorWithJson(w, http.StatusInternalServerError, "failed to fetch snippets from database")
-			return
-		}
+	if limit > 100 {
+		s.Logger.Warn().Str("function", "GetUserSnippets").Str("origin", r.RemoteAddr).Msg("max 'limit' is 100")
+		errs.ErrorWithJson(w, http.StatusBadRequest, "max 'limit' is 100")
+		return
+	}
+
+	offset := (page - 1) * limit
+	snippets, err = dba.GetSnippetsByUserID(s.Db, userID, limit, offset)
+	if err != nil {
+		s.Logger.Error().Int("userID", userID).Str("function", "GetUserSnippets").Str("origin", r.RemoteAddr).Msg("failed to fetch snippets")
+		errs.ErrorWithJson(w, http.StatusInternalServerError, "failed to fetch snippets from database")
+		return
 	}
 
 	if len(snippets) == 0 {
