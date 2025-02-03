@@ -22,6 +22,11 @@ lint: ## Lint the code using go vet
 	@echo "Linting code..."
 	@go vet $(PKG)
 
+cov:
+	@echo "Getting test coverage"
+	@go test -coverprofile=coverage.out ./...
+	@go tool cover -html=coverage.out -o coverage.html
+
 
 # Clean the build cache
 clean: ## Clean build cache
