@@ -8,6 +8,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import SearchIcon from '@mui/icons-material/Search';
 import { AccountBoxOutlined, ExitToApp, LoginOutlined } from "@mui/icons-material";
 import Link from "next/link";
+import { useAuth } from "@/context/auth-context";
 
 interface SearchBarProps {
     inputValue: string
@@ -25,13 +26,14 @@ interface DropdownItemProps {
     iconBgHoverColor?: string
     iconHoverColor?: string
     icon: ReactNode;
+    onClick?: () => void
 
 }
 
-function DropdownItem({title, link="#", setClick, subTitle, iconBgColor="bg-black", iconColor="text-white", iconBgHoverColor="group-hover:bg-white", iconHoverColor="group-hover:text-black", icon}:DropdownItemProps) {
+function DropdownItem({title, link="#", onClick, setClick, subTitle, iconBgColor="bg-black", iconColor="text-white", iconBgHoverColor="group-hover:bg-white", iconHoverColor="group-hover:text-black", icon}:DropdownItemProps) {
     return (
         <>
-            <div className="h-12 group flex flex-row rounded-md w-52 gap-3">
+            <div onClick={() => {if (onClick) onClick();}} className="h-12 group flex flex-row rounded-md w-52 gap-3">
                 <div className={`h-full aspect-square flex items-center justify-center ${iconBgColor} rounded-sm ${iconColor} ${iconHoverColor} duration-300 ease-out border border-white border-opacity-15 ${iconBgHoverColor}`}>
                     {icon}
                 </div>
@@ -46,6 +48,7 @@ function DropdownItem({title, link="#", setClick, subTitle, iconBgColor="bg-blac
 
 function ProfilePicture() {
     const [click, setClick] = useState<boolean>(false)
+    const { setLoggedIn } = useAuth();
 
     useEffect(()=>{
         const handleKeyPress = (event: KeyboardEvent) => {
@@ -61,6 +64,12 @@ function ProfilePicture() {
 
     }, [])
 
+    const logout = () => {
+        console.log("Logged out")
+        setLoggedIn(false)
+        localStorage.removeItem("ACCESS_TOKEN")
+    }
+
     return (
         <>
             <div className="h-full aspect-square relative ml-2">
@@ -70,7 +79,7 @@ function ProfilePicture() {
                         <div className="flex flex-col gap-2">
                             <DropdownItem setClick={setClick} link="/login" icon={ <LoginOutlined fontSize="large" />}  title="Login" subTitle="Secure Login Portal" />
                             <DropdownItem setClick={setClick} icon={ <AccountBoxOutlined fontSize="large" />}  title="Profile" subTitle="Your Dashboard" />
-                             <DropdownItem setClick={setClick} icon={ <ExitToApp fontSize="large" />} iconHoverColor="group-hover:text-white" iconBgHoverColor="group-hover:bg-red-700" title="Logout" subTitle="Sign Out Securely" />
+                            <DropdownItem setClick={setClick} onClick={logout} icon={ <ExitToApp fontSize="large" />} iconHoverColor="group-hover:text-white" iconBgHoverColor="group-hover:bg-red-700" title="Logout" subTitle="Sign Out Securely" />
                         </div>
                     </div>
                 ) : null}

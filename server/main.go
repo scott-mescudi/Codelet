@@ -7,6 +7,7 @@ import (
 	"os"
 
 	srv "github.com/scott-mescudi/codelet/service"
+	"github.com/scott-mescudi/codelet/service/middleware"
 )
 
 func main() {
@@ -19,7 +20,7 @@ func main() {
 
 	server := http.Server{
 		Addr:    os.Getenv("APP_PORT"),
-		Handler: app,
+		Handler: middleware.CorsMiddleware(app),
 	}
 
 	fmt.Println("Server starting on port: ", os.Getenv("APP_PORT"))

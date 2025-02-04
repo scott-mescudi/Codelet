@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { AuthProvider } from '../context/auth-context';
 import { Navbar } from "@/components/Navbar";
 
 export const metadata: Metadata = {
@@ -11,8 +12,10 @@ export default function RootLayout({children}: Readonly<{children: React.ReactNo
   return (
     <html lang="en">
       <body className="flex overflow-auto h-full py-5 flex-col items-center">
-        <Navbar />
-        {children}
+        <AuthProvider>
+          <Navbar />
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );
