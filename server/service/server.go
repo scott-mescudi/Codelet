@@ -1,8 +1,6 @@
 package server
 
 import (
-	"fmt"
-
 	"net/http"
 	"os"
 
@@ -14,7 +12,7 @@ import (
 	middleware "github.com/scott-mescudi/codelet/service/middleware"
 )
 
-func NewCodeletServer() {
+func NewCodeletServer() (*http.ServeMux, func()) {
 	file, err := os.OpenFile("/src/logs/codelet_server_logs.json", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed to open log file")
@@ -30,11 +28,14 @@ func NewCodeletServer() {
 	db, err := dataAccess.ConnectToDatabase(os.Getenv("DATABASE_URL"))
 	if err != nil {
 		logger.Fatal().Err(err).Msg("Failed to connect to database")
-		return
+		return nil, nil
 	}
-	defer db.Close()
-	logger.Info().Msg("Connected to database")
 
+	clean := func() {
+		db.Close()
+	}
+
+	logger.Info().Msg("Connected to database")
 	srv := userMethods.UserService{Db: db}
 	srv2 := snippetMethods.SnippetService{Db: db, Logger: logger}
 
@@ -46,7 +47,6 @@ func NewCodeletServer() {
 	app.HandleFunc("POST /api/v1/register", srv.Signup)
 	app.HandleFunc("POST /api/v1/login", srv.Login)
 	app.HandleFunc("GET /api/v1/refresh", srv.Refresh)
-
 	app.Handle("POST /api/v1/update/password", middleware.AuthMiddleware(srv.ChangePassword))
 	app.Handle("POST /api/v1/logout", middleware.AuthMiddleware(srv.Logout))
 	app.Handle("POST /api/v1/user/snippets", middleware.AuthMiddleware(srv2.AddSnippet))
@@ -54,9 +54,5 @@ func NewCodeletServer() {
 	app.Handle("GET /api/v1/user/snippets", middleware.AuthMiddleware(srv2.GetUserSnippets))
 	app.HandleFunc("GET /api/v1/public/snippets", srv2.GetPublicSnippets)
 
-	logger.Info().Msg(fmt.Sprintf("Server started on port %v", os.Getenv("APP_PORT")))
-	if err := http.ListenAndServe(os.Getenv("APP_PORT"), app); err != nil {
-		fmt.Println(err)
-		return
-	}
+	return app, clean
 }
