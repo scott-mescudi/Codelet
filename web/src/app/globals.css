@@ -30,14 +30,3 @@ body {
   scrollbar-width: thin;
 }
 
-/* body {
-  margin: 0;
-  padding: 0;
-  
-  width: 100%;
-  height: 100vh;
- 
-  background: black;
-  background-image: linear-gradient(rgba(255, 255, 255,0.01) .1em, transparent .1em), linear-gradient(90deg, rgba(255, 255, 255,0.01) .1em, transparent .1em);
-  background-size: 3em 3em;
-} */

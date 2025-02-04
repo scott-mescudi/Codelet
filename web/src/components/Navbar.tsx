@@ -8,7 +8,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import SearchIcon from '@mui/icons-material/Search';
 import { AccountBoxOutlined, ExitToApp, LoginOutlined } from "@mui/icons-material";
 import Link from "next/link";
-import { useAuth } from "@/context/auth-context";
+import { useRouter } from "next/navigation"; 
 
 interface SearchBarProps {
     inputValue: string
@@ -48,7 +48,8 @@ function DropdownItem({title, link="#", onClick, setClick, subTitle, iconBgColor
 
 function ProfilePicture() {
     const [click, setClick] = useState<boolean>(false)
-    const { setLoggedIn } = useAuth();
+
+    const router = useRouter()
 
     useEffect(()=>{
         const handleKeyPress = (event: KeyboardEvent) => {
@@ -66,8 +67,8 @@ function ProfilePicture() {
 
     const logout = () => {
         console.log("Logged out")
-        setLoggedIn(false)
         localStorage.removeItem("ACCESS_TOKEN")
+        router.push("/login")
     }
 
     return (
@@ -78,7 +79,7 @@ function ProfilePicture() {
                     <div className="p-5 mt-5 z-10 origin-right grid rounded-lg right-0 absolute bg-black border border-opacity-15 border-white">
                         <div className="flex flex-col gap-2">
                             <DropdownItem setClick={setClick} link="/login" icon={ <LoginOutlined fontSize="large" />}  title="Login" subTitle="Secure Login Portal" />
-                            <DropdownItem setClick={setClick} icon={ <AccountBoxOutlined fontSize="large" />}  title="Profile" subTitle="Your Dashboard" />
+                            <DropdownItem setClick={setClick} link="/dashboard" icon={ <AccountBoxOutlined fontSize="large" />}  title="Profile" subTitle="Your Dashboard" />
                             <DropdownItem setClick={setClick} onClick={logout} icon={ <ExitToApp fontSize="large" />} iconHoverColor="group-hover:text-white" iconBgHoverColor="group-hover:bg-red-700" title="Logout" subTitle="Sign Out Securely" />
                         </div>
                     </div>

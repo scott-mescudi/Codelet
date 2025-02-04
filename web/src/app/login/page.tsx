@@ -1,7 +1,6 @@
 'use client'
 
 import Link from "next/link";
-import { useAuth } from '../../context/auth-context';
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation"; 
@@ -52,17 +51,17 @@ export default function Login() {
     const [password, setPassword] = useState<string>("abcd")
     const [loading, setLoading] = useState<boolean>(false)
     const [apiErr, setApiErr] = useState("")
+    const [loggedIn, setLogedin]= useState<boolean>(false)
 
-    const { loggedIn, setLoggedIn } = useAuth();
     const router = useRouter();
 
-
-    useEffect(()=>{
-        if (loggedIn) {
-            router.push('/dashboard');
+    useEffect(() => {
+        const key = localStorage.getItem("ACCESS_TOKEN")
+        if (key) {
+            setLogedin(true)
+            router.push("/dashboard");
         }
-    }, [])
-
+    })
 
     const HandleData = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -89,7 +88,7 @@ export default function Login() {
             }
 
             localStorage.setItem("ACCESS_TOKEN", resp.data)
-            setLoggedIn(true)
+            setLogedin(true)
             router.push("/dashboard");
         } catch (err: any) {
             if (axios.isAxiosError(err)) {
@@ -114,9 +113,8 @@ export default function Login() {
     <>
       <div className="w-full h-full flex flex-col justify-center items-center">
         {loading && <div className="animate-spin"></div>}
-        {!loading && apiErr === "" && !loggedIn  && <LoginForm password={password} email={email} setEmail={setEmail} setPassword={setPassword} HandleData={HandleData} />}
+        {!loading && apiErr === "" && !loggedIn && <LoginForm password={password} email={email} setEmail={setEmail} setPassword={setPassword} HandleData={HandleData} />}
         {apiErr !== "" && <ErrorBox error={apiErr} />}
-        {loggedIn && ""}
       </div>
     </>
   )
