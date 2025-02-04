@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  html, body {
+    height: 100%;
+  }
+}
 
 body {
   min-height: 100dvh;
@@ -18,7 +23,6 @@ code {
 pre {
   padding-top: 0 !important;
 }
-
 
 body {
   overflow: scroll;

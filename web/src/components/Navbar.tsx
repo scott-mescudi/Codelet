@@ -21,21 +21,21 @@ interface DropdownItemProps {
     iconBgColor?: string
     iconColor?:string 
     link?: string
-
+    setClick: (value: boolean) => void
     iconBgHoverColor?: string
     iconHoverColor?: string
     icon: ReactNode;
 
 }
 
-function DropdownItem({title, link="#", subTitle, iconBgColor="bg-black", iconColor="text-white", iconBgHoverColor="group-hover:bg-white", iconHoverColor="group-hover:text-black", icon}:DropdownItemProps) {
+function DropdownItem({title, link="#", setClick, subTitle, iconBgColor="bg-black", iconColor="text-white", iconBgHoverColor="group-hover:bg-white", iconHoverColor="group-hover:text-black", icon}:DropdownItemProps) {
     return (
         <>
             <div className="h-12 group flex flex-row rounded-md w-52 gap-3">
                 <div className={`h-full aspect-square flex items-center justify-center ${iconBgColor} rounded-sm ${iconColor} ${iconHoverColor} duration-300 ease-out border border-white border-opacity-15 ${iconBgHoverColor}`}>
                     {icon}
                 </div>
-                <Link href={link} className="w-full h-full flex flex-col overflow-hidden">
+                <Link href={link} onClick={() => {setClick(false)}}  className="w-full h-full flex flex-col overflow-hidden">
                     <h1 className="text-lg  truncate text-white font-semibold">{title}</h1>
                     <p  className="text-sm text-white text-opacity-50 group-hover:text-opacity-100 duration-200 ease-in-out overflow-hidden">{subTitle}</p>
                 </Link>
@@ -68,9 +68,9 @@ function ProfilePicture() {
                 {click ? (
                     <div className="p-5 mt-5 z-10 origin-right grid rounded-lg right-0 absolute bg-black border border-opacity-15 border-white">
                         <div className="flex flex-col gap-2">
-                            <DropdownItem icon={ <LoginOutlined fontSize="large" />}  title="Login" subTitle="Secure Login Portal" />
-                            <DropdownItem icon={ <AccountBoxOutlined fontSize="large" />}  title="Profile" subTitle="Your Dashboard" />
-                             <DropdownItem icon={ <ExitToApp fontSize="large" />} iconHoverColor="group-hover:text-white" iconBgHoverColor="group-hover:bg-red-700" title="Logout" subTitle="Sign Out Securely" />
+                            <DropdownItem setClick={setClick} link="/login" icon={ <LoginOutlined fontSize="large" />}  title="Login" subTitle="Secure Login Portal" />
+                            <DropdownItem setClick={setClick} icon={ <AccountBoxOutlined fontSize="large" />}  title="Profile" subTitle="Your Dashboard" />
+                             <DropdownItem setClick={setClick} icon={ <ExitToApp fontSize="large" />} iconHoverColor="group-hover:text-white" iconBgHoverColor="group-hover:bg-red-700" title="Logout" subTitle="Sign Out Securely" />
                         </div>
                     </div>
                 ) : null}
@@ -138,7 +138,7 @@ export function Navbar() {
 
     return (
         <>
-        <div className='sm:w-1/2 mx-3  mb-4 absolute h-fit bg-black border border-white border-opacity-15  rounded-3xl'>
+        <div className='sm:w-1/2 mx-3 mb-4 h-fit bg-black border border-white border-opacity-15  rounded-3xl'>
             <div className={`w-full h-16 py-2 px-5  justify-center flex flex-row  `}>
                 <div className="rounded-full h-full flex items-center justify-center aspect-square">
                     <SearchIcon fontSize="large" className="text-white opacity-50" />
