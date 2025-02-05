@@ -50,8 +50,8 @@ export function ErrorBox({error}: ErrorBoxProps) {
 }
 
 export default function Login() {
-    const [email, setEmail] = useState<string>("sdsd@gmail.com")
-    const [password, setPassword] = useState<string>("abcd")
+    const [email, setEmail] = useState<string>("")
+    const [password, setPassword] = useState<string>("")
     const [loading, setLoading] = useState<boolean>(false)
     const [apiErr, setApiErr] = useState<string>("")
     const [loggedIn, setLogedin]= useState<boolean>(false)
