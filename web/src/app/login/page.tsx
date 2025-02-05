@@ -35,9 +35,12 @@ export function LoginForm({email, password, HandleData, setEmail, setPassword}:F
     )
 }
 
+
+
 interface ErrorBoxProps {
     error: any
 }
+
 export function ErrorBox({error}: ErrorBoxProps) {
     return (
         <>
@@ -96,10 +99,10 @@ export default function Login() {
                     if (err.response.status === 429) {
                         setApiErr("Too many login attempts, please try again after 30 seconds")
                     } else {
-                        setApiErr(err.response.data?.message || "An unexpected error occurred")
+                        setApiErr(err.response.data?.message || "Invalid credentials")
                     }
                 } else {
-                    setApiErr("An unexpected error occurred")
+                    setApiErr("Invalid credentials")
                 }
             } else { 
                 setApiErr("An unknown error occurred")
