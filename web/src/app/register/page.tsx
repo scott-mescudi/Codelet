@@ -79,7 +79,7 @@ export default function Register() {
             }})
 
             if (resp.status === 400 || resp.status === 422) {
-                throw new Error ("Failed to register")
+                throw new Error ("A user with that Email already exists")
             }
 
         }catch (err){
@@ -88,14 +88,16 @@ export default function Register() {
                     if (err.response.status === 429) {
                         setApiErr("Too many login attempts, please try again after 30 seconds")
                     } else {
-                        setApiErr(err.response.data?.message || "An unexpected error occurred")
+                        setApiErr(err.response.data?.message || "A user with that Email already exists")
                     }
                 } else {
-                    setApiErr("An unexpected error occurred")
+                    setApiErr("A user with that Email already exists")
                 }
             } else { 
                 setApiErr("An unknown error occurred")
             }
+
+            return
         }
 
         const LoginRequest: LoginRequest = {
@@ -143,8 +145,9 @@ export default function Register() {
     return (
         <>
          <div className="w-full h-full flex flex-col justify-center items-center">
-            <RegisterForm username={username} email={email} password={password} setUsername={setUsername} setEmail={setEmail} setPassword={setPassword} handleSubmit={handleSubmit}
-            />
+            {loading && <div className="animate-spin" />}
+            {!loading && <RegisterForm username={username} email={email} password={password} setUsername={setUsername} setEmail={setEmail} setPassword={setPassword} handleSubmit={handleSubmit}/>}
+            {apiErr !== "" && <ErrorBox error={apiErr} />}
         </div>
         </>
     )
