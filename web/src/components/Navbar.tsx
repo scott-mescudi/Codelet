@@ -6,7 +6,8 @@ import { useState, useRef, useEffect, useCallback } from "react";
 
 import CloseIcon from '@mui/icons-material/Close';
 import SearchIcon from '@mui/icons-material/Search';
-import { AccountBoxOutlined, ExitToApp, LoginOutlined } from "@mui/icons-material";
+import { AccountBoxOutlined, ExitToApp, LoginOutlined, Home } from "@mui/icons-material";
+
 import Link from "next/link";
 import { useRouter } from "next/navigation"; 
 
@@ -48,8 +49,17 @@ function DropdownItem({title, link="#", onClick, setClick, subTitle, iconBgColor
 
 function ProfilePicture() {
     const [click, setClick] = useState<boolean>(false)
+    const [loggedIn, setLoggedIn] = useState<boolean>(false)
 
     const router = useRouter()
+
+   useEffect(() => {
+        const key = localStorage.getItem("ACCESS_TOKEN")
+        if (key) {
+            setLoggedIn(true)
+        }
+    })
+
 
     useEffect(()=>{
         const handleKeyPress = (event: KeyboardEvent) => {
@@ -66,9 +76,9 @@ function ProfilePicture() {
     }, [])
 
     const logout = () => {
-        console.log("Logged out")
         localStorage.removeItem("ACCESS_TOKEN")
         router.push("/login")
+        window.location.reload()
     }
 
     return (
@@ -78,9 +88,10 @@ function ProfilePicture() {
                 {click ? (
                     <div className="p-5 mt-5 z-10 origin-right grid rounded-lg right-0 absolute bg-black border border-opacity-15 border-white">
                         <div className="flex flex-col gap-2">
-                            <DropdownItem setClick={setClick} link="/login" icon={ <LoginOutlined fontSize="large" />}  title="Login" subTitle="Secure Login Portal" />
-                            <DropdownItem setClick={setClick} link="/dashboard" icon={ <AccountBoxOutlined fontSize="large" />}  title="Profile" subTitle="Your Dashboard" />
-                            <DropdownItem setClick={setClick} onClick={logout} icon={ <ExitToApp fontSize="large" />} iconHoverColor="group-hover:text-white" iconBgHoverColor="group-hover:bg-red-700" title="Logout" subTitle="Sign Out Securely" />
+                            <DropdownItem setClick={setClick} link="/" icon={<Home fontSize="large" />} title="Home" subTitle="Explore public snippets" />
+                            {!loggedIn && <DropdownItem setClick={setClick} link="/login" icon={ <LoginOutlined fontSize="large" />}  title="Login" subTitle="Secure Login Portal" /> }
+                            {loggedIn && <DropdownItem setClick={setClick} link="/dashboard" icon={ <AccountBoxOutlined fontSize="large" />}  title="Profile" subTitle="Your Dashboard" />}
+                            {loggedIn && <DropdownItem setClick={setClick} onClick={logout} icon={ <ExitToApp fontSize="large" />} iconHoverColor="group-hover:text-white" iconBgHoverColor="group-hover:bg-red-700" title="Logout" subTitle="Sign Out Securely" />}
                         </div>
                     </div>
                 ) : null}

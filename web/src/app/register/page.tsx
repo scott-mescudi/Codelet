@@ -3,7 +3,7 @@
 import Link from "next/link"
 import React, { useState } from "react"
 import axios from "axios";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 
 interface SignupRequest {
     username: string

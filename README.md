@@ -3,7 +3,6 @@
 # **Features:**
 
 # TODO
-- add image field in sql
 - fortify auth
 
 
