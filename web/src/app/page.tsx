@@ -31,13 +31,15 @@ const logoMap: { [key: string]: string } = {
   html: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/html5/html5-original.svg",
   react: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg",
   typescript: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/typescript/typescript-original.svg",
+  "c++": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/cplusplus/cplusplus-original.svg", 
+  kotlin: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/kotlin/kotlin-original.svg" 
 };
 
 
 type CodeSnippets  = CodeSnippet[]
 
 async function fetchSnippets(): Promise<CodeSnippets | ErrorResponse> {
-  const resp = await fetch("http://localhost:3021/api/v1/public/snippets?page=1&limit=100", {
+  const resp = await fetch("http://localhost:3021/api/v1/public/snippets?page=1&limit=30", {
     method: "GET",
     headers: {
       "Content-Type": "application/json",

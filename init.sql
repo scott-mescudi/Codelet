@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS snippets (
   userid INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   language VARCHAR(50) NOT NULL,
   favorite boolean DEFAULT false,
-  title VARCHAR(255) NOT NULL UNIQUE,
+  title VARCHAR(255) NOT NULL,
   code BYTEA NOT NULL,
   description TEXT,
   private boolean NOT NULL,
