@@ -43,3 +43,5 @@ vendor/
 # OS files
 Thumbs.db
 Desktop.ini
+
+/test
