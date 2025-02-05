@@ -50,7 +50,7 @@ export default function Login() {
     const [email, setEmail] = useState<string>("sdsd@gmail.com")
     const [password, setPassword] = useState<string>("abcd")
     const [loading, setLoading] = useState<boolean>(false)
-    const [apiErr, setApiErr] = useState("")
+    const [apiErr, setApiErr] = useState<string>("")
     const [loggedIn, setLogedin]= useState<boolean>(false)
 
     const router = useRouter();
@@ -66,7 +66,7 @@ export default function Login() {
     const HandleData = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
-    const loginData: LoginRequest = {
+        const loginData: LoginRequest = {
         email,
         password,
         };

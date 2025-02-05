@@ -2,6 +2,11 @@
 
 # **Features:**
 
+# TODO
+- add image field in sql
+- fortify auth
+
+
 - **Distinct Categories for Each Programming Language**:
     
     The platform will organize code snippets into different categories based on programming languages, allowing users to easily find and manage snippets relevant to a specific language.
