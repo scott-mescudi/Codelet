@@ -13,16 +13,25 @@ interface ErrorResponse {
   code: number;
 }
 
-const logoMap = new Map<string, string>();
-logoMap.set("go", "https://devicon-website.vercel.app/api/go/original.svg")
-logoMap.set("ruby", "https://devicon-website.vercel.app/api/ruby/original.svg")
-logoMap.set("python", "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg")
-logoMap.set("javascript", "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/javascript/javascript-original.svg")
-logoMap.set("swift", "https://devicon-website.vercel.app/api/swift/original.svg")
-logoMap.set("php", "https://devicon-website.vercel.app/api/php/original.svg")
-logoMap.set("java", "https://devicon-website.vercel.app/api/java/original.svg")
-logoMap.set("c", "https://devicon-website.vercel.app/api/c/original.svg")
-logoMap.set("c#", "https://devicon-website.vercel.app/api/csharp/original.svg")
+const logoMap: { [key: string]: string } = {
+  go: "https://devicon-website.vercel.app/api/go/original.svg",
+  ruby: "https://devicon-website.vercel.app/api/ruby/original.svg",
+  python: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg",
+  javascript: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/javascript/javascript-original.svg",
+  swift: "https://devicon-website.vercel.app/api/swift/original.svg",
+  php: "https://devicon-website.vercel.app/api/php/original.svg",
+  java: "https://devicon-website.vercel.app/api/java/original.svg",
+  c: "https://devicon-website.vercel.app/api/c/original.svg",
+  "c#": "https://devicon-website.vercel.app/api/csharp/original.svg",
+  rust: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/rust/rust-original.svg",
+  zig: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/zig/zig-original.svg",
+  docker: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/docker/docker-original.svg",
+  json: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/json/json-original.svg",
+  css: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/css3/css3-original.svg",
+  html: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/html5/html5-original.svg",
+  react: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg",
+  typescript: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/typescript/typescript-original.svg",
+};
 
 
 type CodeSnippets  = CodeSnippet[]
@@ -54,7 +63,7 @@ export default async function Home() {
   }
 
   const getIcon = (name:string) => {
-    const logo = logoMap.get(name.toLowerCase())
+    const logo = logoMap[name.toLowerCase()]
     if (!logo) {
       return "/fallback.svg"
     }

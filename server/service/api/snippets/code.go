@@ -76,7 +76,7 @@ func (s *SnippetService) AddSnippet(w http.ResponseWriter, r *http.Request) {
 
 	if err := dba.AddSnippet(s.Db, userID, info.Language, info.Description, info.Title, info.Code, info.Private, info.Favorite, info.Tags, time.Now(), time.Now()); err != nil {
 		s.Logger.Error().Int("userID", userID).Str("function", "AddSnippet").Str("origin", r.RemoteAddr).Msg(err.Error())
-		errs.ErrorWithJson(w, http.StatusInternalServerError, "failed to add snippet to database")
+		errs.ErrorWithJson(w, http.StatusConflict, "failed to add snippet to database")
 		return
 	}
 
