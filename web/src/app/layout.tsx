@@ -12,7 +12,9 @@ export default function RootLayout({children}: Readonly<{children: React.ReactNo
     <html lang="en">
       <body className="flex overflow-auto h-full py-5 flex-col items-center">
           <Navbar />
-          {children}
+          <div className="w-full flex justify-center pt-14">
+            {children}
+          </div>
 
       </body>
     </html>
