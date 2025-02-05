@@ -83,7 +83,7 @@ export default function Login() {
             })
 
             if (resp.status === 400 || resp.status === 422) {
-                throw new Error ("Failed to login")
+                throw new Error ("Invalid Email or Password")
             }
 
             if (resp.status === 429) {
