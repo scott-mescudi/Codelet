@@ -55,15 +55,16 @@ async function fetchSnippets(): Promise<CodeSnippets | ErrorResponse> {
   return data;
 }
 
+interface SnippetProps {
+  language: string
+  title: string
+  description: string
+  tags: string[]
+  idx: number
+}
 
 
-export default async function Home() {
-  const snippets = await fetchSnippets();
-
-  if ("error" in snippets) {
-    return <div>Error: {snippets.error} (Code: {snippets.code})</div>;
-  }
-
+export function Snippet({language, title, description, tags, idx}:SnippetProps) {
   const getIcon = (name:string) => {
     const logo = logoMap[name.toLowerCase()]
     if (!logo) {
@@ -75,28 +76,54 @@ export default async function Home() {
 
   return (
     <>
-      <div className="px-3 sm:w-2/3 mt-10 flex flex-col gap-5 w-full h-full">
-        <div className="w-full h-fit lg:grid pb-10 lg:gap-10 2xl:grid-cols-3 grid-cols-2 gap-5 justify-center  flex flex-col">
-          {snippets.map((snippet, idx) => (
-            <div key={idx} className="w-full h-40 select-none hover:scale-105 duration-300 hover:cursor-pointer ease-in-out will-change-transform rounded-lg bg-black hover:bg-neutral-900 border gap-3 border-white border-opacity-15 p-3 flex flex-row">
-              <div className="w-1/5 aspect-square rounded-md overflow-hidden">
-                <img className="h-full w-full" src={getIcon(snippet.language)}></img>
-              </div>
-              <div className="w-4/5 h-full gap-1 flex flex-col">
-                <div className="w-full pt-2 h-3/4 ">
-                  <p className="w-full line-clamp-1 truncate text-ellipsis overflow-hidden whitespace-nowrap text-white font-bold text-2xl">{snippet.title}</p>
-                  <p className="w-full line-clamp-2 text-white text-opacity-50 ">{snippet.description}</p>
-                </div>
-                <div className="w-full h-1/4 flex flex-row gap-4 items-center overflow-hidden">
-                  {snippet.tags.slice(0, 2).map((tag, idx) => (
-                    <p key={idx} className="text-white text-nowrap text-opacity-50 px-5 rounded-lg py-0.5 bg-neutral-800">{tag}</p>
-                  ))}
-                </div>
-              </div>
-            </div>
+    <div key={idx} className="w-full h-40 select-none hover:scale-105 duration-300 hover:cursor-pointer ease-in-out will-change-transform rounded-lg bg-black hover:bg-neutral-900 border gap-3 border-white border-opacity-15 p-3 flex flex-row">
+      <div className="w-1/5 aspect-square rounded-md overflow-hidden">
+        <img className="h-full w-full" src={getIcon(language)}></img>
+      </div>
+      <div className="w-4/5 h-full gap-1 flex flex-col">
+        <div className="w-full pt-2 h-3/4 ">
+          <p className="w-full line-clamp-1 truncate text-ellipsis overflow-hidden whitespace-nowrap text-white font-bold text-2xl">{title}</p>
+          <p className="w-full line-clamp-2 text-white text-opacity-50 ">{description}</p>
+        </div>
+        <div className="w-full h-1/4 flex flex-row gap-4 items-center overflow-hidden">
+          {tags.slice(0, 2).map((tag, idx) => (
+            <p key={idx} className="text-white text-nowrap text-opacity-50 px-5 rounded-lg py-0.5 bg-neutral-800">{tag}</p>
           ))}
+        </div>
+      </div>
+    </div>
+    </>
+  )
+}
+
+
+
+export default async function Home() {
+  const snippets = await fetchSnippets();
+
+  if ("error" in snippets) {
+    return <div>Error: {snippets.error} (Code: {snippets.code})</div>;
+  }
+
+
+  return (
+    <>
+      <div className="px-3 sm:w-2/3 mt-10 flex flex-col gap-5 w-full h-full">
+        <div className="w-full h-fit lg:grid lg:gap-10 2xl:grid-cols-3 grid-cols-2 gap-5 justify-center  flex flex-col">
+          {snippets.map((snippet, idx) => (
+            <Snippet language={snippet.language} title={snippet.title} description={snippet.description} tags={snippet.tags} idx={idx} />
+          ))}
+        </div>
+        <div className="w-full select-none mb-10 h-1/6 flex gap-5 items-center justify-center">
+          <button className="h-full aspect-square bg-black border border-white border-opacity-15 text-white rounded-lg">-</button>
+          <div className="h-full aspect-square bg-white rounded-lg justify-center flex items-center">
+            <p className=" text-2xl  text-black font-bold">1</p>
+          </div>
+          <button className="h-full aspect-square bg-black border border-white border-opacity-15 text-white rounded-lg">+</button>
         </div>
       </div>
     </>
   );
 }
+
+
