@@ -1,5 +1,6 @@
 "use client";
 
+import { CodeBox } from "@/components/CodeBlock";
 import { Sidebar } from "@/components/Sidebar";
 import { Snippet } from "@/components/SmallSnippet";
 import { useEffect, useState } from "react";
@@ -45,6 +46,7 @@ export default function Home() {
   const [snippets, setSnippets] = useState<CodeSnippets | null>(null);
   const [langs, setLangs] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [inViewSnippet, setInViewSnippet] = useState<CodeSnippet | null>(null)
 
   useEffect(() => {
     async function getSnippets() {
@@ -74,18 +76,24 @@ export default function Home() {
           <Sidebar key={idx} title={lang}>
             {snippets.map((snippet: CodeSnippet, idx:number) => (
               snippet.language === lang ? (
-                <p className="text-white py-1 w-full border hover:border-opacity-100 border-l-white border-r-0 border-t-0 border-b-0 border-opacity-15 pl-5 text-opacity-50 hover:text-opacity-100 duration-300 ease-in-out hover:cursor-pointer text-nowrap text-ellipsis overflow-hidden">{snippet.title}</p>
+                <p key={idx} onClick={() => setInViewSnippet(snippet)} className={`text-white py-1 w-full border ${inViewSnippet?.title === snippet.title ? ("border-opacity-100") : ("hover:border-opacity-100 border-opacity-15 text-opacity-50 hover:text-opacity-100")} border-l-white border-r-0 border-t-0 border-b-0 pl-5  duration-300 ease-in-out hover:cursor-pointer text-nowrap text-ellipsis overflow-hidden`}>{snippet.title}</p>
               ) : (null)
             ))}
           </Sidebar>
         ))}
       </div>
 
-      <div className="w-10/12  min-h-full max-h-full">
-        <div className="w-full gap-5 justify-center flex flex-col">
-          {snippets.map((snippet, idx) => (
-            <Snippet key={idx} language={snippet.language} title={snippet.title} description={snippet.description} tags={snippet.tags} idx={idx}/>
-          ))}
+      <div className="w-10/12  min-h-full max-h-full flex flex-col gap-1 text-white">
+        <p className="w-full text-white text-left text-xl font-bold text-opacity-50 font-mono">{inViewSnippet?.language.toLowerCase()}</p>
+        <p className="w-full text-white text-left text-6xl font-bold ">{inViewSnippet?.title}</p>
+        <p className="w-full text-white text-left mt-4 text-opacity-50">{inViewSnippet?.description}</p>
+        <div className="w-full">
+          {inViewSnippet?.tags.map((tag:string, idx:number) => (
+
+          )}
+        </div>
+        <div className="w-full mt-10">   
+          <CodeBox  code={inViewSnippet?.code} />
         </div>
       </div>
     </div>
