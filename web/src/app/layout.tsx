@@ -9,13 +9,12 @@ export const metadata: Metadata = {
 
 export default function RootLayout({children}: Readonly<{children: React.ReactNode;}>) {
   return (
-    <html lang="en">
-      <body className="flex overflow-auto h-full py-5 flex-col items-center">
+    <html lang="en" className="overflow-y-scroll">
+      <body className="flex min-h-full py-5 flex-col items-center">
           <Navbar />
           <div className="w-full flex justify-center pt-14">
             {children}
           </div>
-
       </body>
     </html>
   );
