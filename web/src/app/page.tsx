@@ -46,7 +46,13 @@ export default function Home() {
   const [snippets, setSnippets] = useState<CodeSnippets | null>(null);
   const [langs, setLangs] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [inViewSnippet, setInViewSnippet] = useState<CodeSnippet | null>(null)
+  const [inViewSnippet, setInViewSnippet] = useState<CodeSnippet | null>(null);
+
+  useEffect(() => {
+    if (snippets && snippets.length > 0) {
+      setInViewSnippet(snippets[0]);
+    }
+  }, [snippets]);
 
   useEffect(() => {
     async function getSnippets() {
@@ -70,8 +76,8 @@ export default function Home() {
   }
 
   return (
-    <div className="px-3 mt-10 min-h-screen flex flex-row gap-5 sm:w-2/3 w-full">
-      <div className="w-2/12 min-h-full flex flex-col gap-3">
+    <div className="px-3 mt-10  flex flex-row gap-5 sm:w-2/3 w-full">
+      <div className="w-2/12 flex flex-col gap-3">
         {langs.map((lang, idx) => (
           <Sidebar key={idx} title={lang}>
             {snippets.map((snippet: CodeSnippet, idx:number) => (

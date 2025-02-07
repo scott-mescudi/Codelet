@@ -144,7 +144,7 @@ export default function Register() {
     
     return (
         <>
-         <div className="w-full h-full flex flex-col justify-center items-center">
+         <div className="w-full h-full mt-60 flex flex-col justify-center items-center">
             {loading && <div className="animate-spin" />}
             {!loading && <RegisterForm username={username} email={email} password={password} setUsername={setUsername} setEmail={setEmail} setPassword={setPassword} handleSubmit={handleSubmit}/>}
             {apiErr !== "" && <ErrorBox error={apiErr} />}

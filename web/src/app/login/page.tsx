@@ -114,7 +114,7 @@ export default function Login() {
 
   return (
     <>
-      <div className="w-full h-full flex flex-col justify-center items-center">
+      <div className="w-full h-full mt-60 flex flex-col justify-center items-center">
         {loading && <div className="animate-spin"></div>}
         {!loading && apiErr === "" && !loggedIn && <LoginForm password={password} email={email} setEmail={setEmail} setPassword={setPassword} HandleData={HandleData} />}
         {apiErr !== "" && <ErrorBox error={apiErr} />}
