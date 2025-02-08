@@ -4,10 +4,11 @@ interface RegisterFormProps {
   username: string;
   email: string;
   password: string;
+  href?: string
   setUsername: React.Dispatch<React.SetStateAction<string>>;
   setEmail: React.Dispatch<React.SetStateAction<string>>;
   setPassword: React.Dispatch<React.SetStateAction<string>>;
-  handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+  onSubmit?: (e: React.FormEvent<HTMLFormElement>) => void;
 }
 
 export function RegisterForm({
@@ -17,12 +18,13 @@ export function RegisterForm({
   setUsername,
   setEmail,
   setPassword,
-  handleSubmit,
+  onSubmit,
+  href
 }: RegisterFormProps) {
   return (
     <>
       <div className="mx-3 p-4">
-        <form className="flex gap-3 flex-col" onSubmit={handleSubmit}>
+        <form className="flex gap-3 flex-col" onSubmit={onSubmit}>
           <p className="text-3xl font-bold text-white w-full text-center">
             Sign Up to codelet
           </p>
@@ -54,7 +56,7 @@ export function RegisterForm({
             Sign Up
           </button>
           <Link
-            href="/login"
+            href={href ? href : "#"}
             className="text-blue-600 w-full text-center hover:underline"
           >
             Already have a account? Login

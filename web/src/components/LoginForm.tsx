@@ -3,22 +3,24 @@ import Link from "next/link";
 interface FormProps {
   email: string;
   password: string;
-  HandleData: (e: React.FormEvent<HTMLFormElement>) => void;
+  onSubmit?: (e: React.FormEvent<HTMLFormElement>) => void;
   setEmail: (value: string) => void;
+  href?: string
   setPassword: (value: string) => void;
 }
 
 export function LoginForm({
   email,
   password,
-  HandleData,
+  onSubmit,
   setEmail,
+  href,
   setPassword,
 }: FormProps) {
   return (
     <>
       <div className="mx-3 p-4">
-        <form className="flex gap-3 flex-col" onSubmit={HandleData}>
+        <form className="flex gap-3 flex-col" onSubmit={onSubmit}>
           <p className="text-3xl font-bold text-white w-full text-center">
             Log in to codelet
           </p>
@@ -45,7 +47,7 @@ export function LoginForm({
             Login
           </button>
           <Link
-            href="/register"
+            href={href ? href : "#"}
             className="text-blue-600 w-full text-center hover:underline"
           >
             Don't have an account? Sign Up
