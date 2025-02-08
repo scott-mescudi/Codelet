@@ -41,6 +41,47 @@ interface ErrorBoxProps {
     error: any
 }
 
+interface LoginResp {
+    access_token: string
+}
+
+interface ErrorResponse {
+  error: string;
+  code: number;
+}
+
+
+async function LoginReq(loginData: LoginRequest): Promise<LoginResp | ErrorResponse> {
+    try {
+        const resp = await fetch("http://localhost:3021/api/v1/login", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(loginData),
+        });
+
+        if (!resp.ok) {
+            try {
+                const errorResponse = (await resp.json()) as ErrorResponse;
+                return errorResponse;
+            } catch {
+                return { error: "Unexpected error format", code: resp.status };
+            }
+        }
+
+        try {
+            const loginResponse = (await resp.json()) as LoginResp;
+            return loginResponse;
+        } catch {
+            return { error: "Invalid response format", code: 500 };
+        }
+
+    } catch (err) {
+        return { error: "Failed to connect to server", code: 500 };
+    }
+}
+
 export function ErrorBox({error}: ErrorBoxProps) {
     return (
         <>
@@ -67,46 +108,27 @@ export default function Login() {
     })
 
     const HandleData = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
+        e.preventDefault()
 
         const loginData: LoginRequest = {
-        email,
-        password,
+            email,
+            password,
         };
 
-        try {
-            setLoading(true)
-            const resp = await axios.post("http://localhost:3021/api/v1/login", loginData, {
-            headers: {
-                "Content-Type": "application/json",
-            }
-            })
 
-            if (resp.status === 400 || resp.status === 422) {
-                throw new Error ("Invalid Email or Password")
-            }
+        try{
+            const resp = await LoginReq(loginData)
 
-            if (resp.status === 429) {
-                throw new Error ("Too many login attempts, please try again after 30 seconds")
-            }
+            if ("error" in resp){
+                console.error("Login failed:", resp.error);
+                return
+            } 
 
-            localStorage.setItem("ACCESS_TOKEN", resp.data)
+            localStorage.setItem("ACCESS_TOKEN", resp.access_token)
             setLogedin(true)
             router.push("/dashboard");
-        } catch (err: any) {
-            if (axios.isAxiosError(err)) {
-                if (err.response) {
-                    if (err.response.status === 429) {
-                        setApiErr("Too many login attempts, please try again after 30 seconds")
-                    } else {
-                        setApiErr(err.response.data?.message || "Invalid credentials")
-                    }
-                } else {
-                    setApiErr("Invalid credentials")
-                }
-            } else { 
-                setApiErr("An unknown error occurred")
-            }
+        } catch (err) {
+            console.error("Unexpected error:", err);
         }
 
         setLoading(false)
