@@ -1,5 +1,5 @@
 import type {Metadata} from 'next'
-import '../globals.css'
+import './globals.css'
 
 export const metadata: Metadata = {
 	title: 'Codelet',
@@ -11,9 +11,7 @@ export default function RootLayout({
 }: Readonly<{children: React.ReactNode}>) {
 	return (
 		<html lang="en" className="overflow-y-scroll">
-			<body>
-                {children}
-            </body>
+			<body>{children}</body>
 		</html>
 	)
 }
