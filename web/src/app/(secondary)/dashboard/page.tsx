@@ -3,8 +3,7 @@ import {Sidebar} from '@/components/Sidebar'
 import {useRouter} from 'next/navigation'
 import {useEffect, useState} from 'react'
 import {jwtDecode} from 'jwt-decode'
-
-
+import {CodeBox} from '@/components/CodeBlock'
 
 interface LoginResponse {
 	access_token: string
@@ -56,7 +55,7 @@ type SmallSnippets = SmallSnippet[]
 
 function isTokenExpired(token: string): boolean {
 	try {
-		const decoded: {exp?: number} = jwtDecode(token) 
+		const decoded: {exp?: number} = jwtDecode(token)
 		const now = Date.now() / 1000
 
 		return decoded.exp !== undefined ? decoded.exp < now : true
@@ -65,8 +64,9 @@ function isTokenExpired(token: string): boolean {
 	}
 }
 
-
-async function getSmallSnippets(token: string): Promise<SmallSnippets | undefined> {
+async function getSmallSnippets(
+	token: string
+): Promise<SmallSnippets | undefined> {
 	if (token === '') {
 		return undefined
 	}
@@ -98,8 +98,11 @@ async function getSmallSnippets(token: string): Promise<SmallSnippets | undefine
 	}
 }
 
-async function GetSnippetByID(snippetID: number, token: string): Promise<CodeSnippet | undefined> {
-    if (!snippetID || snippetID < 0) {
+async function GetSnippetByID(
+	snippetID: number,
+	token: string
+): Promise<CodeSnippet | undefined> {
+	if (!snippetID || snippetID < 0) {
 		return undefined
 	}
 
@@ -107,7 +110,7 @@ async function GetSnippetByID(snippetID: number, token: string): Promise<CodeSni
 		return undefined
 	}
 
-	try{
+	try {
 		const resp = await fetch(
 			`http://localhost:3021/api/v1/user/snippets/${snippetID}`,
 			{
@@ -126,7 +129,7 @@ async function GetSnippetByID(snippetID: number, token: string): Promise<CodeSni
 
 		const snippets = (await resp.json()) as CodeSnippet
 		return snippets
-	} catch(err){
+	} catch (err) {
 		console.error(err)
 		return undefined
 	}
@@ -149,8 +152,8 @@ export default function DashboardPage() {
 		}
 
 		// hankle refresh logi chere
-		if (isTokenExpired(token ? token : "")) {
-			console.log("Session expired")
+		if (isTokenExpired(token ? token : '')) {
+			console.log('Session expired')
 			router.push('/login')
 			return
 		}
@@ -162,7 +165,13 @@ export default function DashboardPage() {
 			}
 
 			setSnippets(snippets)
-			setSnippetToGet(snippets[0].id)
+
+			const LastSnippet = localStorage.getItem('LastSnippet')
+			if (!LastSnippet) {
+				setSnippetToGet(snippets[0].id)
+			}else{
+				setSnippetToGet(Number(LastSnippet))
+			}
 
 			const uniqueLanguages = [
 				...new Set(snippets.map(snippet => snippet.language))
@@ -174,7 +183,7 @@ export default function DashboardPage() {
 		get()
 	}, [])
 
-	useEffect(()=>{
+	useEffect(() => {
 		if (!snippetToGet) {
 			return
 		}
@@ -193,21 +202,21 @@ export default function DashboardPage() {
 		}
 
 		const getSnippet = async () => {
-			const snippet = await GetSnippetByID(snippetToGet, token ? token : '')
+			const snippet = await GetSnippetByID(
+				snippetToGet,
+				token ? token : ''
+			)
 			if (snippet === undefined) {
-				console.error("fialed tp get snippet")
+				console.error('fialed to get snippet')
 				return
 			}
 
 			setInViewSnippet(snippet)
+			localStorage.setItem('LastSnippet', snippetToGet ? String(snippetToGet) : '')
 		}
 
 		getSnippet()
 	}, [snippetToGet])
-
-	useEffect(() => {
-		console.log(inViewSnippet)
-	}, [inViewSnippet])
 
 	return (
 		<>
@@ -218,7 +227,7 @@ export default function DashboardPage() {
 						id="user-content"
 						className="w-2/3 h-full flex flex-row"
 					>
-						<div className="w-2/12 flex flex-col gap-3">
+						<div id='sidebar' className="w-2/12 flex flex-col gap-3">
 							{snippets &&
 								snippets.length > 0 &&
 								categories.length > 0 &&
@@ -231,21 +240,67 @@ export default function DashboardPage() {
 													category
 											)
 											.map(snippet => (
-												<p onClick={() => setSnippetToGet(snippet.id)}
+												<p
+													onClick={() =>
+														setSnippetToGet(
+															snippet.id
+														)
+													}
 													key={snippet.id}
-													className="text-white py-1 w-full border hover:border-opacity-100 border-opacity-15 text-opacity-50 hover:text-opacity-100 border-l-white border-r-0 border-t-0 border-b-0 pl-5  duration-300 ease-in-out hover:cursor-pointer text-nowrap text-ellipsis overflow-hidden">
+													className="text-white py-1 w-full border hover:border-opacity-100 border-opacity-15 text-opacity-50 hover:text-opacity-100 border-l-white border-r-0 border-t-0 border-b-0 pl-5  duration-300 ease-in-out hover:cursor-pointer text-nowrap text-ellipsis overflow-hidden"
+												>
 													{snippet.title}
 												</p>
 											))}
 									</Sidebar>
 								))}
 						</div>
-						<div className="w-10/12 flex flex-col">
-								<p className='w-full text-2xl font-bold text-white'>{inViewSnippet?.language}</p>
-						</div> 
+						<div className="w-10/12 ml-3 flex flex-col">
+							<p className="w-full select-none text-white text-left text-6xl font-bold ">
+								{inViewSnippet?.title}
+							</p>
+							<div className="w-full select-none flex gap-5 mt-2 flex-row">
+								{inViewSnippet?.tags.map(
+									(tag: string, idx: number) => (
+										<p
+											key={idx}
+											className="text-white text-nowrap w-fit text-opacity-50 px-5 rounded-lg py-0.5 bg-neutral-800"
+										>
+											{tag}
+										</p>
+									)
+								)}
+							</div>
+							<p className="w-full pl-1 text-white text-left mt-4 text-opacity-50">
+								{inViewSnippet?.description}
+							</p>
+							<div className="w-full mt-10">
+								<CodeBox
+									code={
+										inViewSnippet?.code
+											? inViewSnippet.code
+											: ''
+									}
+								/>
+							</div>
+						</div>
 					</div>
 				</div>
 			)}
 		</>
 	)
 }
+
+//   <div className="w-10/12  min-h-full flex flex-col gap-1 text-white">
+// 	<p className="w-full select-none pl-1 text-white text-left text-xl font-bold text-opacity-50 font-mono">{inViewSnippet?.language.toLowerCase()}</p>
+// 	<p className="w-full select-none text-white text-left text-6xl font-bold ">{inViewSnippet?.title}</p>
+// 	<div className="w-full select-none flex gap-5 mt-2 flex-row">
+// 	  {inViewSnippet?.tags.map((tag:string, idx:number) => (
+// 		<p key={idx} className="text-white text-nowrap w-fit text-opacity-50 px-5 rounded-lg py-0.5 bg-neutral-800">{tag}</p>
+// 	  ))}
+// 	</div>
+// 	<p className="w-full pl-1 text-white text-left mt-4 text-opacity-50">{inViewSnippet?.description}</p>
+// 	<div className="w-full mt-10">
+// 	  <CodeBox code={inViewSnippet?.code ? inViewSnippet.code : ""} />
+// 	</div>
+//   </div>
