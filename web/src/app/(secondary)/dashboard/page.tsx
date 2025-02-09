@@ -9,7 +9,8 @@ import HouseIcon from '@mui/icons-material/House';
 
 import logo from "../../../../public/logo.svg"
 import Image from 'next/image'
-import Link from 'next/link'
+import LogoutIcon from '@mui/icons-material/Logout';
+import { DropdownItem } from '@/components/DropdownItem'
 
 interface LoginResponse {
 	access_token: string
@@ -150,6 +151,31 @@ interface UserContentProps {
 	setAddsnippet: React.Dispatch<React.SetStateAction<boolean>>
 }
 
+async function Logout(token:string) {
+	if (token === "")  return;
+
+	try {
+		const resp = await fetch(
+			`http://localhost:3021/api/v1/logout`,
+			{
+				method: 'POST',
+				headers: {
+					Authorization: token
+				}
+			}
+		)
+
+		if (!resp.ok) {
+			const errResp = (await resp.json()) as ErrorResp
+			console.log(errResp)
+			return
+		}
+	} catch (err) {
+		console.error(err)
+		return
+	}
+}
+
 export function UserContent({
 	snippets,
 	categories,
@@ -228,6 +254,7 @@ export default function DashboardPage() {
 	const [snippetToGet, setSnippetToGet] = useState<number>()
 	const [inViewSnippet, setInViewSnippet] = useState<CodeSnippet>()
 	const [addSnippet, setAddsnippet] = useState<boolean>(false)
+	const [dropdownOpen, setDropdownOpen] = useState <boolean>(false)
 	const router = useRouter()
 
 	useEffect(() => {
@@ -308,6 +335,27 @@ export default function DashboardPage() {
 		getSnippet()
 	}, [snippetToGet])
 
+	const LogoutHandler = async () => {
+		const token = localStorage.getItem('ACCESS_TOKEN')
+		if (!token) {
+			router.push('/login')
+		} else {
+			setLoggedin(true)
+		}
+
+		if (isTokenExpired(token ? token : '')) {
+			console.log('Session expired')
+			router.push('/login')
+			return
+		}
+
+		await Logout(token ? token : "")
+
+		localStorage.removeItem("ACCESS_TOKEN")
+		router.push('/login')
+		setLoggedin(false)
+	}
+
 	return (
 		<>
 			{loggedIn && (
@@ -319,17 +367,16 @@ export default function DashboardPage() {
 						</div>
 						<p className='text-3xl select-none ml-2 text-white font-bold'>Codelet</p>
 						<button className='bg-white hover:bg-opacity-80 duration-300 ease-in-out ml-auto h-fit py-1 px-5 text-lg font-semibold rounded-lg' onClick={() => setAddsnippet(true)}>new snippet</button>
-						<button className='p-1 rounded-md ml-3 relative text-white'> 
+						<button onClick={() => setDropdownOpen(prev => !prev)} className='p-1 rounded-md ml-3 relative text-white'> 
 							<MenuIcon fontSize='large' />
-							<div className='absolute mt-4 right-0 mr-2'>
-								<div className='w-fit h-fit p-4 flex flex-col border border-white border-opacity-15'>
-									<div className=' flex flex-row items-center gap-3'>
-										<HouseIcon fontSize='large' />
-										<p className='h-fit text-2xl' >home</p>
-									</div>
-									<Link className='px-5' href={"#"}>Logout</Link>
+							{dropdownOpen &&
+							<div  className='absolute mt-4 right-0 mr-2'>
+								<div className='w-fit h-fit p-4 flex flex-col gap-2  border border-white border-opacity-15'>
+									<DropdownItem link='/' title='Home' subTitle='Back to home' icon={<HouseIcon fontSize='large' />} />
+									<DropdownItem onClick={LogoutHandler} title='Logout' subTitle='Secure Logout portal' icon={<LogoutIcon fontSize='large' />} />
 								</div>
 							</div>
+							}
 						</button>
 					</div>
 					<div id="user-content" className="lg:w-2/3 h-full gap-5 flex flex-row justify-center">
