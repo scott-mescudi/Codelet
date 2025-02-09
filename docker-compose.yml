@@ -20,6 +20,12 @@ services:
       retries: 5
     networks:
       - codelet-network
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+          cpus: '1'
+
 
   codelet_server:
     build:
@@ -33,6 +39,7 @@ services:
     environment:
       - APP_PORT=:3021
       - DATABASE_URL=${DATABASE_URL}
+      - GOMAXPROCS=2
       - CORS_ORIGIN=http://localhost:3000
     ports:
       - "3021:3021"
@@ -44,6 +51,11 @@ services:
       - ./logs:/src/logs
     networks:
       - codelet-network
+    deploy:
+      resources:
+        limits:
+          memory: 12G
+          cpus: '3'
 
 networks:
   codelet-network:

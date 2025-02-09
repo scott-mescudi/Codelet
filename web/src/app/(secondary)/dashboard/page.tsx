@@ -1,3 +1,41 @@
+import { Sidebar } from "@/components/Sidebar";
+
 export default function DashboardPage() {
-	return <></>
+	return (
+		<>
+			<div className="flex w-full flex-col items-center">
+				{/* navbar */}
+				<div id="user-content" className="w-2/3 h-full flex flex-row">
+					<div className="w-1/12 flex flex-col gap-3">
+					{/* place holder, eventally map over snippets */}
+						<Sidebar title="Golang">
+							<p className="text-white py-1 w-full border hover:border-opacity-100 border-opacity-15 text-opacity-50 hover:text-opacity-100 border-l-white border-r-0 border-t-0 border-b-0 pl-5  duration-300 ease-in-out hover:cursor-pointer text-nowrap text-ellipsis overflow-hidden">
+								main
+							</p>
+							<p className="text-white py-1 w-full border hover:border-opacity-100 border-opacity-15 text-opacity-50 hover:text-opacity-100 border-l-white border-r-0 border-t-0 border-b-0 pl-5  duration-300 ease-in-out hover:cursor-pointer text-nowrap text-ellipsis overflow-hidden">
+								main
+							</p>
+						</Sidebar>
+						<Sidebar title="Rust">
+							<p className="text-white py-1 w-full border hover:border-opacity-100 border-opacity-15 text-opacity-50 hover:text-opacity-100 border-l-white border-r-0 border-t-0 border-b-0 pl-5  duration-300 ease-in-out hover:cursor-pointer text-nowrap text-ellipsis overflow-hidden">
+								main
+							</p>
+							<p className="text-white py-1 w-full border hover:border-opacity-100 border-opacity-15 text-opacity-50 hover:text-opacity-100 border-l-white border-r-0 border-t-0 border-b-0 pl-5  duration-300 ease-in-out hover:cursor-pointer text-nowrap text-ellipsis overflow-hidden">
+								main
+							</p>
+						</Sidebar>
+					</div>
+					<div className="w-11/12 bg-neutral-900 ">
+						{/* categorie */}
+						{/* title in big */}
+						{/* tags */}
+						{/* desription in 50  opacity */}
+						{/* space */}
+						{/* codeblock */}
+						{/* extra shit maybe */}
+					</div>
+				</div>
+			</div>
+		</>
+	)
 }
