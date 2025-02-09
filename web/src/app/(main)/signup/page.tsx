@@ -1,6 +1,7 @@
 'use client'
 
 import {RegisterForm} from '@/components/SignupForm'
+import {useRouter} from 'next/navigation'
 import {useState} from 'react'
 
 interface SignupRequest {
@@ -58,13 +59,10 @@ async function Signup(
 	}
 }
 
-async function Login(
-	email: string,
-	password: string
-): Promise<boolean> {
+async function Login(email: string, password: string): Promise<boolean> {
 	const data: LoginRequest = {
 		email,
-		password,
+		password
 	}
 
 	try {
@@ -82,9 +80,9 @@ async function Login(
 			return false
 		}
 
-		const token = await resp.json() as LoginResponse
-		localStorage.setItem("ACCESS_TOKEN", token.access_token)
-		
+		const token = (await resp.json()) as LoginResponse
+		localStorage.setItem('ACCESS_TOKEN', token.access_token)
+
 		return true
 	} catch (err) {
 		console.error(err)
@@ -96,13 +94,18 @@ export default function RegisterPage() {
 	const [username, setUsername] = useState<string>('')
 	const [email, setEmail] = useState<string>('')
 	const [password, setPassword] = useState<string>('')
+	const router = useRouter()
 
 	const submit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault()
 		let success = await Signup(username, email, password)
 		// add err handling logic here
-		if (!success) console.log("Failed to create account")
+		if (!success) console.log('Failed to create account')
 		success = await Login(email, password)
+		if (success) {
+			router.push('/dashboard')
+			return
+		}
 	}
 
 	return (

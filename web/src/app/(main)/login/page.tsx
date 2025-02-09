@@ -1,7 +1,9 @@
-"use client";
+'use client'
 
-import { LoginForm } from "@/components/LoginForm";
-import { useState } from "react";1
+import {LoginForm} from '@/components/LoginForm'
+import {useRouter} from 'next/navigation'
+import {useState} from 'react'
+1
 
 interface ErrorResponse {
 	error: string
@@ -49,18 +51,29 @@ async function Login(email: string, password: string): Promise<boolean> {
 }
 
 export default function LoginPage() {
-  const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
+	const [email, setEmail] = useState<string>('')
+	const [password, setPassword] = useState<string>('')
+	const router = useRouter()
 
-  	const submit = async (e: React.FormEvent<HTMLFormElement>) => {
+	const submit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault()
 		const success = await Login(email, password)
+		if (success) {
+			router.push('/dashboard')
+			return
+		}
 	}
 
-  
-  return (
-    <div className="flex min-h-screen items-center justify-center ">
-      <LoginForm onSubmit={submit} href="/signup" email={email} password={password} setEmail={setEmail} setPassword={setPassword} />
-    </div>
-  );
+	return (
+		<div className="flex min-h-screen items-center justify-center ">
+			<LoginForm
+				onSubmit={submit}
+				href="/signup"
+				email={email}
+				password={password}
+				setEmail={setEmail}
+				setPassword={setPassword}
+			/>
+		</div>
+	)
 }
