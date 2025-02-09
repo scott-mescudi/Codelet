@@ -20,7 +20,6 @@ func ConnectToDatabase(postgresURI string) (*pgxpool.Pool, error) {
 		return nil, fmt.Errorf("unable to create connection pool: %w", err)
 	}
 
-	// Ensure the database is reachable
 	if err := dbPool.Ping(context.Background()); err != nil {
 		dbPool.Close()
 		return nil, fmt.Errorf("unable to ping database: %w", err)

@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 export default function RootLayout({children}: Readonly<{children: React.ReactNode}>) {
 	return (
 		<html lang="en" className="overflow-y-scroll">
-			<body>{children}</body>
-		</html>	
+			<body className="overflow-hidden">{children}</body>
+		</html>
 	)
 }
