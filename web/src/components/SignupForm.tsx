@@ -26,7 +26,7 @@ export function RegisterForm({
       <div className="mx-3 p-4">
         <form className="flex gap-3 flex-col" onSubmit={onSubmit}>
           <p className="text-3xl font-bold text-white w-full text-center">
-            Sign Up to Codelet
+            Sign Up to codelet
           </p>
           <input
             value={username}

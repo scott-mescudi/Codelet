@@ -61,6 +61,7 @@ export default function LoginPage() {
 			router.push('/dashboard')
 			return
 		}
+
 		setErr("invalid Email or Password")
 	}
 

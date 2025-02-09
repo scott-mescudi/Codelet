@@ -1,6 +1,47 @@
+'use client'
 import { Sidebar } from "@/components/Sidebar";
+import { useEffect } from "react";
+
+
+interface LoginResponse {
+	access_token: string
+}
+
+
+async function getRefreshtoken():Promise<boolean> {
+	try {
+		const resp = await fetch('http://localhost:3021/api/v1/refresh', {
+			method:"GET",
+			credentials: 'include'
+		})
+
+		if (!resp.ok) {
+			console.log(await resp.json())
+			return false
+		}
+
+		const token = await resp.json() as LoginResponse
+		localStorage.setItem("ACCESS_TOKEN", token.access_token)
+		return true
+	}catch(err) {
+		return false
+	}
+} 
 
 export default function DashboardPage() {
+	useEffect(() => {
+		const token = localStorage.getItem("ACCESS_TOKEN")
+		console.log(token)
+		const tt = async () => {
+			const ok = await getRefreshtoken()
+			console.log(ok)
+			const token = localStorage.getItem('ACCESS_TOKEN')
+			console.log(token)
+		}
+
+		tt()
+	}, [])
+
 	return (
 		<>
 			<div className="flex w-full flex-col items-center">
