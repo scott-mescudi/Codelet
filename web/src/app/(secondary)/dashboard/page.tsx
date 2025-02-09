@@ -275,7 +275,7 @@ export default function DashboardPage() {
 								{inViewSnippet?.description}
 							</p>
 							<div className="w-full mt-10">
-								<CodeBox
+								<CodeBox background='bg-neutral-950'
 									code={
 										inViewSnippet?.code
 											? inViewSnippet.code
