@@ -3,6 +3,9 @@ import './globals.css'
 
 export const metadata: Metadata = {
 	title: 'Codelet',
+	icons: {
+		icon: '/logo.svg'
+	},
 	description: 'Codelet'
 }
 
