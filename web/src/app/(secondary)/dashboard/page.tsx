@@ -225,9 +225,9 @@ export default function DashboardPage() {
 					{/* navbar */}
 					<div
 						id="user-content"
-						className="w-2/3 h-full flex flex-row"
+						className="lg:w-2/3 h-full flex flex-row"
 					>
-						<div id='sidebar' className="w-2/12 flex flex-col gap-3">
+						<div id='sidebar' className="w-2/12 lg:flex hidden flex-col gap-3">
 							{snippets &&
 								snippets.length > 0 &&
 								categories.length > 0 &&
@@ -247,7 +247,7 @@ export default function DashboardPage() {
 														)
 													}
 													key={snippet.id}
-													className="text-white py-1 w-full border hover:border-opacity-100 border-opacity-15 text-opacity-50 hover:text-opacity-100 border-l-white border-r-0 border-t-0 border-b-0 pl-5  duration-300 ease-in-out hover:cursor-pointer text-nowrap text-ellipsis overflow-hidden"
+													className={`text-white py-1 w-full border ${inViewSnippet?.title === snippet.title ? "border-opacity-100 text-opacity-100" : "hover:border-opacity-100 border-opacity-15 text-opacity-50 hover:text-opacity-100"} hover:border-opacity-100 border-opacity-15 text-opacity-50 hover:text-opacity-100 border-l-white border-r-0 border-t-0 border-b-0 pl-5  duration-300 ease-in-out hover:cursor-pointer text-nowrap text-ellipsis overflow-hidden`}
 												>
 													{snippet.title}
 												</p>
@@ -255,7 +255,7 @@ export default function DashboardPage() {
 									</Sidebar>
 								))}
 						</div>
-						<div className="w-10/12 ml-3 flex flex-col">
+						<div className="lg:w-10/12 lg:ml-3 flex flex-col">
 							<p className="w-full select-none text-white text-left text-6xl font-bold ">
 								{inViewSnippet?.title}
 							</p>
