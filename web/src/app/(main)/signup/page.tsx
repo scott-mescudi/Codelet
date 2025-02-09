@@ -2,7 +2,8 @@
 
 import {RegisterForm} from '@/components/SignupForm'
 import {useRouter} from 'next/navigation'
-import {useState} from 'react'
+import {useEffect, useState} from 'react'
+import './signup.css'
 
 interface SignupRequest {
 	username: string
@@ -11,10 +12,6 @@ interface SignupRequest {
 	role: string
 }
 
-interface ErrorResponse {
-	error: string
-	code: number
-}
 
 interface LoginRequest {
 	email: string
@@ -47,14 +44,11 @@ async function Signup(
 		})
 
 		if (!resp.ok) {
-			const error = (await resp.json()) as ErrorResponse
-			console.error(error)
 			return false
 		}
 
 		return true
 	} catch (err) {
-		console.error(err)
 		return false
 	}
 }
@@ -75,8 +69,6 @@ async function Login(email: string, password: string): Promise<boolean> {
 		})
 
 		if (!resp.ok) {
-			const error = (await resp.json()) as ErrorResponse
-			console.error(error)
 			return false
 		}
 
@@ -85,7 +77,6 @@ async function Login(email: string, password: string): Promise<boolean> {
 
 		return true
 	} catch (err) {
-		console.error(err)
 		return false
 	}
 }
@@ -94,13 +85,22 @@ export default function RegisterPage() {
 	const [username, setUsername] = useState<string>('')
 	const [email, setEmail] = useState<string>('')
 	const [password, setPassword] = useState<string>('')
+	const [err, setErr] = useState<string>("")
 	const router = useRouter()
 
 	const submit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault()
+		if (email === "" || username === "" || password === "") {
+			setErr('Please fill in all fields')
+			return
+		}
+
 		let success = await Signup(username, email, password)
-		// add err handling logic here
-		if (!success) console.log('Failed to create account')
+		if (!success) {
+			setErr('A user with that email already exists')
+			return
+		}
+
 		success = await Login(email, password)
 		if (success) {
 			router.push('/dashboard')
@@ -108,8 +108,17 @@ export default function RegisterPage() {
 		}
 	}
 
+	useEffect(() => {
+		if (err) {
+			const t = setTimeout(() => {
+				setErr("")
+			}, 3000);
+			return () => {clearTimeout(t)}
+		}
+	}, [err])
+
 	return (
-		<div className="flex min-h-screen items-center justify-center ">
+		<div className="flex flex-col min-h-screen items-center justify-center ">
 			<RegisterForm
 				onSubmit={submit}
 				href="/login"
@@ -120,6 +129,11 @@ export default function RegisterPage() {
 				setPassword={setPassword}
 				setUsername={setUsername}
 			/>
+			{err != "" && (
+				<p className="text-red-700 wiggle ">
+					{err}
+				</p>
+			)}
 		</div>
 	)
 }
