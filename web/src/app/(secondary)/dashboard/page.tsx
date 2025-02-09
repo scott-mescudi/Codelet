@@ -186,7 +186,6 @@ export default function DashboardPage() {
 			setLoggedin(true)
 		}
 
-		// handle refrwesh ligc here
 		if (isTokenExpired(token ? token : '')) {
 			console.log('Session expired')
 			router.push('/login')
@@ -241,15 +240,9 @@ export default function DashboardPage() {
 									</Sidebar>
 								))}
 						</div>
-						<div className="w-10/12 ">
-							{/* categorie */}
-							{/* title in big */}
-							{/* tags */}
-							{/* desription in 50  opacity */}
-							{/* space */}
-							{/* codeblock */}
-							{/* extra shit maybe */}
-						</div>
+						<div className="w-10/12 flex flex-col">
+								<p className='w-full text-2xl font-bold text-white'>{inViewSnippet?.language}</p>
+						</div> 
 					</div>
 				</div>
 			)}
