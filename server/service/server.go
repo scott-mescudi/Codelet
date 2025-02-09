@@ -51,6 +51,8 @@ func NewCodeletServer() (*http.ServeMux, func()) {
 	app.Handle("POST /api/v1/logout", middleware.AuthMiddleware(srv.Logout))
 	app.Handle("POST /api/v1/user/snippets", middleware.AuthMiddleware(srv2.AddSnippet))
 	app.Handle("DELETE /api/v1/user/snippets/{id}", middleware.AuthMiddleware(srv2.DeleteSnippet))
+	app.Handle("GET /api/v1/user/snippets/{id}", middleware.AuthMiddleware(srv2.GetUserSnippetByID))
+	app.Handle("GET /api/v1/user/small/snippets", middleware.AuthMiddleware(srv2.GetSmallUserSnippets))
 	app.Handle("GET /api/v1/user/snippets", middleware.AuthMiddleware(srv2.GetUserSnippets))
 	app.HandleFunc("GET /api/v1/public/snippets", srv2.GetPublicSnippets)
 

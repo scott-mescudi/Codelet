@@ -246,3 +246,80 @@ func (s *SnippetService) DeleteSnippet(w http.ResponseWriter, r *http.Request) {
 
 	s.Logger.Info().Int("snippetID", id).Str("function", "DeleteSnippet").Str("origin", r.RemoteAddr).Msg("Successfully deleted snippet")
 }
+
+
+func (s *SnippetService) GetSmallUserSnippets(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+	useridStr := r.Header.Get("X-USERID")
+	if useridStr == "" {
+		s.Logger.Warn().Str("function", "GetUserSnippets").Str("origin", r.RemoteAddr).Msg("Missing 'X-USERID' header")
+		errs.ErrorWithJson(w, http.StatusBadRequest, "missing 'X-USERID' header")
+		return
+	}
+
+	userID, err := strconv.Atoi(useridStr)
+	if err != nil {
+		s.Logger.Warn().Str("function", "GetUserSnippets").Str("origin", r.RemoteAddr).Msg("invalid 'X-USERID' header format")
+		errs.ErrorWithJson(w, http.StatusInternalServerError, "invalid 'X-USERID' header format")
+		return
+	}
+
+	snippets, err := dba.GetSmallUserSnippets(s.Db, userID)
+	if err != nil {
+		s.Logger.Error().Int("userID", userID).Str("function", "GetSmallSnippets").Str("origin", r.RemoteAddr).Err(err).Msg("failed to fetch user snippets")
+		errs.ErrorWithJson(w, http.StatusInternalServerError, "failed to fetch snippets from database")
+		return  
+	}
+
+	if len(snippets) == 0 {
+		s.Logger.Warn().Int("userID", userID).Str("function", "GetSmallSnippets").Str("origin", r.RemoteAddr).Msg("no snippets found for user")
+		errs.ErrorWithJson(w, http.StatusNotFound, "no snippets found for user")
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(snippets); err != nil {
+		s.Logger.Error().Int("userID", userID).Str("function", "GetUserSnippets").Str("origin", r.RemoteAddr).Msg("failed to encode snippets")
+		errs.ErrorWithJson(w, http.StatusInternalServerError, "failed to encode snippets as JSON")
+		return
+	}
+}
+
+func (s *SnippetService) GetUserSnippetByID(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+	useridStr := r.Header.Get("X-USERID")
+	if useridStr == "" {
+		s.Logger.Warn().Str("function", "GetUserSnippets").Str("origin", r.RemoteAddr).Msg("Missing 'X-USERID' header")
+		errs.ErrorWithJson(w, http.StatusBadRequest, "missing 'X-USERID' header")
+		return
+	}
+	path := r.URL.Path
+	idString := strings.TrimPrefix(path, "/api/v1/user/snippets/")
+	id, err := strconv.Atoi(idString)
+	if err != nil {
+		s.Logger.Warn().Str("function", "DeleteSnippet").Str("origin", r.RemoteAddr).Msg("failed to parse snippet id in uri")
+		errs.ErrorWithJson(w, http.StatusBadRequest, "failed to parse snippet id in uri")
+		return
+	}
+
+	userID, err := strconv.Atoi(useridStr)
+	if err != nil {
+		s.Logger.Warn().Str("function", "GetUserSnippets").Str("origin", r.RemoteAddr).Msg("invalid 'X-USERID' header format")
+		errs.ErrorWithJson(w, http.StatusInternalServerError, "invalid 'X-USERID' header format")
+		return
+	}
+
+	snippet, err := dba.GetSnippetByIDAndUserID(s.Db, userID, id)
+	if err != nil {
+		s.Logger.Error().Int("userID", userID).Str("function", "GetSmallSnippets").Str("origin", r.RemoteAddr).Err(err).Msg("failed to fetch user snippets")
+		errs.ErrorWithJson(w, http.StatusInternalServerError, "failed to fetch snippets from database")
+		return  
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(snippet); err != nil {
+		s.Logger.Error().Int("userID", userID).Str("function", "GetUserSnippets").Str("origin", r.RemoteAddr).Msg("failed to encode snippets")
+		errs.ErrorWithJson(w, http.StatusInternalServerError, "failed to encode snippets as JSON")
+		return
+	}
+}

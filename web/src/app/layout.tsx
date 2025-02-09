@@ -6,12 +6,10 @@ export const metadata: Metadata = {
 	description: 'Codelet'
 }
 
-export default function RootLayout({
-	children
-}: Readonly<{children: React.ReactNode}>) {
+export default function RootLayout({children}: Readonly<{children: React.ReactNode}>) {
 	return (
 		<html lang="en" className="overflow-y-scroll">
 			<body>{children}</body>
-		</html>
+		</html>	
 	)
 }

@@ -14,3 +14,11 @@ type DBsnippet struct {
 	Created     time.Time `json:"created"`
 	Updated     time.Time `json:"updated"`
 }
+
+
+type SmallDBsnippet struct {
+	ID          int       `json:"id"`
+	Language    string    `json:"language"`
+	Title       string    `json:"title"`
+	Favorite    bool      `json:"favorite"`
+}
