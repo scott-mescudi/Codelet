@@ -22,7 +22,7 @@ export function LoginForm({
       <div className="mx-3 p-4">
         <form className="flex gap-3 flex-col" onSubmit={onSubmit}>
           <p className="text-3xl font-bold text-white w-full text-center">
-            Log in to codelet
+            Log in to Codelet
           </p>
           <input
             value={email}
