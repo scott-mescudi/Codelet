@@ -5,6 +5,9 @@ import {useEffect, useState} from 'react'
 import {jwtDecode} from 'jwt-decode'
 import {CodeBox} from '@/components/CodeBlock'
 
+import logo from "../../../../public/logo.svg"
+import Image from 'next/image'
+
 interface LoginResponse {
 	access_token: string
 }
@@ -152,8 +155,9 @@ export function UserContent({
 	setAddsnippet
 }: UserContentProps) {
 	return (
-		<>
-			<div id="sidebar" className="w-2/12 lg:flex hidden flex-col gap-3">
+		<>	
+		<div className='h-[90vh] pb-10 relative lg:flex hidden overflow-auto scrollbar-none w-2/12'>
+			<div id="sidebar" className="w-full flex flex-col gap-3">
 				{snippets &&
 					snippets.length > 0 &&
 					categories.length > 0 &&
@@ -172,8 +176,8 @@ export function UserContent({
 										className={`text-white py-1 w-full border ${
 											inViewSnippet?.id === snippet.id
 												? 'border-opacity-100 text-opacity-100'
-												: 'hover:border-opacity-100 border-opacity-15 text-opacity-50 hover:text-opacity-100'
-										} hover:border-opacity-100 border-opacity-15 text-opacity-50 hover:text-opacity-100 border-l-white border-r-0 border-t-0 border-b-0 pl-5  duration-300 ease-in-out hover:cursor-pointer text-nowrap text-ellipsis overflow-hidden`}
+												: ' border-opacity-15 text-opacity-60 hover:text-opacity-100'
+										} border-l-white border-r-0 border-t-0 border-b-0 pl-5  duration-300 ease-in-out hover:cursor-pointer text-nowrap text-ellipsis overflow-hidden`}
 									>
 										{snippet.title}
 									</p>
@@ -181,30 +185,35 @@ export function UserContent({
 						</Sidebar>
 					))}
 			</div>
-			<div className="lg:w-10/12 flex flex-col">
-				<p className="w-full select-none text-white text-left text-6xl font-bold">
+		</div>
+		
+		<div className='h-[90vh] pb-10 w-10/12 overflow-auto scrollbar-none'>
+			<div className="w-full flex flex-col">
+				<p className="w-full line-clamp-1 h-20 select-none text-white  text-6xl font-bold">
 					{inViewSnippet?.title}
 				</p>
-				<div className="w-full select-none flex gap-5 mt-2 flex-row">
+				<div className="w-full select-none flex gap-5 sm:mt-3 mt-5 flex-row">
 					{inViewSnippet?.tags.map((tag: string, idx: number) => (
 						<p
 							key={idx}
-							className="text-white text-nowrap w-fit text-opacity-50 px-5 rounded-lg py-0.5 bg-neutral-800"
+							className="text-white text-nowrap w-fit text-opacity-60 px-5 rounded-lg py-0.5 bg-neutral-900"
 						>
 							{tag}
 						</p>
 					))}
 				</div>
-				<p className="w-full pl-1 text-white text-left mt-4 text-opacity-50">
+				<p className="w-full pl-1 text-white   mt-4 text-opacity-80">
 					{inViewSnippet?.description}
 				</p>
-				<div className="w-full mt-10">
+				<div className="w-full mt-10 ">
 					<CodeBox
 						background="bg-neutral-950"
 						code={inViewSnippet?.code ? inViewSnippet.code : ''}
 					/>
 				</div>
 			</div>
+		</div>
+
 		</>
 	)
 }
@@ -299,23 +308,24 @@ export default function DashboardPage() {
 	return (
 		<>
 			{loggedIn && (
-				<div className="flex w-full flex-col gap-10 items-center">
+				<div className="flex  w-full flex-col gap-10 items-center">
 					{/* navbar */}
-					<div className="lg:w-2/3 h-20 mt-5 bg-neutral-900 rounded-xl">
-						<button onClick={() => setAddsnippet(true)}>
-							press me
-						</button>
+					<div className="lg:w-2/3 h-16 mt-5  flex  items-center  rounded-xl">
+						<div className='h-full aspect-square'>
+							<Image draggable={false} src={logo} className='h-full w-full ' alt='codelet logo' />
+						</div>
+						<p className='text-3xl select-none ml-2 text-white font-bold'>Codelet</p>
+						<button className='bg-white hover:bg-opacity-80 duration-300 ease-in-out ml-auto h-fit py-1 px-5 text-lg font-semibold rounded-lg' onClick={() => setAddsnippet(true)}>new snippet</button>
 					</div>
-					<div id="user-content" className="lg:w-2/3 h-full gap-5 flex flex-row">
+					<div id="user-content" className="lg:w-2/3 h-full gap-5 flex flex-row justify-center">
 						<UserContent snippets={snippets} categories={categories} setSnippetToGet={setSnippetToGet} inViewSnippet={inViewSnippet} setAddsnippet={setAddsnippet}/>
 					</div>
 					{addSnippet && (
 						<div id="parent" onClick={() => setAddsnippet(false)} className="fixed h-screen w-screen backdrop-blur-lg">
 							<div className="w-full h-full flex justify-center items-center">
-								<div
-									onClick={e => e.stopPropagation()}
-									className="w-2/3 mt-auto rounded-t-xl h-3/4 bg-neutral-900"
-								></div>
+								<div onClick={e => e.stopPropagation()} className="sm:w-2/3 w-11/12 mt-auto overflow-auto scrollbar-hidden rounded-t-xl h-3/4 bg-neutral-900">
+									
+								</div>
 							</div>
 						</div>
 					)}

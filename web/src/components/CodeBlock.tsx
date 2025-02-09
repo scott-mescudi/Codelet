@@ -38,7 +38,7 @@ export function CodeBox({ code, background }: codeBoxProps) {
     return (
         <>
         <div className="w-full h-full group flex flex-col"> 
-            <div className={`sm:w-full relative w-full  scrollbar-track-[black] scrollbar-thumb-neutral-800 scrollbar-thin overflow-auto rounded-xl py-5 border border-white border-opacity-15 ${background}`}>
+            <div className={`sm:w-full relative w-full  scrollbar-track-[black] scrollbar-thumb-neutral-800 scrollbar-thin overflow-auto rounded-xl py-5 border border-white border-opacity-10 ${background}`}>
                 <div id="copy" className="absolute z-10 mt-3 mr-5 w-fit h-fit opacity-0 group-hover:opacity-100 duration-200 ease-in-out top-0 right-0 bg-black bg-opacity-50 rounded-lg text-[white]">
                     <button onClick={() => handleClick(code)} className="text-sm px-3 py-1">{copied ? "Copied!" : "Copy"}</button>
                 </div>
