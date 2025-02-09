@@ -12,7 +12,6 @@ interface SignupRequest {
 	role: string
 }
 
-
 interface LoginRequest {
 	email: string
 	password: string
@@ -85,12 +84,12 @@ export default function RegisterPage() {
 	const [username, setUsername] = useState<string>('')
 	const [email, setEmail] = useState<string>('')
 	const [password, setPassword] = useState<string>('')
-	const [err, setErr] = useState<string>("")
+	const [err, setErr] = useState<string>('')
 	const router = useRouter()
 
 	const submit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault()
-		if (email === "" || username === "" || password === "") {
+		if (email === '' || username === '' || password === '') {
 			setErr('Please fill in all fields')
 			return
 		}
@@ -111,9 +110,11 @@ export default function RegisterPage() {
 	useEffect(() => {
 		if (err) {
 			const t = setTimeout(() => {
-				setErr("")
-			}, 3000);
-			return () => {clearTimeout(t)}
+				setErr('')
+			}, 3000)
+			return () => {
+				clearTimeout(t)
+			}
 		}
 	}, [err])
 
@@ -129,11 +130,13 @@ export default function RegisterPage() {
 				setPassword={setPassword}
 				setUsername={setUsername}
 			/>
-			{err != "" && (
-				<p className="text-red-700 wiggle ">
-					{err}
-				</p>
-			)}
+			<p
+				className={`text-red-700 min-h-[24px] ${
+					err === '' ? 'opacity-0' : 'wiggle'
+				}`}
+			>
+				{err}
+			</p>
 		</div>
 	)
 }

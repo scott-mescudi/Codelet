@@ -2,13 +2,9 @@
 
 import {LoginForm} from '@/components/LoginForm'
 import {useRouter} from 'next/navigation'
-import {useState} from 'react'
-1
+import {useEffect, useState} from 'react'
+import "./login.css"
 
-interface ErrorResponse {
-	error: string
-	code: number
-}
 
 interface LoginRequest {
 	email: string
@@ -35,8 +31,6 @@ async function Login(email: string, password: string): Promise<boolean> {
 		})
 
 		if (!resp.ok) {
-			const error = (await resp.json()) as ErrorResponse
-			console.error(error)
 			return false
 		}
 
@@ -45,7 +39,6 @@ async function Login(email: string, password: string): Promise<boolean> {
 
 		return true
 	} catch (err) {
-		console.error(err)
 		return false
 	}
 }
@@ -53,19 +46,35 @@ async function Login(email: string, password: string): Promise<boolean> {
 export default function LoginPage() {
 	const [email, setEmail] = useState<string>('')
 	const [password, setPassword] = useState<string>('')
+	const [err, setErr] = useState<string>('')
 	const router = useRouter()
 
 	const submit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault()
+		if (email === '' || password === '') {
+			setErr('Please fill in all fields')
+			return
+		}
+
 		const success = await Login(email, password)
 		if (success) {
 			router.push('/dashboard')
 			return
 		}
+		setErr("invalid Email or Password")
 	}
 
+	useEffect(() => {
+		if (err) {
+			const t = setTimeout(() => {
+				setErr("")
+			}, 3000);
+			return () => {clearTimeout(t)}
+		}
+	}, [err])
+
 	return (
-		<div className="flex min-h-screen items-center justify-center ">
+		<div className="flex flex-col min-h-screen items-center justify-center ">
 			<LoginForm
 				onSubmit={submit}
 				href="/signup"
@@ -74,6 +83,7 @@ export default function LoginPage() {
 				setEmail={setEmail}
 				setPassword={setPassword}
 			/>
+			<p className={`text-red-700 min-h-[24px] ${err === '' ? 'opacity-0' : 'wiggle'}`}>{err}</p>
 		</div>
 	)
 }
