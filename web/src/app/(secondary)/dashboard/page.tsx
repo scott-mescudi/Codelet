@@ -290,17 +290,3 @@ export default function DashboardPage() {
 		</>
 	)
 }
-
-//   <div className="w-10/12  min-h-full flex flex-col gap-1 text-white">
-// 	<p className="w-full select-none pl-1 text-white text-left text-xl font-bold text-opacity-50 font-mono">{inViewSnippet?.language.toLowerCase()}</p>
-// 	<p className="w-full select-none text-white text-left text-6xl font-bold ">{inViewSnippet?.title}</p>
-// 	<div className="w-full select-none flex gap-5 mt-2 flex-row">
-// 	  {inViewSnippet?.tags.map((tag:string, idx:number) => (
-// 		<p key={idx} className="text-white text-nowrap w-fit text-opacity-50 px-5 rounded-lg py-0.5 bg-neutral-800">{tag}</p>
-// 	  ))}
-// 	</div>
-// 	<p className="w-full pl-1 text-white text-left mt-4 text-opacity-50">{inViewSnippet?.description}</p>
-// 	<div className="w-full mt-10">
-// 	  <CodeBox code={inViewSnippet?.code ? inViewSnippet.code : ""} />
-// 	</div>
-//   </div>
