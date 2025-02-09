@@ -142,7 +142,7 @@ func (s *UserService) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	accessToken := auth.GenerateHMac(userID, ACCESS, time.Now().Add(15*time.Minute))
+	accessToken := auth.GenerateHMac(userID, ACCESS, time.Now().Add(120 * time.Minute))
 	refreshToken := auth.GenerateHMac(userID, REFRESH, time.Now().Add(48*time.Hour))
 
 	if err := dba.UpdateTokenAndLoginTime(s.Db, refreshToken, time.Now(), userID); err != nil {
@@ -217,7 +217,7 @@ func (s *UserService) Refresh(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	accessToken := auth.GenerateHMac(userID, ACCESS, time.Now().Add(15*time.Minute))
+	accessToken := auth.GenerateHMac(userID, ACCESS, time.Now().Add(120 * time.Minute))
 	refreshToken := auth.GenerateHMac(userID, REFRESH, time.Now().Add(48*time.Hour))
 
 	if err := dba.AddRefreshToken(s.Db, refreshToken, userID); err != nil {
