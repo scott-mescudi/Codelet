@@ -247,7 +247,6 @@ func (s *SnippetService) DeleteSnippet(w http.ResponseWriter, r *http.Request) {
 	s.Logger.Info().Int("snippetID", id).Str("function", "DeleteSnippet").Str("origin", r.RemoteAddr).Msg("Successfully deleted snippet")
 }
 
-
 func (s *SnippetService) GetSmallUserSnippets(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	useridStr := r.Header.Get("X-USERID")
@@ -268,7 +267,7 @@ func (s *SnippetService) GetSmallUserSnippets(w http.ResponseWriter, r *http.Req
 	if err != nil {
 		s.Logger.Error().Int("userID", userID).Str("function", "GetSmallSnippets").Str("origin", r.RemoteAddr).Err(err).Msg("failed to fetch user snippets")
 		errs.ErrorWithJson(w, http.StatusInternalServerError, "failed to fetch snippets from database")
-		return  
+		return
 	}
 
 	if len(snippets) == 0 {
@@ -313,7 +312,7 @@ func (s *SnippetService) GetUserSnippetByID(w http.ResponseWriter, r *http.Reque
 	if err != nil {
 		s.Logger.Error().Int("userID", userID).Str("function", "GetSmallSnippets").Str("origin", r.RemoteAddr).Err(err).Msg("failed to fetch user snippets")
 		errs.ErrorWithJson(w, http.StatusInternalServerError, "failed to fetch snippets from database")
-		return  
+		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")

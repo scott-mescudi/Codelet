@@ -130,7 +130,7 @@ func (s *UserService) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if last_login != nil && time.Since(*last_login) < 30 * time.Second {
+	if last_login != nil && time.Since(*last_login) < 30*time.Second {
 		s.Logger.Warn().Str("function", "Login").Str("origin", r.RemoteAddr).Int("Userid", userID).Msg("Login attempt blocked: user must wait before trying again")
 		errs.ErrorWithJson(w, http.StatusTooManyRequests, "Too many login attempts. Please wait a 30 seconds and try again.")
 		return
@@ -142,7 +142,7 @@ func (s *UserService) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	accessToken := auth.GenerateHMac(userID, ACCESS, time.Now().Add(120 * time.Minute))
+	accessToken := auth.GenerateHMac(userID, ACCESS, time.Now().Add(120*time.Minute))
 	refreshToken := auth.GenerateHMac(userID, REFRESH, time.Now().Add(48*time.Hour))
 
 	if err := dba.UpdateTokenAndLoginTime(s.Db, refreshToken, time.Now(), userID); err != nil {
@@ -217,7 +217,7 @@ func (s *UserService) Refresh(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	accessToken := auth.GenerateHMac(userID, ACCESS, time.Now().Add(120 * time.Minute))
+	accessToken := auth.GenerateHMac(userID, ACCESS, time.Now().Add(120*time.Minute))
 	refreshToken := auth.GenerateHMac(userID, REFRESH, time.Now().Add(48*time.Hour))
 
 	if err := dba.AddRefreshToken(s.Db, refreshToken, userID); err != nil {

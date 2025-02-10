@@ -159,7 +159,7 @@ func GetSnippetByIDAndUserID(dbConn *pgxpool.Pool, userID, snippetID int) (*DBsn
 	var snippet DBsnippet
 	var code []byte
 	err := dbConn.QueryRow(context.Background(), "SELECT id, language, title, code, description, private, tags, created, updated, favorite FROM snippets WHERE userid=$1 AND id=$2", userID, snippetID).Scan(
-		&snippet.ID, &snippet.Language, &snippet.Title, &code, &snippet.Description, 
+		&snippet.ID, &snippet.Language, &snippet.Title, &code, &snippet.Description,
 		&snippet.Private, &snippet.Tags, &snippet.Created, &snippet.Updated, &snippet.Favorite,
 	)
 	if err != nil {
