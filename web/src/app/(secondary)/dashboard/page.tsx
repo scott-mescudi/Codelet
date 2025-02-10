@@ -370,7 +370,7 @@ export default function DashboardPage() {
 						<button onClick={() => setDropdownOpen(prev => !prev)} className='p-1 rounded-md ml-3 relative text-white'> 
 							<MenuIcon fontSize='large' />
 							{dropdownOpen &&
-							<div  className='absolute mt-4 right-0 mr-2'>
+							<div  className='absolute mt-4 z-50 bg-black right-0 mr-2'>
 								<div className='w-fit h-fit p-4 flex flex-col gap-2  border border-white border-opacity-15'>
 									<DropdownItem link='/' title='Home' subTitle='Back to home' icon={<HouseIcon fontSize='large' />} />
 									<DropdownItem onClick={LogoutHandler} title='Logout' subTitle='Secure Logout portal' icon={<LogoutIcon fontSize='large' />} />

@@ -47,7 +47,6 @@ export default function LoginPage() {
 	const [email, setEmail] = useState<string>('')
 	const [password, setPassword] = useState<string>('')
 	const [err, setErr] = useState<string>('')
-	const [loggedIn, setLoggedIn] = useState<boolean>(true)
 	const router = useRouter()
 
 	const submit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -75,18 +74,10 @@ export default function LoginPage() {
 		}
 	}, [err])
 
-	useEffect(() => {
-		const token = localStorage.getItem('ACCESS_TOKEN')
-		if (token) {
-			router.push('/dashboard')
-		}else{
-			setLoggedIn(false)
-		}
-	}, [])
 
 	return (
 		<>
-		{!loggedIn && 
+
 			<div className="flex flex-col min-h-screen items-center justify-center ">
 				<LoginForm
 					onSubmit={submit}
@@ -98,7 +89,6 @@ export default function LoginPage() {
 				/>
 				<p className={`text-red-700 min-h-[24px] ${err === '' ? 'opacity-0' : 'wiggle'}`}>{err}</p>
 			</div>
-		}
 		</>
 
 	)
