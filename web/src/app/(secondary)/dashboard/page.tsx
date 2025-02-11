@@ -11,10 +11,8 @@ import logo from "../../../../public/logo.svg"
 import Image from 'next/image'
 import LogoutIcon from '@mui/icons-material/Logout';
 import { DropdownItem } from '@/components/DropdownItem'
+import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime'
 
-interface LoginResponse {
-	access_token: string
-}
 
 interface CodeSnippet {
 	id: number
@@ -27,24 +25,9 @@ interface CodeSnippet {
 	description: string
 }
 
-async function getRefreshtoken(): Promise<boolean> {
-	try {
-		const resp = await fetch('http://localhost:3021/api/v1/refresh', {
-			method: 'GET',
-			credentials: 'include'
-		})
-
-		if (!resp.ok) {
-			console.log(await resp.json())
-			return false
-		}
-
-		const token = (await resp.json()) as LoginResponse
-		localStorage.setItem('ACCESS_TOKEN', token.access_token)
-		return true
-	} catch (err) {
-		return false
-	}
+interface SnippetFormProps {
+	setAddsnippet: (p:boolean) => void
+	router: AppRouterInstance
 }
 
 interface SmallSnippet {
@@ -71,6 +54,97 @@ function isTokenExpired(token: string): boolean {
 		return true
 	}
 }
+
+
+export function SnippetForm({setAddsnippet, router}: SnippetFormProps) {
+	const [language, setLanguage] = useState<string>("")
+	const [title, setTitle] = useState<string>("")
+	const [tags, setTags] = useState<string>("")
+	const [description, setDescription] = useState<string>("")
+	const [code, setCode] = useState<string>("")
+
+	const HandleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+		e.preventDefault()
+
+		const token = localStorage.getItem('ACCESS_TOKEN')
+		if (!token) {
+			router.push('/login')
+		}
+
+		if (isTokenExpired(token ? token : '')) {
+			console.log('Session expired')
+			router.push('/login')
+			return
+		}
+
+		const tokens = tags.split(',').map(str => str.trim()).filter(str => str.length > 0)
+		const resp = await addSnippetReq(token ? token : "",  language, title, tokens, description, code)
+		if (!resp) {
+			console.error("Failed to add snippet")
+			return
+		}
+
+		setAddsnippet(false)
+
+	}
+
+	
+	return (	
+		<>
+			<h2 className="text-white text-3xl font-semibold text-center mb-6">
+				Add a New Snippet
+			</h2>
+			<form onSubmit={HandleSubmit} className='flex flex-col gap-5'>
+				<input 
+					value={language}
+					maxLength={49}
+					onChange={(e) => setLanguage(e.target.value)} 
+					className='bg-neutral-900 focus:ring-blue-500 outline-none focus:ring-2 text-white p-5 rounded-lg' 
+					type='text' 
+					placeholder='Language' 
+					required
+				/>
+				<input 
+					value={title}
+					maxLength={250}
+					onChange={(e) => setTitle(e.target.value)}
+					className='bg-neutral-900 focus:ring-blue-500 outline-none focus:ring-2 text-white p-5 rounded-lg' 
+					type='text' 
+					placeholder='Title' 
+					required
+				/>
+				<input 
+					value={tags}
+					onChange={(e) => setTags(e.target.value)}
+					className='bg-neutral-900 focus:ring-blue-500 outline-none focus:ring-2 text-white p-5 rounded-lg' 
+					type='text' 
+					placeholder='Tags (comma separated)'
+				/>
+				<input 
+					value={description}
+					onChange={(e) => setDescription(e.target.value)}
+					className='bg-neutral-900 focus:ring-blue-500 outline-none focus:ring-2 text-white p-5 rounded-lg' 
+					type='text' 
+					placeholder='Description'
+				/>
+				<textarea 
+					maxLength={3000}
+					value={code}
+					onChange={(e) => setCode(e.target.value)}
+					placeholder='Paste code here...' 
+					className='p-5 bg-neutral-900 focus:ring-blue-500 outline-none focus:ring-2 scrollbar-thin min-h-96 max-h-96 rounded-lg text-white whitespace-pre aspect-video' 
+					required
+				/>
+
+				<div className='flex w-full flex-row gap-2'>
+					<button type='submit' className='mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-lg transition'>Add</button>
+					<button type='button' onClick={() => setAddsnippet(false)} className='mt-4 w-full bg-red-600 hover:bg-red-700 text-white font-medium py-3 rounded-lg transition'>Cancel</button>
+				</div>
+			</form>
+		</>
+	)
+}
+
 
 async function getSmallSnippets(
 	token: string
@@ -185,7 +259,7 @@ export function UserContent({
 }: UserContentProps) {
 	return (
 		<>	
-		<div className='h-[90vh] pb-10 relative lg:flex hidden overflow-auto scrollbar-none w-2/12'>
+		<div className='h-[85vh] pb-10 relative lg:flex hidden overflow-auto scrollbar-none w-2/12'>
 			<div id="sidebar" className="w-full flex flex-col gap-3">
 				{snippets &&
 					snippets.length > 0 &&
@@ -234,12 +308,15 @@ export function UserContent({
 				<p className="w-full pl-1 text-white   mt-4 text-opacity-80">
 					{inViewSnippet?.description}
 				</p>
-				<div className="w-full mt-10 ">
-					<CodeBox
-						background="bg-neutral-950"
-						code={inViewSnippet?.code ? inViewSnippet.code : ''}
-					/>
-				</div>
+				{inViewSnippet && inViewSnippet?.code != "" &&
+					<div className="w-full mt-10 ">
+						<CodeBox
+							background="bg-neutral-950"
+							code={inViewSnippet?.code ? inViewSnippet.code : ''}
+						/>
+					</div>
+				}
+
 			</div>
 		</div>
 
@@ -295,7 +372,7 @@ export default function DashboardPage() {
 		}
 
 		get()
-	}, [])
+	}, [addSnippet])
 
 	useEffect(() => {
 		if (!snippetToGet) {
@@ -380,14 +457,22 @@ export default function DashboardPage() {
 							}
 						</div>
 					</div>
-					<div id="user-content" className="lg:w-2/3 h-full gap-5 flex flex-row justify-center">
-						<UserContent snippets={snippets} categories={categories} setSnippetToGet={setSnippetToGet} inViewSnippet={inViewSnippet} setAddsnippet={setAddsnippet}/>
-					</div>
+
+					{snippets && snippets.length > 0 &&
+						<div id="user-content" className="lg:w-2/3 h-full gap-5 flex flex-row justify-center">
+							<UserContent snippets={snippets} categories={categories} setSnippetToGet={setSnippetToGet} inViewSnippet={inViewSnippet} setAddsnippet={setAddsnippet}/>
+						</div>			
+					}
+
+					{snippets.length <= 0 &&
+						<div className='p-3 bg-black border border-white border-opacity-15 rounded-lg'><p className='text-white font-bold'>No Snippets added yet</p></div>
+					}
+
 					{addSnippet && (
-						<div id="parent" onClick={() => setAddsnippet(false)} className="fixed h-screen w-screen backdrop-blur-lg">
+						<div id="parent" className="fixed h-screen w-screen backdrop-blur-lg">
 							<div className="w-full h-full flex justify-center items-center">
-								<div onClick={e => e.stopPropagation()} className="sm:w-2/3 w-11/12 mt-auto overflow-auto scrollbar-hidden rounded-t-xl h-3/4 bg-neutral-900">
-									
+								<div onClick={e => e.stopPropagation()} className=" overflow-auto scrollbar-hidden rounded-xl  p-5  bg-neutral-950">
+									<SnippetForm setAddsnippet={setAddsnippet} router={router} />
 								</div>
 							</div>
 						</div>
@@ -397,3 +482,55 @@ export default function DashboardPage() {
 		</>
 	)
 }
+
+interface CodeSnippetReq {
+  language: string;
+  title: string;
+  code: string;
+  favorite?: boolean;
+  private?: boolean;
+  tags?: string[];
+  description?: string;
+}
+
+
+
+async function addSnippetReq(token:string, language:string, title:string, tags:string[], description:string, code:string ): Promise<boolean | undefined> {
+	if (token === "" || title === "" || language === "" || code === "") {
+		return undefined
+	}
+
+	const body: CodeSnippetReq = {
+		language,
+		title,
+		code,
+		favorite: false,
+		private: true,
+		tags,
+		description
+	}
+
+
+	try {
+		const resp = await fetch("http://localhost:3021/api/v1/user/snippets", {
+			method: "POST",
+			headers: {
+				Authorization: token,
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify(body)
+		})
+
+		if (!resp.ok) {
+			console.log(await resp.json())
+			return false
+		}
+
+		return true
+	}catch(err) {
+		console.error(err)
+		return undefined
+	}
+
+}
+
