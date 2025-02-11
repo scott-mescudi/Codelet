@@ -360,24 +360,25 @@ export default function DashboardPage() {
 		<>
 			{loggedIn && (
 				<div className="flex  w-full flex-col gap-10 items-center">
-					{/* navbar */}
 					<div className="lg:w-2/3 h-16 mt-5  flex  items-center   rounded-xl">
 						<div className='h-full aspect-square'>
 							<Image draggable={false} src={logo} className='h-full w-full ' alt='codelet logo' />
 						</div>
 						<p className='text-3xl select-none ml-2 text-white font-bold'>Codelet</p>
 						<button className='bg-white hover:bg-opacity-80 duration-300 ease-in-out ml-auto h-fit py-1 px-5 text-lg font-semibold rounded-lg' onClick={() => setAddsnippet(true)}>new snippet</button>
-						<button onClick={() => setDropdownOpen(prev => !prev)} className='p-1 rounded-md ml-3 relative text-white'> 
-							<MenuIcon fontSize='large' />
+						<div className='w-fit relative'>
+							<button onClick={() => setDropdownOpen(prev => !prev)} className='p-1 rounded-md ml-3 relative text-white'> 
+								<MenuIcon fontSize='large' />
+							</button>
 							{dropdownOpen &&
-							<div  className='absolute mt-4 z-50 bg-black right-0 mr-2'>
-								<div className='w-fit h-fit p-4 flex flex-col gap-2  border border-white border-opacity-15'>
-									<DropdownItem link='/' title='Home' subTitle='Back to home' icon={<HouseIcon fontSize='large' />} />
-									<DropdownItem onClick={LogoutHandler} title='Logout' subTitle='Secure Logout portal' icon={<LogoutIcon fontSize='large' />} />
+								<div  className='absolute mt-4 z-50 bg-black right-0 mr-2'>
+									<div className='w-fit h-fit p-4 flex flex-col gap-2  border border-white border-opacity-15'>
+										<DropdownItem link='/' title='Home' subTitle='Back to home' icon={<HouseIcon fontSize='large' />} />
+										<DropdownItem onClick={LogoutHandler} title='Logout' subTitle='Secure Logout portal' icon={<LogoutIcon fontSize='large' />} />
+									</div>
 								</div>
-							</div>
 							}
-						</button>
+						</div>
 					</div>
 					<div id="user-content" className="lg:w-2/3 h-full gap-5 flex flex-row justify-center">
 						<UserContent snippets={snippets} categories={categories} setSnippetToGet={setSnippetToGet} inViewSnippet={inViewSnippet} setAddsnippet={setAddsnippet}/>
