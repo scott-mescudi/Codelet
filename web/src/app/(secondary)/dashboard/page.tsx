@@ -12,6 +12,7 @@ import Image from 'next/image'
 import LogoutIcon from '@mui/icons-material/Logout';
 import { DropdownItem } from '@/components/DropdownItem'
 import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime'
+import { Delete } from '@mui/icons-material'
 
 
 interface CodeSnippet {
@@ -290,11 +291,15 @@ export function UserContent({
 			</div>
 		</div>
 		
-		<div className='h-[90vh] pb-10 w-10/12 overflow-auto scrollbar-none'>
+		<div className='h-[90vh] pb-10 w-full overflow-auto scrollbar-none'>
 			<div className="w-full flex flex-col">
-				<p className="w-full line-clamp-1 h-20 select-none text-white  text-6xl font-bold">
-					{inViewSnippet?.title}
-				</p>
+				<div className='w-full flex flex-row items-center'>
+					<p className="w-11/12 line-clamp-1 h-20 select-none text-white  text-6xl font-bold">
+						{inViewSnippet?.title}
+					</p>
+					<button className='text-red-700 ml-auto h-fit w-fit '><Delete fontSize='medium'/></button>
+				</div>
+
 				<div className="w-full select-none flex gap-5 sm:mt-3 mt-5 flex-row">
 					{inViewSnippet?.tags.map((tag: string, idx: number) => (
 						<p
