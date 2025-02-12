@@ -224,6 +224,8 @@ interface UserContentProps {
 	setSnippetToGet: React.Dispatch<React.SetStateAction<number | undefined>>
 	inViewSnippet: CodeSnippet | undefined
 	setAddsnippet: React.Dispatch<React.SetStateAction<boolean>>
+	deleteSnippet: boolean
+	setDeleteSnippet: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 async function Logout(token:string) {
@@ -251,12 +253,88 @@ async function Logout(token:string) {
 	}
 }
 
+async function DeleteReq(token:string, id:number): Promise<boolean | undefined> {
+if (token === '') {
+		return undefined
+	}
+
+	try {
+		const resp = await fetch(
+			`http://localhost:3021/api/v1/user/snippets/${id}`,
+			{
+				method: 'DELETE',
+				headers: {
+					Authorization: token
+				}
+			}
+		)
+
+		return resp.ok
+	} catch (err) {
+		console.error(err)
+		return undefined
+	}
+}
+
+interface DeleteProps {
+	snippets: SmallSnippets
+	setDeleteSnippet: React.Dispatch<React.SetStateAction<boolean>>
+	deleteSnippet: boolean
+	setSnippetToGet: React.Dispatch<React.SetStateAction<number | undefined>>
+	id: number
+}
+
+export function DeleteButton({id, snippets, setDeleteSnippet, setSnippetToGet}:DeleteProps) {
+	if (id < 0) {
+		console.error("invalid id in delete button", id)
+		return
+	}
+
+	const handleClick = async () => {
+		setDeleteSnippet(true)
+		const token = localStorage.getItem('ACCESS_TOKEN')
+		if (!token) {
+			console.error("Session expired")
+		} 
+
+		if (isTokenExpired(token ? token : '')) {
+			console.log('Session expired')
+			console.error("Session expired")
+			return
+		}
+
+
+
+		const idx = snippets.findIndex(snippets => snippets.id === id)
+		if (snippets.length > 0) {
+			setSnippetToGet(snippets[idx+1].id)
+		} else {
+			setSnippetToGet(0); 
+		}
+
+		const ok = await DeleteReq(token || "", id);
+		if (!ok) {
+			console.error("Failed to delete snippet");
+		}
+
+		setDeleteSnippet(false)
+	}
+
+
+	return (
+		<>
+			<button onClick={handleClick} className='text-red-700 ml-auto h-fit w-fit '><Delete fontSize='medium'/></button>
+		</>
+	)
+}
+
 export function UserContent({
 	snippets,
 	categories,
 	setSnippetToGet,
 	inViewSnippet,
-	setAddsnippet
+	deleteSnippet,
+	setDeleteSnippet,
 }: UserContentProps) {
 	return (
 		<>	
@@ -297,7 +375,7 @@ export function UserContent({
 					<p className="w-11/12 line-clamp-1 h-20 select-none text-white  text-6xl font-bold">
 						{inViewSnippet?.title}
 					</p>
-					<button className='text-red-700 ml-auto h-fit w-fit '><Delete fontSize='medium'/></button>
+					{inViewSnippet?.id && <DeleteButton  deleteSnippet={deleteSnippet} setDeleteSnippet={setDeleteSnippet} snippets={snippets} setSnippetToGet={setSnippetToGet} id={inViewSnippet.id} />}		
 				</div>
 
 				<div className="w-full select-none flex gap-5 sm:mt-3 mt-5 flex-row">
@@ -336,6 +414,7 @@ export default function DashboardPage() {
 	const [snippetToGet, setSnippetToGet] = useState<number>()
 	const [inViewSnippet, setInViewSnippet] = useState<CodeSnippet>()
 	const [addSnippet, setAddsnippet] = useState<boolean>(false)
+	const [deleteSnippet, setDeleteSnippet] = useState<boolean>(false)
 	const [dropdownOpen, setDropdownOpen] = useState <boolean>(false)
 	const router = useRouter()
 
@@ -377,7 +456,7 @@ export default function DashboardPage() {
 		}
 
 		get()
-	}, [addSnippet])
+	}, [addSnippet, deleteSnippet])
 
 	useEffect(() => {
 		if (!snippetToGet) {
@@ -402,6 +481,7 @@ export default function DashboardPage() {
 				snippetToGet,
 				token ? token : ''
 			)
+
 			if (snippet === undefined) {
 				console.error('fialed to get snippet')
 				return
@@ -465,7 +545,7 @@ export default function DashboardPage() {
 
 					{snippets && snippets.length > 0 &&
 						<div id="user-content" className="lg:w-2/3 h-full gap-5 flex flex-row justify-center">
-							<UserContent snippets={snippets} categories={categories} setSnippetToGet={setSnippetToGet} inViewSnippet={inViewSnippet} setAddsnippet={setAddsnippet}/>
+							<UserContent deleteSnippet={deleteSnippet} setDeleteSnippet={setDeleteSnippet} snippets={snippets} categories={categories} setSnippetToGet={setSnippetToGet} inViewSnippet={inViewSnippet} setAddsnippet={setAddsnippet}/>
 						</div>			
 					}
 
