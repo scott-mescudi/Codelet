@@ -306,16 +306,22 @@ export function DeleteButton({id, snippets, setDeleteSnippet, setSnippetToGet}:D
 
 
 		const idx = snippets.findIndex(snippets => snippets.id === id)
-		if (snippets.length > 0) {
+		console.log(idx)
+		if (idx+1 < snippets.length) {
 			setSnippetToGet(snippets[idx+1].id)
+			const ok = await DeleteReq(token || "", id);
+			if (!ok) {
+				console.error("Failed to delete snippet");
+			}
 		} else {
-			setSnippetToGet(0); 
+			const ok = await DeleteReq(token || "", id);
+			if (!ok) {
+				console.error("Failed to delete snippet");
+			}
+			window.location.reload()
 		}
 
-		const ok = await DeleteReq(token || "", id);
-		if (!ok) {
-			console.error("Failed to delete snippet");
-		}
+
 
 		setDeleteSnippet(false)
 	}
