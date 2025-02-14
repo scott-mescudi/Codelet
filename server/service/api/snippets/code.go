@@ -311,7 +311,7 @@ func (s *SnippetService) GetUserSnippetByID(w http.ResponseWriter, r *http.Reque
 	snippet, err := dba.GetSnippetByIDAndUserID(s.Db, userID, id)
 	if err != nil {
 		s.Logger.Error().Int("userID", userID).Str("function", "GetSmallSnippets").Str("origin", r.RemoteAddr).Err(err).Msg("failed to fetch user snippets")
-		errs.ErrorWithJson(w, http.StatusInternalServerError, "failed to fetch snippets from database")
+		errs.ErrorWithJson(w, http.StatusNotFound, "failed to fetch snippets from database")
 		return
 	}
 

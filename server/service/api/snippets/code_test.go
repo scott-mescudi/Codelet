@@ -771,3 +771,83 @@ func TestGetSmallUserSnippets(t *testing.T) {
 		}
 	})
 }
+
+func TestGetUserSnippetByID(t *testing.T) {
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte("hashedpassword123"), bcrypt.DefaultCost)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	conn, clean, err := setupTestDB(fmt.Sprintf(`INSERT INTO users (username, email, role, password_hash) VALUES ('fakeuser', 'fakeuser@example.com', 'user', '%s');`, string(hashedPassword)))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer clean()
+
+	sp := &vsr.UserService{Db: conn, Logger: zerolog.New(os.Stdout)}
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	body, err := json.Marshal(vsr.UserLogin{Email: "fakeuser@example.com", Password: "hashedpassword123"})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	loginReq := httptest.NewRequest("POST", "/api/v1/login", bytes.NewReader(body))
+	loginReq.Header.Set("Content-Type", "application/json")
+	loginRec := httptest.NewRecorder()
+
+	sp.Login(loginRec, loginReq)
+
+	var rr struct {
+		Token string `json:"access_token"`
+	}
+
+	if err := json.NewDecoder(loginRec.Body).Decode(&rr); err != nil {
+		t.Fatal(err)
+	}
+
+	app := SnippetService{Db: conn, Logger: zerolog.New(os.Stdout)}
+
+	info := Snippet{
+		Language:    "go",
+		Title:       "go test",
+		Code:        "fmt.Println('hello)",
+		Favorite:    false,
+		Private:     false,
+		Tags:        []string{"sigma", "wobc"},
+		Description: "wljkhf",
+	}
+
+	rec := httptest.NewRecorder()
+	body, err = json.Marshal(info)
+	if err != nil {
+		t.Error(err)
+	}
+
+	req := httptest.NewRequest("POST", "/api/v1/user/snippets", bytes.NewBuffer(body))
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", rr.Token)
+
+	handler := middleware.AuthMiddleware(http.HandlerFunc(app.AddSnippet))
+	handler.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusCreated {
+		t.Errorf("expected status code %d, got %d", http.StatusCreated, rec.Code)
+	}
+
+	t.Run("Get valid SmallSnippet", func(t *testing.T) {
+		rec := httptest.NewRecorder()
+		req := httptest.NewRequest("GET", "/api/v1/user/snippets/1", http.NoBody)
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Authorization", rr.Token)
+
+		handler := middleware.AuthMiddleware((http.HandlerFunc(app.GetSmallUserSnippets)))
+		handler.ServeHTTP(rec, req)
+
+		if rec.Code != http.StatusOK {
+			t.Fatal("Failed to get snippet by id")
+		}
+	})
+}
