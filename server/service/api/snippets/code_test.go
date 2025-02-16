@@ -851,3 +851,99 @@ func TestGetUserSnippetByID(t *testing.T) {
 		}
 	})
 }
+
+func TestUpdateUserSnippetByID(t *testing.T) {
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte("hashedpassword123"), bcrypt.DefaultCost)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	conn, clean, err := setupTestDB(fmt.Sprintf(`INSERT INTO users (username, email, role, password_hash) VALUES ('fakeuser', 'fakeuser@example.com', 'user', '%s');`, string(hashedPassword)))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer clean()
+
+	sp := &vsr.UserService{Db: conn, Logger: zerolog.New(os.Stdout)}
+
+	body, err := json.Marshal(vsr.UserLogin{Email: "fakeuser@example.com", Password: "hashedpassword123"})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	loginReq := httptest.NewRequest("POST", "/api/v1/login", bytes.NewReader(body))
+	loginReq.Header.Set("Content-Type", "application/json")
+	loginRec := httptest.NewRecorder()
+
+	sp.Login(loginRec, loginReq)
+
+	var rr struct {
+		Token string `json:"access_token"`
+	}
+
+	if err := json.NewDecoder(loginRec.Body).Decode(&rr); err != nil {
+		t.Fatal(err)
+	}
+
+	tests := []struct {
+		name         string
+		body         Snippet
+		expectedCode int
+	}{
+		{
+			name: "Valid Update Requesr",
+			body: Snippet{
+				Language:    "Go",
+				Title:       "Hello Universe",
+				Code:        `package main\nimport "fmt"\nfunc main() {\n fmt.Println("Hello, Universe!")\n}`,
+				Favorite:    true,
+				Private:     false,
+				Tags:        []string{"example", "golang", "updated"},
+				Description: "An updated version of Hello World, now greeting the universe.",
+			},
+			expectedCode: http.StatusOK,
+		},
+		{
+			name: "only Update title",
+			body: Snippet{
+				Language: "Go",
+			},
+			expectedCode: http.StatusOK,
+		},
+		{
+			name: "only Update code",
+			body: Snippet{
+				Code: `package main\nimport "fmt"\nfunc main() {\n fmt.Println("Hello, Universe!")\n}`,
+			},
+			expectedCode: http.StatusOK,
+		},
+		{
+			name:         "Empty body Update req",
+			body:         Snippet{},
+			expectedCode: http.StatusBadRequest,
+		},
+	}
+
+	app := &SnippetService{Db: conn, Logger: zerolog.New(os.Stdout)}
+
+	for _, info := range tests {
+		t.Run(info.name, func(t *testing.T) {
+			rec := httptest.NewRecorder()
+			body, err := json.Marshal(info.body)
+			if err != nil {
+				t.Fatal("Failed to parse body")
+			}
+
+			req := httptest.NewRequest("UPDATE", "/api/v1/user/snippets/1", bytes.NewReader(body))
+			req.Header.Set("Content-Type", "application/json")
+			req.Header.Set("Authorization", rr.Token)
+
+			handler := middleware.AuthMiddleware(http.HandlerFunc(app.UpdateUserSnippetByID))
+			handler.ServeHTTP(rec, req)
+
+			if rec.Code != info.expectedCode {
+				t.Errorf("expected status code %d, got %d", info.expectedCode, rec.Code)
+			}
+		})
+	}
+}

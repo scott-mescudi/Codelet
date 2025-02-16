@@ -1,6 +1,7 @@
 package snippets
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -15,6 +16,12 @@ import (
 var SnippetPool = &sync.Pool{
 	New: func() any {
 		return &Snippet{}
+	},
+}
+
+var UpdateSnippetPool = &sync.Pool{
+	New: func() any {
+		return &UpdateSnippet{}
 	},
 }
 
@@ -292,6 +299,7 @@ func (s *SnippetService) GetUserSnippetByID(w http.ResponseWriter, r *http.Reque
 		errs.ErrorWithJson(w, http.StatusBadRequest, "missing 'X-USERID' header")
 		return
 	}
+
 	path := r.URL.Path
 	idString := strings.TrimPrefix(path, "/api/v1/user/snippets/")
 	id, err := strconv.Atoi(idString)
@@ -321,4 +329,45 @@ func (s *SnippetService) GetUserSnippetByID(w http.ResponseWriter, r *http.Reque
 		errs.ErrorWithJson(w, http.StatusInternalServerError, "failed to encode snippets as JSON")
 		return
 	}
+}
+
+func (s *SnippetService) UpdateUserSnippetByID(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+	if r.Header.Get("Content-Type") != "application/json" {
+		s.Logger.Warn().Str("function", "UpdateUserSnippetByID").Str("origin", r.RemoteAddr).Msg("Invalid Content-Type, expected application/json")
+		errs.ErrorWithJson(w, http.StatusBadRequest, "Content-Type must be 'application/json'")
+		return
+	}
+
+	useridStr := r.Header.Get("X-USERID")
+	if useridStr == "" {
+		s.Logger.Warn().Str("function", "UpdateUserSnippetByID").Str("origin", r.RemoteAddr).Msg("Missing 'X-USERID' header")
+		errs.ErrorWithJson(w, http.StatusBadRequest, "missing 'X-USERID' header")
+		return
+	}
+	userID, err := strconv.Atoi(useridStr)
+	if err != nil {
+		s.Logger.Warn().Str("function", "UpdateUserSnippetByID").Str("origin", r.RemoteAddr).Msg("failed to convert userID string to int")
+		errs.ErrorWithJson(w, http.StatusBadRequest, "invalid userID")
+		return
+	}
+
+	path := r.URL.Path
+	idString := strings.TrimPrefix(path, "/api/v1/user/snippets/")
+	id, err := strconv.Atoi(idString)
+	if err != nil {
+		s.Logger.Warn().Str("function", "UpdateUserSnippetByID").Str("origin", r.RemoteAddr).Msg("failed to parse snippet id in uri")
+		errs.ErrorWithJson(w, http.StatusBadRequest, "failed to parse snippet id in uri")
+		return
+	}
+
+	var info = UpdateSnippetPool.Get().(*UpdateSnippet)
+	defer UpdateSnippetPool.Put(info)
+	if err := json.NewDecoder(r.Body).Decode(&info); err != nil {
+		s.Logger.Warn().Str("function", "UpdateUserSnippetByID").Str("origin", r.RemoteAddr).Msg("failed to decode json")
+		errs.ErrorWithJson(w, http.StatusUnprocessableEntity, "failed to decode json")
+		return
+	}
+
+	fmt.Println(id, userID)
 }
