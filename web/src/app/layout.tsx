@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 export default function RootLayout({children}: Readonly<{children: React.ReactNode}>) {
 	return (
 		<html lang="en" className="overflow-y-scroll">
-			<body className="overflow-hidden">{children}</body>
+			<body className="overflow-hidden flex flex-col items-center">{children}</body>
 		</html>
 	)
 }
