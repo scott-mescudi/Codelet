@@ -904,7 +904,7 @@ func TestUpdateUserSnippetByID(t *testing.T) {
 			expectedCode: http.StatusOK,
 		},
 		{
-			name: "only Update title",
+			name: "only Update Language",
 			body: Snippet{
 				Language: "Go",
 			},

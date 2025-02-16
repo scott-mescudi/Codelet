@@ -1,7 +1,7 @@
 package snippets
 
 import (
-	"fmt"
+	"io"
 	"net/http"
 	"strconv"
 	"strings"
@@ -339,19 +339,6 @@ func (s *SnippetService) UpdateUserSnippetByID(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	useridStr := r.Header.Get("X-USERID")
-	if useridStr == "" {
-		s.Logger.Warn().Str("function", "UpdateUserSnippetByID").Str("origin", r.RemoteAddr).Msg("Missing 'X-USERID' header")
-		errs.ErrorWithJson(w, http.StatusBadRequest, "missing 'X-USERID' header")
-		return
-	}
-	userID, err := strconv.Atoi(useridStr)
-	if err != nil {
-		s.Logger.Warn().Str("function", "UpdateUserSnippetByID").Str("origin", r.RemoteAddr).Msg("failed to convert userID string to int")
-		errs.ErrorWithJson(w, http.StatusBadRequest, "invalid userID")
-		return
-	}
-
 	path := r.URL.Path
 	idString := strings.TrimPrefix(path, "/api/v1/user/snippets/")
 	id, err := strconv.Atoi(idString)
@@ -363,11 +350,20 @@ func (s *SnippetService) UpdateUserSnippetByID(w http.ResponseWriter, r *http.Re
 
 	var info = UpdateSnippetPool.Get().(*UpdateSnippet)
 	defer UpdateSnippetPool.Put(info)
-	if err := json.NewDecoder(r.Body).Decode(&info); err != nil {
+
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		s.Logger.Warn().Str("function", "UpdateUserSnippetByID").Str("origin", r.RemoteAddr).Msg("failed to read body")
+		errs.ErrorWithJson(w, http.StatusUnprocessableEntity, "failed to read body")
+		return
+	}
+
+	if err := info.UnmarshalJSON(body); err != nil {
 		s.Logger.Warn().Str("function", "UpdateUserSnippetByID").Str("origin", r.RemoteAddr).Msg("failed to decode json")
 		errs.ErrorWithJson(w, http.StatusUnprocessableEntity, "failed to decode json")
 		return
 	}
 
-	fmt.Println(id, userID)
+
+	dba.UpdateUserSnippetByID(s.Db, id, info.Language, info.Title, info.Code, info.Favorite, info.Private, info.Tags, info.Description)
 }

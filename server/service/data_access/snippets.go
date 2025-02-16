@@ -2,6 +2,9 @@ package dataaccess
 
 import (
 	"context"
+	"errors"
+	"fmt"
+	"strings"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -174,3 +177,71 @@ func GetSnippetByIDAndUserID(dbConn *pgxpool.Pool, userID, snippetID int) (*DBsn
 	snippet.Code = string(decompressedData)
 	return &snippet, nil
 }
+
+func UpdateUserSnippetByID(dbConn *pgxpool.Pool, snippetID int, language *string, title *string, code *string, favorite *bool, private *bool, tags *[]string, description *string) error {
+	builder := strings.Builder{}
+	args := 1
+	builder.WriteString("UPDATE snippets SET")
+
+	if language != nil {
+		builder.WriteString(" ")
+		builder.WriteString(fmt.Sprintf("language=$%d", args))
+		args++
+	}
+
+	if title != nil {
+		builder.WriteString(" ")
+		builder.WriteString(fmt.Sprintf("title=$%d", args))
+		args++
+	}
+
+	if code != nil {
+		builder.WriteString(" ")
+		builder.WriteString(fmt.Sprintf("code=$%d", args))
+		args++
+	}
+
+	if favorite != nil {
+		builder.WriteString(" ")
+		builder.WriteString(fmt.Sprintf("favorite=$%d", args))
+		args++
+	}
+
+	if private != nil {
+		builder.WriteString(" ")
+		builder.WriteString(fmt.Sprintf("private=$%d", args))
+		args++
+	}
+
+	if tags != nil {
+		builder.WriteString(" ")
+		builder.WriteString(fmt.Sprintf("tags=$%d", args))
+		args++
+	}
+
+	if description != nil {
+		builder.WriteString(" ")
+		builder.WriteString(fmt.Sprintf("description=$%d", args))
+		args++
+	}
+
+	if args == 1 {
+		return errors.New("no fields to update")
+	}
+
+	builder.WriteString(" ")
+	builder.WriteString(fmt.Sprintf("WHERE id=$%d", args))
+	args++
+
+	fmt.Println(builder.String())
+
+	return nil
+
+}
+
+// UPDATE snippets SET language=$1 title=$2 code=$3 favorite=$4 private=$5 tags=$6 description=$7 WHERE id=$8
+// UPDATE snippets SET language=$1 title=$2 code=$3 favorite=$4 private=$5 description=$6 WHERE id=$7
+// UPDATE snippets SET language=$1 title=$2 code=$3 favorite=$4 private=$5 description=$6 WHERE id=$7
+// UPDATE snippets SET language=$1 title=$2 code=$3 favorite=$4 private=$5 description=$6 WHERE id=$7
+// UPDATE snippets SET language=$1 title=$2 code=$3 favorite=$4 private=$5 description=$6 WHERE id=$7
+
