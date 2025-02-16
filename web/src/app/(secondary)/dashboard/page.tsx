@@ -56,6 +56,58 @@ function isTokenExpired(token: string): boolean {
 	}
 }
 
+interface CodeSnippetReq {
+  language: string;
+  title: string;
+  code: string;
+  favorite?: boolean;
+  private?: boolean;
+  tags?: string[];
+  description?: string;
+}
+
+
+
+async function addSnippetReq(token:string, language:string, title:string, tags:string[], description:string, code:string ): Promise<boolean | undefined> {
+	if (token === "" || title === "" || language === "" || code === "") {
+		return undefined
+	}
+
+	const body: CodeSnippetReq = {
+		language,
+		title,
+		code,
+		favorite: false,
+		private: true,
+		tags,
+		description
+	}
+
+
+	try {
+		const resp = await fetch("http://localhost:3021/api/v1/user/snippets", {
+			method: "POST",
+			headers: {
+				Authorization: token,
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify(body)
+		})
+
+		if (!resp.ok) {
+			console.log(await resp.json())
+			return false
+		}
+
+		return true
+	}catch(err) {
+		console.error(err)
+		return undefined
+	}
+
+}
+
+
 
 export function SnippetForm({setAddsnippet, router}: SnippetFormProps) {
 	const [language, setLanguage] = useState<string>("")
@@ -284,55 +336,61 @@ interface DeleteProps {
 	id: number
 }
 
-export function DeleteButton({id, snippets, setDeleteSnippet, setSnippetToGet}:DeleteProps) {
-	if (id < 0) {
-		console.error("invalid id in delete button", id)
-		return
-	}
+export function DeleteButton({
+  id,
+  snippets,
+  setDeleteSnippet,
+  setSnippetToGet,
+}: DeleteProps) {
+  if (id < 0) {
+    console.error("invalid id in delete button", id);
+    return;
+  }
 
-	const handleClick = async () => {
-		setDeleteSnippet(true)
-		const token = localStorage.getItem('ACCESS_TOKEN')
-		if (!token) {
-			console.error("Session expired")
-		} 
+  const handleClick = async () => {
+    setDeleteSnippet(true);
+    const token = localStorage.getItem("ACCESS_TOKEN");
+    if (!token) {
+      console.error("Session expired");
+    }
 
-		if (isTokenExpired(token ? token : '')) {
-			console.log('Session expired')
-			console.error("Session expired")
-			return
-		}
+    if (isTokenExpired(token ? token : "")) {
+      console.log("Session expired");
+      console.error("Session expired");
+      return;
+    }
 
+    const idx = snippets.findIndex((snippet) => snippet.id === id);
 
+    const ok = await DeleteReq(token || "", id);
+    if (!ok) {
+      console.error("Failed to delete snippet");
+    } else {
+      const newSnippets = [...snippets];
+      newSnippets.splice(idx, 1);
 
-		const idx = snippets.findIndex(snippets => snippets.id === id)
-		console.log(idx)
-		if (idx+1 < snippets.length) {
-			setSnippetToGet(snippets[idx+1].id)
-			const ok = await DeleteReq(token || "", id);
-			if (!ok) {
-				console.error("Failed to delete snippet");
-			}
-		} else {
-			const ok = await DeleteReq(token || "", id);
-			if (!ok) {
-				console.error("Failed to delete snippet");
-			}
-			window.location.reload()
-		}
+      if (newSnippets.length > 0) {
+        const nextSnippet = idx === newSnippets.length ? newSnippets[idx - 1] : newSnippets[idx];
+        setSnippetToGet(nextSnippet.id);
+      } else {
+        setSnippetToGet(undefined);
+      }
 
+	  localStorage.removeItem("LastSnippet")
+    }
 
+    setDeleteSnippet(false);
+  };
 
-		setDeleteSnippet(false)
-	}
-
-
-	return (
-		<>
-			<button onClick={handleClick} className='text-red-700 ml-auto h-fit w-fit '><Delete fontSize='medium'/></button>
-		</>
-	)
+  return (
+    <>
+      <button onClick={handleClick} className="text-red-700 ml-auto h-fit w-fit">
+        <Delete fontSize="medium" />
+      </button>
+    </>
+  );
 }
+
 
 export function UserContent({
 	snippets,
@@ -572,55 +630,4 @@ export default function DashboardPage() {
 			)}
 		</>
 	)
-}
-
-interface CodeSnippetReq {
-  language: string;
-  title: string;
-  code: string;
-  favorite?: boolean;
-  private?: boolean;
-  tags?: string[];
-  description?: string;
-}
-
-
-
-async function addSnippetReq(token:string, language:string, title:string, tags:string[], description:string, code:string ): Promise<boolean | undefined> {
-	if (token === "" || title === "" || language === "" || code === "") {
-		return undefined
-	}
-
-	const body: CodeSnippetReq = {
-		language,
-		title,
-		code,
-		favorite: false,
-		private: true,
-		tags,
-		description
-	}
-
-
-	try {
-		const resp = await fetch("http://localhost:3021/api/v1/user/snippets", {
-			method: "POST",
-			headers: {
-				Authorization: token,
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify(body)
-		})
-
-		if (!resp.ok) {
-			console.log(await resp.json())
-			return false
-		}
-
-		return true
-	}catch(err) {
-		console.error(err)
-		return undefined
-	}
-
 }
