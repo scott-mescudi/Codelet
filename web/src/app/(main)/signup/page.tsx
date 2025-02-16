@@ -121,24 +121,26 @@ export default function RegisterPage() {
 	}, [err])
 
 	return (
-		<div className="flex flex-col min-h-screen items-center justify-center ">
-			<RegisterForm
-				onSubmit={submit}
-				href="/login"
-				username={username}
-				email={email}
-				password={password}
-				setEmail={setEmail}
-				setPassword={setPassword}
-				setUsername={setUsername}
-			/>
-			<p
-				className={`text-red-700 min-h-[24px] ${
-					err === '' ? 'opacity-0' : 'wiggle'
-				}`}
-			>
-				{err}
-			</p>
+		<div className="w-full h-full flex items-center justify-center">
+			<div className="flex flex-col w-fit h-fit items-center justify-center ">
+				<RegisterForm
+					onSubmit={submit}
+					href="/login"
+					username={username}
+					email={email}
+					password={password}
+					setEmail={setEmail}
+					setPassword={setPassword}
+					setUsername={setUsername}
+				/>
+				<p
+					className={`text-red-700 min-h-[24px] ${
+						err === '' ? 'opacity-0' : 'wiggle'
+					}`}
+				>
+					{err}
+				</p>
+			</div>
 		</div>
 	)
 }
