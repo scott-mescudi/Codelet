@@ -946,4 +946,40 @@ func TestUpdateUserSnippetByID(t *testing.T) {
 			}
 		})
 	}
+
+	t.Run("Invalid Content-type", func(t *testing.T) {
+		rec := httptest.NewRecorder()
+		body, err := json.Marshal("ksu")
+		if err != nil {
+			t.Fatal("Failed to parse body")
+		}
+
+		req := httptest.NewRequest("UPDATE", "/api/v1/user/snippets/1", bytes.NewReader(body))
+		req.Header.Set("Authorization", rr.Token)
+
+		handler := middleware.AuthMiddleware(http.HandlerFunc(app.UpdateUserSnippetByID))
+		handler.ServeHTTP(rec, req)
+
+		if rec.Code != http.StatusBadRequest {
+			t.Errorf("expected status code %d, got %d", http.StatusBadRequest, rec.Code)
+		}
+	})
+
+	t.Run("Missing auth token ", func(t *testing.T) {
+		rec := httptest.NewRecorder()
+		body, err := json.Marshal("ksu")
+		if err != nil {
+			t.Fatal("Failed to parse body")
+		}
+
+		req := httptest.NewRequest("UPDATE", "/api/v1/user/snippets/1", bytes.NewReader(body))
+		req.Header.Set("Content-Type", "application/json")
+
+		handler := middleware.AuthMiddleware(http.HandlerFunc(app.UpdateUserSnippetByID))
+		handler.ServeHTTP(rec, req)
+
+		if rec.Code != http.StatusForbidden {
+			t.Errorf("expected status code %d, got %d", http.StatusForbidden, rec.Code)
+		}
+	})
 }
