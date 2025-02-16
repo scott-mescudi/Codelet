@@ -364,6 +364,9 @@ func (s *SnippetService) UpdateUserSnippetByID(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-
-	dba.UpdateUserSnippetByID(s.Db, id, info.Language, info.Title, info.Code, info.Favorite, info.Private, info.Tags, info.Description)
+	if err := dba.UpdateUserSnippetByID(s.Db, id, info.Language, info.Title, info.Code, info.Favorite, info.Private, info.Tags, info.Description); err != nil {
+		s.Logger.Warn().Str("function", "UpdateUserSnippetByID").Str("origin", r.RemoteAddr).Err(err).Msg("failed to update snippet in db")
+		errs.ErrorWithJson(w, http.StatusBadRequest, "failed to update snippet")
+		return
+	}
 }

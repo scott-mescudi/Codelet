@@ -925,6 +925,32 @@ func TestUpdateUserSnippetByID(t *testing.T) {
 	}
 
 	app := &SnippetService{Db: conn, Logger: zerolog.New(os.Stdout)}
+	info := Snippet{
+		Language:    "go",
+		Title:       "go test",
+		Code:        "fmt.Println('hello)",
+		Favorite:    false,
+		Private:     false,
+		Tags:        []string{"sigma", "wobc"},
+		Description: "wljkhf",
+	}
+
+	rec := httptest.NewRecorder()
+	body, err = json.Marshal(info)
+	if err != nil {
+		t.Error(err)
+	}
+
+	req := httptest.NewRequest("POST", "/api/v1/user/snippets", bytes.NewBuffer(body))
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", rr.Token)
+
+	handler := middleware.AuthMiddleware(http.HandlerFunc(app.AddSnippet))
+	handler.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusCreated {
+		t.Errorf("expected status code %d, got %d", http.StatusCreated, rec.Code)
+	}
 
 	for _, info := range tests {
 		t.Run(info.name, func(t *testing.T) {
@@ -965,6 +991,21 @@ func TestUpdateUserSnippetByID(t *testing.T) {
 		}
 	})
 
+	t.Run("Bad body", func(t *testing.T) {
+		rec := httptest.NewRecorder()
+
+		req := httptest.NewRequest("UPDATE", "/api/v1/user/snippets/1", http.NoBody)
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Authorization", rr.Token)
+
+		handler := middleware.AuthMiddleware(http.HandlerFunc(app.UpdateUserSnippetByID))
+		handler.ServeHTTP(rec, req)
+
+		if rec.Code != http.StatusUnprocessableEntity {
+			t.Errorf("expected status code %d, got %d", http.StatusUnprocessableEntity, rec.Code)
+		}
+	})
+
 	t.Run("Missing auth token ", func(t *testing.T) {
 		rec := httptest.NewRecorder()
 		body, err := json.Marshal("ksu")
@@ -980,6 +1021,25 @@ func TestUpdateUserSnippetByID(t *testing.T) {
 
 		if rec.Code != http.StatusForbidden {
 			t.Errorf("expected status code %d, got %d", http.StatusForbidden, rec.Code)
+		}
+	})
+
+	t.Run("Missing snippet id", func(t *testing.T) {
+		rec := httptest.NewRecorder()
+		body, err := json.Marshal("ksu")
+		if err != nil {
+			t.Fatal("Failed to parse body")
+		}
+
+		req := httptest.NewRequest("UPDATE", "/api/v1/user/snippets/", bytes.NewReader(body))
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Authorization", rr.Token)
+
+		handler := middleware.AuthMiddleware(http.HandlerFunc(app.UpdateUserSnippetByID))
+		handler.ServeHTTP(rec, req)
+
+		if rec.Code != http.StatusBadRequest {
+			t.Errorf("expected status code %d, got %d", http.StatusBadRequest, rec.Code)
 		}
 	})
 }

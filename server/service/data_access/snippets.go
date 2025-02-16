@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/scott-mescudi/codelet/shared/compression"
 	cmp "github.com/scott-mescudi/codelet/shared/compression"
 )
 
@@ -179,69 +180,94 @@ func GetSnippetByIDAndUserID(dbConn *pgxpool.Pool, userID, snippetID int) (*DBsn
 }
 
 func UpdateUserSnippetByID(dbConn *pgxpool.Pool, snippetID int, language *string, title *string, code *string, favorite *bool, private *bool, tags *[]string, description *string) error {
-	builder := strings.Builder{}
-	args := 1
+	var builder strings.Builder
+	args := []interface{}{}
+	argIndex := 1
+
 	builder.WriteString("UPDATE snippets SET")
 
 	if language != nil {
-		builder.WriteString(" ")
-		builder.WriteString(fmt.Sprintf("language=$%d", args))
-		args++
+		if len(args) > 0 {
+			builder.WriteString(", ")
+		}
+		builder.WriteString(fmt.Sprintf(" language=$%d", argIndex))
+		args = append(args, *language)
+		argIndex++
 	}
 
 	if title != nil {
-		builder.WriteString(" ")
-		builder.WriteString(fmt.Sprintf("title=$%d", args))
-		args++
+		if len(args) > 0 {
+			builder.WriteString(", ")
+		}
+		builder.WriteString(fmt.Sprintf(" title=$%d", argIndex))
+		args = append(args, *title)
+		argIndex++
 	}
 
 	if code != nil {
-		builder.WriteString(" ")
-		builder.WriteString(fmt.Sprintf("code=$%d", args))
-		args++
+		if len(args) > 0 {
+			builder.WriteString(", ")
+		}
+		builder.WriteString(fmt.Sprintf(" code=$%d", argIndex))
+
+		newcode, err := compression.CompressZSTD([]byte(*code))
+		if err != nil {
+			return errors.New("failed to compress code snippet")
+		}
+
+		args = append(args, newcode)
+		argIndex++
 	}
 
 	if favorite != nil {
-		builder.WriteString(" ")
-		builder.WriteString(fmt.Sprintf("favorite=$%d", args))
-		args++
+		if len(args) > 0 {
+			builder.WriteString(", ")
+		}
+		builder.WriteString(fmt.Sprintf(" favorite=$%d", argIndex))
+		args = append(args, *favorite)
+		argIndex++
 	}
 
 	if private != nil {
-		builder.WriteString(" ")
-		builder.WriteString(fmt.Sprintf("private=$%d", args))
-		args++
+		if len(args) > 0 {
+			builder.WriteString(", ")
+		}
+		builder.WriteString(fmt.Sprintf(" private=$%d", argIndex))
+		args = append(args, *private)
+		argIndex++
 	}
 
 	if tags != nil {
-		builder.WriteString(" ")
-		builder.WriteString(fmt.Sprintf("tags=$%d", args))
-		args++
+		if len(args) > 0 {
+			builder.WriteString(", ")
+		}
+		builder.WriteString(fmt.Sprintf(" tags=$%d", argIndex))
+		args = append(args, *tags)
+		argIndex++
 	}
 
 	if description != nil {
-		builder.WriteString(" ")
-		builder.WriteString(fmt.Sprintf("description=$%d", args))
-		args++
+		if len(args) > 0 {
+			builder.WriteString(", ")
+		}
+		builder.WriteString(fmt.Sprintf(" description=$%d", argIndex))
+		args = append(args, *description)
+		argIndex++
 	}
 
-	if args == 1 {
+	if len(args) == 0 {
 		return errors.New("no fields to update")
 	}
 
-	builder.WriteString(" ")
-	builder.WriteString(fmt.Sprintf("WHERE id=$%d", args))
-	args++
+	builder.WriteString(fmt.Sprintf(" WHERE id=$%d", argIndex))
+	args = append(args, snippetID)
 
-	fmt.Println(builder.String())
+	query := builder.String()
+
+	_, err := dbConn.Exec(context.Background(), query, args...)
+	if err != nil {
+		return fmt.Errorf("failed to execute query: %w", err)
+	}
 
 	return nil
-
 }
-
-// UPDATE snippets SET language=$1 title=$2 code=$3 favorite=$4 private=$5 tags=$6 description=$7 WHERE id=$8
-// UPDATE snippets SET language=$1 title=$2 code=$3 favorite=$4 private=$5 description=$6 WHERE id=$7
-// UPDATE snippets SET language=$1 title=$2 code=$3 favorite=$4 private=$5 description=$6 WHERE id=$7
-// UPDATE snippets SET language=$1 title=$2 code=$3 favorite=$4 private=$5 description=$6 WHERE id=$7
-// UPDATE snippets SET language=$1 title=$2 code=$3 favorite=$4 private=$5 description=$6 WHERE id=$7
-
