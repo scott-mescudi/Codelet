@@ -28,10 +28,10 @@ func (u *UpdateSnippet) UnmarshalJSON(data []byte) error {
 	if u.Tags != nil && len(*u.Tags) == 0 {
 		u.Tags = nil
 	}
-	if u.Favorite != nil && *u.Favorite == false {
+	if u.Favorite != nil && !*u.Favorite {
 		u.Favorite = nil
 	}
-	if u.Private != nil && *u.Private == false {
+	if u.Private != nil && !*u.Private {
 		u.Private = nil
 	}
 
