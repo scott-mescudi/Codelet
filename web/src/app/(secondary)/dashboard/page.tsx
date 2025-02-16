@@ -228,7 +228,7 @@ async function getSmallSnippets(
 
 		return snippets
 	} catch (err) {
-		console.error(err)
+		
 		return undefined
 	}
 }
