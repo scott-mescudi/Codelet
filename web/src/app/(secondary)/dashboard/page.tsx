@@ -13,6 +13,7 @@ import LogoutIcon from '@mui/icons-material/Logout'
 import {DropdownItem} from '@/components/DropdownItem'
 import {AppRouterInstance} from 'next/dist/shared/lib/app-router-context.shared-runtime'
 import {Delete} from '@mui/icons-material'
+import Link from 'next/link'
 
 interface CodeSnippet {
 	id: number
@@ -623,17 +624,23 @@ export default function DashboardPage() {
 			{loggedIn && (
 				<div className="flex  w-full flex-col gap-10 items-center">
 					<div className="lg:w-2/3 h-16 mt-5  flex  items-center   rounded-xl">
-						<div className="h-full aspect-square">
-							<Image
-								draggable={false}
-								src={logo}
-								className="h-full w-full "
-								alt="codelet logo"
-							/>
-						</div>
-						<p className="text-3xl select-none ml-2 text-white font-bold">
-							Codelet
-						</p>
+						<Link
+							href={'/'}
+							className="flex flex-row h-full items-center"
+						>
+							<div className="h-full aspect-square">
+								<Image
+									draggable={false}
+									src={logo}
+									className="h-full w-full "
+									alt="codelet logo"
+								/>
+							</div>
+							<p className="text-3xl select-none ml-2 text-white font-bold">
+								Codelet
+							</p>
+						</Link>
+
 						<button
 							className="bg-white hover:bg-opacity-80 duration-300 ease-in-out ml-auto h-fit py-1 px-5 text-lg font-semibold rounded-lg"
 							onClick={() => setAddsnippet(true)}
