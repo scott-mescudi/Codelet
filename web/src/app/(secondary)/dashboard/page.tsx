@@ -13,6 +13,7 @@ import LogoutIcon from '@mui/icons-material/Logout'
 import {DropdownItem} from '@/components/DropdownItem'
 import {AppRouterInstance} from 'next/dist/shared/lib/app-router-context.shared-runtime'
 import {Delete} from '@mui/icons-material'
+import EditIcon from '@mui/icons-material/Edit'
 import Link from 'next/link'
 
 interface CodeSnippet {
@@ -108,6 +109,124 @@ async function addSnippetReq(
 		console.error(err)
 		return undefined
 	}
+}
+
+interface UpdateSnippetFromProps {
+	setAddsnippet: (p: boolean) => void
+	snippet: CodeSnippet
+	router: AppRouterInstance
+}
+
+export function UpdateSnippetForm({
+	setAddsnippet,
+	router,
+	snippet
+}: UpdateSnippetFromProps) {
+	const [language, setLanguage] = useState<string>(snippet.language)
+	const [title, setTitle] = useState<string>(snippet.title)
+	const [tags, setTags] = useState<string>(snippet.tags.join(','))
+	const [description, setDescription] = useState<string>(snippet.description)
+	const [code, setCode] = useState<string>(snippet.code)
+
+	const HandleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+		e.preventDefault()
+
+		const token = localStorage.getItem('ACCESS_TOKEN')
+		if (!token) {
+			router.push('/login')
+		}
+
+		if (isTokenExpired(token ? token : '')) {
+			console.log('Session expired')
+			router.push('/login')
+			return
+		}
+
+		// const tokens = tags
+		// 	.split(',')
+		// 	.map(str => str.trim())
+		// 	.filter(str => str.length > 0)
+		// const resp = await addSnippetReq(
+		// 	token ? token : '',
+		// 	language,
+		// 	title,
+		// 	tokens,
+		// 	description,
+		// 	code
+		// )
+		// if (!resp) {
+		// 	console.error('Failed to add snippet')
+		// 	return
+		// }
+
+		setAddsnippet(false)
+	}
+
+	return (
+		<>
+			<h2 className="text-white text-3xl font-semibold text-center mb-6">
+				Update a New Snippet
+			</h2>
+			<form onSubmit={HandleSubmit} className="flex flex-col gap-5">
+				<input
+					value={language}
+					maxLength={49}
+					onChange={e => setLanguage(e.target.value)}
+					className="bg-neutral-900 focus:ring-blue-500 outline-none focus:ring-2 text-white p-5 rounded-lg"
+					type="text"
+					placeholder="Language"
+					required
+				/>
+				<input
+					value={title}
+					maxLength={250}
+					onChange={e => setTitle(e.target.value)}
+					className="bg-neutral-900 focus:ring-blue-500 outline-none focus:ring-2 text-white p-5 rounded-lg"
+					type="text"
+					placeholder="Title"
+					required
+				/>
+				<input
+					value={tags}
+					onChange={e => setTags(e.target.value)}
+					className="bg-neutral-900 focus:ring-blue-500 outline-none focus:ring-2 text-white p-5 rounded-lg"
+					type="text"
+					placeholder="Tags (comma separated)"
+				/>
+				<input
+					value={description}
+					onChange={e => setDescription(e.target.value)}
+					className="bg-neutral-900 focus:ring-blue-500 outline-none focus:ring-2 text-white p-5 rounded-lg"
+					type="text"
+					placeholder="Description"
+				/>
+				<textarea
+					maxLength={3000}
+					value={code}
+					onChange={e => setCode(e.target.value)}
+					placeholder="Paste code here..."
+					className="p-5 bg-neutral-900 focus:ring-blue-500 outline-none focus:ring-2 scrollbar-thin min-h-96 max-h-96 rounded-lg text-white whitespace-pre aspect-video"
+					required
+				/>
+
+				<div className="flex w-full flex-row gap-2">
+					<button
+						type="submit"
+						className="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-lg transition"
+					>
+						Add
+					</button>
+					<button
+						type="button"
+						onClick={() => setAddsnippet(false)}
+						className="mt-4 w-full bg-red-600 hover:bg-red-700 text-white font-medium py-3 rounded-lg transition"
+					>
+						Cancel
+					</button>
+				</div>
+			</form>
+		</>
+	)
 }
 
 export function SnippetForm({setAddsnippet, router}: SnippetFormProps) {
@@ -288,16 +407,6 @@ async function GetSnippetByID(
 	}
 }
 
-interface UserContentProps {
-	snippets: SmallSnippets
-	categories: string[]
-	setSnippetToGet: React.Dispatch<React.SetStateAction<number | undefined>>
-	inViewSnippet: CodeSnippet | undefined
-	setAddsnippet: React.Dispatch<React.SetStateAction<boolean>>
-	deleteSnippet: boolean
-	setDeleteSnippet: React.Dispatch<React.SetStateAction<boolean>>
-}
-
 async function Logout(token: string) {
 	if (token === '') return
 
@@ -464,12 +573,24 @@ export function DeleteButton({
 	)
 }
 
+interface UserContentProps {
+	snippets: SmallSnippets
+	categories: string[]
+	setSnippetToGet: React.Dispatch<React.SetStateAction<number | undefined>>
+	inViewSnippet: CodeSnippet | undefined
+	setAddsnippet: React.Dispatch<React.SetStateAction<boolean>>
+	deleteSnippet: boolean
+	setDeleteSnippet: React.Dispatch<React.SetStateAction<boolean>>
+	setUpdateSnippet: React.Dispatch<React.SetStateAction<boolean>>
+}
+
 export function UserContent({
 	snippets,
 	categories,
 	setSnippetToGet,
 	inViewSnippet,
 	deleteSnippet,
+	setUpdateSnippet,
 	setDeleteSnippet
 }: UserContentProps) {
 	return (
@@ -512,13 +633,22 @@ export function UserContent({
 							{inViewSnippet?.title}
 						</p>
 						{inViewSnippet?.id && (
-							<DeleteButton
-								deleteSnippet={deleteSnippet}
-								setDeleteSnippet={setDeleteSnippet}
-								snippets={snippets}
-								setSnippetToGet={setSnippetToGet}
-								id={inViewSnippet.id}
-							/>
+							<>
+								<button
+									onClick={() => setUpdateSnippet(true)}
+									className="text-white ml-auto h-fit w-fit"
+								>
+									<EditIcon fontSize="medium" />
+								</button>
+
+								<DeleteButton
+									deleteSnippet={deleteSnippet}
+									setDeleteSnippet={setDeleteSnippet}
+									snippets={snippets}
+									setSnippetToGet={setSnippetToGet}
+									id={inViewSnippet.id}
+								/>
+							</>
 						)}
 					</div>
 
@@ -562,6 +692,7 @@ export default function DashboardPage() {
 	const [addSnippet, setAddsnippet] = useState<boolean>(false)
 	const [deleteSnippet, setDeleteSnippet] = useState<boolean>(false)
 	const [dropdownOpen, setDropdownOpen] = useState<boolean>(false)
+	const [updateSnippet, setUpdateSnippet] = useState<boolean>(false)
 	const router = useRouter()
 
 	useEffect(() => {
@@ -602,7 +733,7 @@ export default function DashboardPage() {
 		}
 
 		get()
-	}, [addSnippet, deleteSnippet])
+	}, [addSnippet, deleteSnippet, updateSnippet])
 
 	useEffect(() => {
 		if (!snippetToGet) {
@@ -730,6 +861,7 @@ export default function DashboardPage() {
 							className="lg:w-2/3 h-full gap-5 flex flex-row justify-center"
 						>
 							<UserContent
+								setUpdateSnippet={setUpdateSnippet}
 								deleteSnippet={deleteSnippet}
 								setDeleteSnippet={setDeleteSnippet}
 								snippets={snippets}
@@ -761,6 +893,30 @@ export default function DashboardPage() {
 								>
 									<SnippetForm
 										setAddsnippet={setAddsnippet}
+										router={router}
+									/>
+								</div>
+							</div>
+						</div>
+					)}
+
+					{updateSnippet && (
+						<div
+							id="parent"
+							className="fixed h-screen w-screen backdrop-blur-lg"
+						>
+							<div className="w-full h-full flex justify-center items-center">
+								<div
+									onClick={e => e.stopPropagation()}
+									className=" overflow-auto scrollbar-hidden rounded-xl  p-5  bg-neutral-950"
+								>
+									<UpdateSnippetForm
+										snippet={
+											inViewSnippet
+												? inViewSnippet
+												: ({} as CodeSnippet)
+										}
+										setAddsnippet={setUpdateSnippet}
 										router={router}
 									/>
 								</div>
