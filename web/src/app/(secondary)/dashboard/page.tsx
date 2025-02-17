@@ -111,14 +111,59 @@ async function addSnippetReq(
 	}
 }
 
+async function updateSnippetReq(
+	id: number,
+	token: string,
+	language: string,
+	title: string,
+	tags: string[],
+	description: string,
+	code: string
+): Promise<boolean | undefined> {
+	if (token === '' || title === '' || language === '' || code === '') {
+		return undefined
+	}
+
+	const body: CodeSnippetReq = {
+		language,
+		title,
+		code,
+		favorite: false,
+		private: true,
+		tags,
+		description
+	}
+
+	try {
+		const resp = await fetch(`http://localhost:3021/api/v1/user/snippets/${id}`, {
+			method: 'PUT',
+			headers: {
+				Authorization: token,
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify(body)
+		})
+
+		if (!resp.ok) {
+			console.log(await resp.json())
+			return false
+		}
+
+		return true
+	} catch (err) {
+		console.error(err)
+		return undefined
+	}
+}
+
 interface UpdateSnippetFromProps {
-	setAddsnippet: (p: boolean) => void
+	setUpdateSnippet: (p: boolean) => void
 	snippet: CodeSnippet
 	router: AppRouterInstance
 }
 
 export function UpdateSnippetForm({
-	setAddsnippet,
+	setUpdateSnippet,
 	router,
 	snippet
 }: UpdateSnippetFromProps) {
@@ -142,24 +187,26 @@ export function UpdateSnippetForm({
 			return
 		}
 
-		// const tokens = tags
-		// 	.split(',')
-		// 	.map(str => str.trim())
-		// 	.filter(str => str.length > 0)
-		// const resp = await addSnippetReq(
-		// 	token ? token : '',
-		// 	language,
-		// 	title,
-		// 	tokens,
-		// 	description,
-		// 	code
-		// )
-		// if (!resp) {
-		// 	console.error('Failed to add snippet')
-		// 	return
-		// }
+		const tokens = tags
+			.split(',')
+			.map(str => str.trim())
+			.filter(str => str.length > 0)
+		const resp = await updateSnippetReq(
+			snippet.id,
+			token ? token : '',
+			language,
+			title,
+			tokens,
+			description,
+			code
+		)
+		if (!resp) {
+			console.error('Failed to add snippet')
+			return
+		}
 
-		setAddsnippet(false)
+		setUpdateSnippet(false)
+		window.location.reload()
 	}
 
 	return (
@@ -211,17 +258,17 @@ export function UpdateSnippetForm({
 
 				<div className="flex w-full flex-row gap-2">
 					<button
-						type="submit"
-						className="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-lg transition"
-					>
-						Add
-					</button>
-					<button
 						type="button"
-						onClick={() => setAddsnippet(false)}
+						onClick={() => setUpdateSnippet(false)}
 						className="mt-4 w-full bg-red-600 hover:bg-red-700 text-white font-medium py-3 rounded-lg transition"
 					>
 						Cancel
+					</button>
+					<button
+						type="submit"
+						className="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-lg transition"
+					>
+						Update
 					</button>
 				</div>
 			</form>
@@ -916,7 +963,7 @@ export default function DashboardPage() {
 												? inViewSnippet
 												: ({} as CodeSnippet)
 										}
-										setAddsnippet={setUpdateSnippet}
+										setUpdateSnippet={setUpdateSnippet}
 										router={router}
 									/>
 								</div>
