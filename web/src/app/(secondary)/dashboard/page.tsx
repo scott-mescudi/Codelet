@@ -395,7 +395,9 @@ export function DeleteButton({
 
 			if (newSnippets.length > 0) {
 				const nextSnippet =
-					idx === newSnippets.length ? newSnippets[idx - 1] : newSnippets[idx]
+					idx === newSnippets.length
+						? newSnippets[idx - 1]
+						: newSnippets[idx]
 				setSnippetToGet(nextSnippet.id)
 			} else {
 				setSnippetToGet(undefined)
@@ -435,8 +437,24 @@ export function DeleteButton({
 								Do you really want to delete this snippet
 							</p>
 							<div className="w-full flex flex-row mt-3 gap-2 px-2">
-								<button onClick={() => {setIsSure(false);setDeleteSnippet(false)}} className='bg-neutral-900 w-full text-white  py-2 rounded-lg duration-300 ease-out will-change-contents active:scale-95 hover:bg-neutral-800'>Cancel</button>
-								<button onClick={() => {setIsSure(false); dl();}} className='bg-red-700 w-full text-white  py-2 rounded-lg duration-300 ease-out will-change-contents active:scale-95 hover:bg-red-600'>Delete</button>
+								<button
+									onClick={() => {
+										setIsSure(false)
+										setDeleteSnippet(false)
+									}}
+									className="bg-neutral-900 w-full text-white  py-2 rounded-lg duration-300 ease-out will-change-contents active:scale-95 hover:bg-neutral-800"
+								>
+									Cancel
+								</button>
+								<button
+									onClick={() => {
+										setIsSure(false)
+										dl()
+									}}
+									className="bg-red-700 w-full text-white  py-2 rounded-lg duration-300 ease-out will-change-contents active:scale-95 hover:bg-red-600"
+								>
+									Delete
+								</button>
 							</div>
 						</div>
 					</div>

@@ -80,8 +80,6 @@ async function Login(email: string, password: string): Promise<boolean> {
 	}
 }
 
-
-
 export default function RegisterPage() {
 	const [username, setUsername] = useState<string>('')
 	const [email, setEmail] = useState<string>('')

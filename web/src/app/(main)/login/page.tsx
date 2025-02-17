@@ -3,8 +3,7 @@
 import {LoginForm} from '@/components/LoginForm'
 import {useRouter} from 'next/navigation'
 import {useEffect, useState} from 'react'
-import "./login.css"
-
+import './login.css'
 
 interface LoginRequest {
 	email: string
@@ -62,18 +61,19 @@ export default function LoginPage() {
 			return
 		}
 
-		setErr("invalid Email or Password")
+		setErr('invalid Email or Password')
 	}
 
 	useEffect(() => {
 		if (err) {
 			const t = setTimeout(() => {
-				setErr("")
-			}, 3000);
-			return () => {clearTimeout(t)}
+				setErr('')
+			}, 3000)
+			return () => {
+				clearTimeout(t)
+			}
 		}
 	}, [err])
-
 
 	return (
 		<>
