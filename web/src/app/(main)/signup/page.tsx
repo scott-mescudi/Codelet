@@ -3,82 +3,8 @@
 import {RegisterForm} from '@/components/SignupForm'
 import {useRouter} from 'next/navigation'
 import {useEffect, useState} from 'react'
+import {Login, Signup} from '@/shared/api/UserApiReq'
 import './signup.css'
-
-interface SignupRequest {
-	username: string
-	email: string
-	password: string
-	role: string
-}
-
-interface LoginRequest {
-	email: string
-	password: string
-}
-
-interface LoginResponse {
-	access_token: string
-}
-
-async function Signup(
-	username: string,
-	email: string,
-	password: string
-): Promise<boolean> {
-	const data: SignupRequest = {
-		username,
-		email,
-		password,
-		role: 'user'
-	}
-
-	try {
-		const resp = await fetch('http://localhost:3021/api/v1/register', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify(data)
-		})
-
-		if (!resp.ok) {
-			return false
-		}
-
-		return true
-	} catch (err) {
-		return false
-	}
-}
-
-async function Login(email: string, password: string): Promise<boolean> {
-	const data: LoginRequest = {
-		email,
-		password
-	}
-
-	try {
-		const resp = await fetch('http://localhost:3021/api/v1/login', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify(data)
-		})
-
-		if (!resp.ok) {
-			return false
-		}
-
-		const token = (await resp.json()) as LoginResponse
-		localStorage.setItem('ACCESS_TOKEN', token.access_token)
-
-		return true
-	} catch (err) {
-		return false
-	}
-}
 
 export default function RegisterPage() {
 	const [username, setUsername] = useState<string>('')

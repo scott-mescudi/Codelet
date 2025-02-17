@@ -2,12 +2,11 @@
 import {Sidebar} from '@/components/Sidebar'
 import {useRouter} from 'next/navigation'
 import {useEffect, useState} from 'react'
-import {jwtDecode} from 'jwt-decode'
 import {CodeBox} from '@/components/CodeBlock'
 import MenuIcon from '@mui/icons-material/Menu'
 import HouseIcon from '@mui/icons-material/House'
 
-import logo from '../../../../public/logo.svg'
+import logo from '@public/logo.svg'
 import Image from 'next/image'
 import LogoutIcon from '@mui/icons-material/Logout'
 import {DropdownItem} from '@/components/DropdownItem'
@@ -15,6 +14,15 @@ import {AppRouterInstance} from 'next/dist/shared/lib/app-router-context.shared-
 import {Delete} from '@mui/icons-material'
 import EditIcon from '@mui/icons-material/Edit'
 import Link from 'next/link'
+import {Logout} from '@/shared/api/UserApiReq'
+import {
+	GetSnippetByID,
+	getSmallSnippets,
+	DeleteReq,
+	addSnippetReq,
+	updateSnippetReq
+} from '@/shared/api/SnippetApiReq'
+import {IsTokenExpired} from '@/shared/helper/jwtAuth'
 
 interface CodeSnippet {
 	id: number
@@ -39,125 +47,7 @@ interface SmallSnippet {
 	favorite: boolean
 }
 
-interface ErrorResp {
-	error: string
-	code: number
-}
-
 type SmallSnippets = SmallSnippet[]
-
-function isTokenExpired(token: string): boolean {
-	try {
-		const decoded: {exp?: number} = jwtDecode(token)
-		const now = Date.now() / 1000
-
-		return decoded.exp !== undefined ? decoded.exp < now : true
-	} catch (error) {
-		return true
-	}
-}
-
-interface CodeSnippetReq {
-	language: string
-	title: string
-	code: string
-	favorite?: boolean
-	private?: boolean
-	tags?: string[]
-	description?: string
-}
-
-async function addSnippetReq(
-	token: string,
-	language: string,
-	title: string,
-	tags: string[],
-	description: string,
-	code: string
-): Promise<boolean | undefined> {
-	if (token === '' || title === '' || language === '' || code === '') {
-		return undefined
-	}
-
-	const body: CodeSnippetReq = {
-		language,
-		title,
-		code,
-		favorite: false,
-		private: true,
-		tags,
-		description
-	}
-
-	try {
-		const resp = await fetch('http://localhost:3021/api/v1/user/snippets', {
-			method: 'POST',
-			headers: {
-				Authorization: token,
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify(body)
-		})
-
-		if (!resp.ok) {
-			console.log(await resp.json())
-			return false
-		}
-
-		return true
-	} catch (err) {
-		console.error(err)
-		return undefined
-	}
-}
-
-async function updateSnippetReq(
-	id: number,
-	token: string,
-	language: string,
-	title: string,
-	tags: string[],
-	description: string,
-	code: string
-): Promise<boolean | undefined> {
-	if (token === '' || title === '' || language === '' || code === '') {
-		return undefined
-	}
-
-	const body: CodeSnippetReq = {
-		language,
-		title,
-		code,
-		favorite: false,
-		private: true,
-		tags,
-		description
-	}
-
-	try {
-		const resp = await fetch(
-			`http://localhost:3021/api/v1/user/snippets/${id}`,
-			{
-				method: 'PUT',
-				headers: {
-					Authorization: token,
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify(body)
-			}
-		)
-
-		if (!resp.ok) {
-			console.log(await resp.json())
-			return false
-		}
-
-		return true
-	} catch (err) {
-		console.error(err)
-		return undefined
-	}
-}
 
 interface UpdateSnippetFromProps {
 	setUpdateSnippet: (p: boolean) => void
@@ -184,7 +74,7 @@ export function UpdateSnippetForm({
 			router.push('/login')
 		}
 
-		if (isTokenExpired(token ? token : '')) {
+		if (IsTokenExpired(token ? token : '')) {
 			console.log('Session expired')
 			router.push('/login')
 			return
@@ -294,7 +184,7 @@ export function SnippetForm({setAddsnippet, router}: SnippetFormProps) {
 			router.push('/login')
 		}
 
-		if (isTokenExpired(token ? token : '')) {
+		if (IsTokenExpired(token ? token : '')) {
 			console.log('Session expired')
 			router.push('/login')
 			return
@@ -387,124 +277,6 @@ export function SnippetForm({setAddsnippet, router}: SnippetFormProps) {
 	)
 }
 
-async function getSmallSnippets(
-	token: string
-): Promise<SmallSnippets | undefined> {
-	if (token === '') {
-		return undefined
-	}
-
-	try {
-		const resp = await fetch(
-			'http://localhost:3021/api/v1/user/small/snippets',
-			{
-				method: 'GET',
-				headers: {
-					Authorization: token
-				}
-			}
-		)
-
-		if (!resp.ok) {
-			return undefined
-		}
-
-		const snippets = (await resp.json()) as SmallSnippets
-		if (snippets.length <= 0) {
-			return undefined
-		}
-
-		return snippets
-	} catch (err) {
-		return undefined
-	}
-}
-
-async function GetSnippetByID(
-	snippetID: number,
-	token: string
-): Promise<CodeSnippet | undefined> {
-	if (!snippetID || snippetID < 0) {
-		return undefined
-	}
-
-	if (token === '') {
-		return undefined
-	}
-
-	try {
-		const resp = await fetch(
-			`http://localhost:3021/api/v1/user/snippets/${snippetID}`,
-			{
-				method: 'GET',
-				headers: {
-					Authorization: token
-				}
-			}
-		)
-
-		if (!resp.ok) {
-			const errResp = (await resp.json()) as ErrorResp
-			console.log(errResp)
-			return undefined
-		}
-
-		const snippets = (await resp.json()) as CodeSnippet
-		return snippets
-	} catch (err) {
-		console.error(err)
-		return undefined
-	}
-}
-
-async function Logout(token: string) {
-	if (token === '') return
-
-	try {
-		const resp = await fetch(`http://localhost:3021/api/v1/logout`, {
-			method: 'POST',
-			headers: {
-				Authorization: token
-			}
-		})
-
-		if (!resp.ok) {
-			const errResp = (await resp.json()) as ErrorResp
-			console.log(errResp)
-			return
-		}
-	} catch (err) {
-		console.error(err)
-		return
-	}
-}
-
-async function DeleteReq(
-	token: string,
-	id: number
-): Promise<boolean | undefined> {
-	if (token === '') {
-		return undefined
-	}
-
-	try {
-		const resp = await fetch(
-			`http://localhost:3021/api/v1/user/snippets/${id}`,
-			{
-				method: 'DELETE',
-				headers: {
-					Authorization: token
-				}
-			}
-		)
-
-		return resp.ok
-	} catch (err) {
-		console.error(err)
-		return undefined
-	}
-}
-
 interface DeleteProps {
 	snippets: SmallSnippets
 	setDeleteSnippet: React.Dispatch<React.SetStateAction<boolean>>
@@ -533,7 +305,7 @@ export function DeleteButton({
 			console.error('Session expired')
 		}
 
-		if (isTokenExpired(token ? token : '')) {
+		if (IsTokenExpired(token ? token : '')) {
 			console.log('Session expired')
 			console.error('Session expired')
 			return
@@ -754,7 +526,7 @@ export default function DashboardPage() {
 		}
 
 		// hankle refresh logi chere
-		if (isTokenExpired(token ? token : '')) {
+		if (IsTokenExpired(token ? token : '')) {
 			console.log('Session expired')
 			router.push('/login')
 			return
@@ -797,7 +569,7 @@ export default function DashboardPage() {
 			setLoggedin(true)
 		}
 
-		if (isTokenExpired(token ? token : '')) {
+		if (IsTokenExpired(token ? token : '')) {
 			console.log('Session expired')
 			router.push('/login')
 			return
@@ -832,7 +604,7 @@ export default function DashboardPage() {
 			setLoggedin(true)
 		}
 
-		if (isTokenExpired(token ? token : '')) {
+		if (IsTokenExpired(token ? token : '')) {
 			console.log('Session expired')
 			router.push('/login')
 			return
