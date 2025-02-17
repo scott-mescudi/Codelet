@@ -24,7 +24,7 @@ services:
       resources:
         limits:
           memory: 4G
-          cpus: '1'
+          cpus: '2'
 
 
   codelet_server:
@@ -39,7 +39,7 @@ services:
     environment:
       - APP_PORT=:3021
       - DATABASE_URL=${DATABASE_URL}
-      - GOMAXPROCS=2
+      - GOMAXPROCS=4
       - CORS_ORIGIN=http://localhost:3000
     ports:
       - "3021:3021"
@@ -55,7 +55,7 @@ services:
       resources:
         limits:
           memory: 12G
-          cpus: '3'
+          cpus: '4'
 
 networks:
   codelet-network:
