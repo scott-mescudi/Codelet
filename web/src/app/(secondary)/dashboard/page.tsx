@@ -417,8 +417,11 @@ export function UserContent({
 }: UserContentProps) {
 	return (
 		<>
-			<div className="h-[85vh] pb-10 relative lg:flex hidden overflow-auto scrollbar-none w-2/12">
-				<div id="sidebar" className="w-full flex flex-col gap-3">
+			<div className="h-[90vh] relative lg:flex hidden  overflow-hidden  w-2/12">
+				<div
+					id="sidebar"
+					className="w-full h-full overflow-auto flex flex-col scrollbar-none gap-3"
+				>
 					{snippets &&
 						snippets.length > 0 &&
 						categories.length > 0 &&
@@ -621,23 +624,28 @@ export default function DashboardPage() {
 		<>
 			{loggedIn && (
 				<div className="flex  w-full flex-col gap-10 items-center">
-					<div className="lg:w-2/3 h-16 mt-5  flex  items-center   rounded-xl">
-						<Link
-							href={'/'}
-							className="flex flex-row h-full items-center"
-						>
-							<div className="h-full aspect-square">
-								<Image
-									draggable={false}
-									src={logo}
-									className="h-full w-full "
-									alt="codelet logo"
-								/>
-							</div>
-							<p className="text-3xl select-none ml-2 text-white font-bold">
-								Codelet
-							</p>
-						</Link>
+					<div className="w-full px-10 border border-white border-opacity-15 border-l-0 border-t-0 border-r-0 h-fit py-5  flex  items-center ">
+						<div className="w-fit h-full flex flex-row gap-5 items-center">
+							<Link
+								href={'/'}
+								className="flex flex-row h-full items-center"
+							>
+								<div className="h-full aspect-square">
+									<Image
+										draggable={false}
+										src={logo}
+										className="h-full w-full "
+										alt="codelet logo"
+									/>
+								</div>
+								<p className="text-3xl select-none ml-2 text-white font-bold">
+									Codelet
+								</p>
+							</Link>
+
+							<div className="h-7  w-0.5 rotate-12 bg-white bg-opacity-25" />
+							<p className='text-white text-lg font-bold'>Jack's CodeSnippets</p>
+						</div>
 
 						<button
 							className="bg-white hover:bg-opacity-80 duration-300 ease-in-out ml-auto h-fit py-1 px-5 text-lg font-semibold rounded-lg"
