@@ -135,14 +135,17 @@ async function updateSnippetReq(
 	}
 
 	try {
-		const resp = await fetch(`http://localhost:3021/api/v1/user/snippets/${id}`, {
-			method: 'PUT',
-			headers: {
-				Authorization: token,
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify(body)
-		})
+		const resp = await fetch(
+			`http://localhost:3021/api/v1/user/snippets/${id}`,
+			{
+				method: 'PUT',
+				headers: {
+					Authorization: token,
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify(body)
+			}
+		)
 
 		if (!resp.ok) {
 			console.log(await resp.json())
@@ -366,17 +369,17 @@ export function SnippetForm({setAddsnippet, router}: SnippetFormProps) {
 
 				<div className="flex w-full flex-row gap-2">
 					<button
-						type="submit"
-						className="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-lg transition"
-					>
-						Add
-					</button>
-					<button
 						type="button"
 						onClick={() => setAddsnippet(false)}
 						className="mt-4 w-full bg-red-600 hover:bg-red-700 text-white font-medium py-3 rounded-lg transition"
 					>
 						Cancel
+					</button>
+					<button
+						type="submit"
+						className="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-lg transition"
+					>
+						Add
 					</button>
 				</div>
 			</form>
