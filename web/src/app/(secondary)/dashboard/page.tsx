@@ -365,7 +365,9 @@ export function DeleteButton({
 		return
 	}
 
-	const handleClick = async () => {
+	const [isSure, setIsSure] = useState<boolean>(false)
+
+	const HandleDelete = async () => {
 		setDeleteSnippet(true)
 		const token = localStorage.getItem('ACCESS_TOKEN')
 		if (!token) {
@@ -393,9 +395,7 @@ export function DeleteButton({
 
 			if (newSnippets.length > 0) {
 				const nextSnippet =
-					idx === newSnippets.length
-						? newSnippets[idx - 1]
-						: newSnippets[idx]
+					idx === newSnippets.length ? newSnippets[idx - 1] : newSnippets[idx]
 				setSnippetToGet(nextSnippet.id)
 			} else {
 				setSnippetToGet(undefined)
@@ -407,6 +407,14 @@ export function DeleteButton({
 		setDeleteSnippet(false)
 	}
 
+	const dl = async () => {
+		HandleDelete()
+	}
+
+	const handleClick = async () => {
+		setIsSure(true)
+	}
+
 	return (
 		<>
 			<button
@@ -415,6 +423,25 @@ export function DeleteButton({
 			>
 				<Delete fontSize="medium" />
 			</button>
+
+			{isSure && (
+				<div className="h-screen w-screen top-0 z-50 left-0 fixed backdrop-blur-lg">
+					<div className="h-full w-full flex items-center justify-center">
+						<div className="bg-neutral-950 border border-white border-opacity-15 h-fit w-96 p-5 gap-1 rounded-lg flex flex-col items-center">
+							<p className="text-white text-2xl font-bold  antialiased">
+								Are you sure?
+							</p>
+							<p className="text-white text-opacity-50 w-full text-center">
+								Do you really want to delete this snippet
+							</p>
+							<div className="w-full flex flex-row mt-3 gap-2 px-2">
+								<button onClick={() => {setIsSure(false);setDeleteSnippet(false)}} className='bg-neutral-900 w-full text-white  py-2 rounded-lg duration-300 ease-out will-change-contents active:scale-95 hover:bg-neutral-800'>Cancel</button>
+								<button onClick={() => {setIsSure(false); dl();}} className='bg-red-700 w-full text-white  py-2 rounded-lg duration-300 ease-out will-change-contents active:scale-95 hover:bg-red-600'>Delete</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			)}
 		</>
 	)
 }
