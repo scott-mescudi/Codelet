@@ -552,3 +552,77 @@ func TestChangePassword(t *testing.T) {
 	}
 
 }
+
+
+func TestGetUsernameByID(t *testing.T) {
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte("hashedpassword123"), bcrypt.DefaultCost)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	conn, clean, err := setupTestDB(fmt.Sprintf(`INSERT INTO users (username, email, role, password_hash) VALUES ('fakeuser', 'fakeuser@example.com', 'user', '%s');`, string(hashedPassword)))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer clean()
+
+	app := &UserService{Db: conn, Logger: zerolog.New(os.Stdout)}
+
+	body, err := json.Marshal(UserLogin{Email: "fakeuser@example.com", Password: "hashedpassword123"})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	loginReq := httptest.NewRequest("POST", "/api/v1/login", bytes.NewReader(body))
+	loginReq.Header.Set("Content-Type", "application/json")
+	loginRec := httptest.NewRecorder()
+
+	app.Login(loginRec, loginReq)
+
+	var info struct {
+		Token string `json:"access_token"`
+	}
+
+	if err := json.NewDecoder(loginRec.Body).Decode(&info); err != nil {
+		t.Fatal(err)
+	}
+	
+	
+	t.Run("valid req", func(t *testing.T) {
+		rec := httptest.NewRecorder()
+		req := httptest.NewRequest("GET", "/api/v1/username", http.NoBody)
+		req.Header.Set("Authorization", info.Token)
+
+		handler := http.Handler(middleware.AuthMiddleware(app.GetUsernameByID))
+		handler.ServeHTTP(rec, req)
+
+		if rec.Code != http.StatusOK {
+			t.Fatal("Failed to get 200 code", rec.Code)
+		}
+
+		
+		var info struct {
+			Username string `json:"username"`
+		}
+
+		if err := json.NewDecoder(rec.Body).Decode(&info); err != nil {
+			t.Fatal(err)
+		}
+
+		if info.Username != "fakeuser" {
+			t.Fatal("Usernames dont match")
+		}
+	})
+
+	t.Run("Missing auth token", func(t *testing.T) {
+		rec := httptest.NewRecorder()
+		req := httptest.NewRequest("GET", "/api/v1/username", http.NoBody)
+
+		handler := http.Handler(middleware.AuthMiddleware(app.GetUsernameByID))
+		handler.ServeHTTP(rec, req)
+
+		if rec.Code != http.StatusForbidden {
+			t.Fatal("Failed to get 403 code", rec.Code)
+		}
+	})
+}

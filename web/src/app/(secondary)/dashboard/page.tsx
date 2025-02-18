@@ -644,7 +644,8 @@ export default function DashboardPage() {
 							</Link>
 
 							<div className="h-7  w-0.5 rotate-12 bg-white bg-opacity-25" />
-							<p className='text-white text-lg font-bold'>Jack's CodeSnippets</p>
+							{/* username of user goes here */}
+							<p className='text-white text-lg font-bold'>Jack's CodeSnippets</p> 
 						</div>
 
 						<button

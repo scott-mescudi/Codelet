@@ -100,3 +100,13 @@ func GetRefreshToken(dbConn *pgxpool.Pool, userID int) (string, error) {
 
 	return refreshToken, nil
 }
+
+func GetUsernameByID(dbConn *pgxpool.Pool, userid int) (string,error){
+	var username string
+	row := dbConn.QueryRow(context.Background(), "SELECT username FROM users WHERE id=$1", userid)
+	if err := row.Scan(&username); err != nil {
+		return "", err
+	}
+
+	return username, nil
+}

@@ -344,3 +344,36 @@ func (s *UserService) ChangePassword(w http.ResponseWriter, r *http.Request) {
 	s.Logger.Info().Str("function", "ChangePassword").Str("origin", r.RemoteAddr).Msg("Password changed successfully")
 	w.WriteHeader(http.StatusOK)
 }
+
+func (s *UserService) GetUsernameByID(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+
+	useridStr := r.Header.Get("X-USERID")
+	if useridStr == "" {
+		s.Logger.Warn().Str("function", "GetUsernameByID").Str("origin", r.RemoteAddr).Msg("Missing 'X-USERID' header")
+		errs.ErrorWithJson(w, http.StatusBadRequest, "missing 'X-USERID' header")
+		return
+	}
+
+	userID, err := strconv.Atoi(useridStr)
+	if err != nil {
+		s.Logger.Warn().Str("function", "GetUsernameByID").Str("origin", r.RemoteAddr).Msg("invalid 'X-USERID' header format")
+		errs.ErrorWithJson(w, http.StatusInternalServerError, "invalid 'X-USERID' header format")
+		return
+	}
+
+	username, err := dba.GetUsernameByID(s.Db, userID)
+	if err != nil {
+		s.Logger.Warn().Str("function", "GetUserNameByID").Str("origin", r.RemoteAddr).Err(err).Msg("failed to get user from database")
+		errs.ErrorWithJson(w, http.StatusBadRequest, "failed to get user from database")
+		return
+	}
+
+
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(UsernameResponse{Username: username}); err != nil {
+		s.Logger.Error().Int("userID", userID).Str("function", "GetUsernameByID").Str("origin", r.RemoteAddr).Msg("failed to encode username")
+		errs.ErrorWithJson(w, http.StatusInternalServerError, "failed to encode username as JSON")
+		return
+	}
+}

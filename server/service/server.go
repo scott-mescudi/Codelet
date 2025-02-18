@@ -47,6 +47,7 @@ func NewCodeletServer() (*http.ServeMux, func()) {
 	app.HandleFunc("POST /api/v1/register", srv.Signup)
 	app.HandleFunc("POST /api/v1/login", srv.Login)
 	app.HandleFunc("GET /api/v1/refresh", srv.Refresh)
+	app.Handle("GET /api/v1/username", middleware.AuthMiddleware(srv.GetUsernameByID))
 	app.Handle("POST /api/v1/update/password", middleware.AuthMiddleware(srv.ChangePassword))
 	app.Handle("POST /api/v1/logout", middleware.AuthMiddleware(srv.Logout))
 	app.Handle("POST /api/v1/user/snippets", middleware.AuthMiddleware(srv2.AddSnippet))
