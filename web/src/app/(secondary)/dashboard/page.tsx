@@ -14,7 +14,7 @@ import {AppRouterInstance} from 'next/dist/shared/lib/app-router-context.shared-
 import {Delete} from '@mui/icons-material'
 import EditIcon from '@mui/icons-material/Edit'
 import Link from 'next/link'
-import {Logout} from '@/shared/api/UserApiReq'
+import {Logout, GetUsername} from '@/shared/api/UserApiReq'
 import {
 	GetSnippetByID,
 	getSmallSnippets,
@@ -417,7 +417,7 @@ export function UserContent({
 }: UserContentProps) {
 	return (
 		<>
-			<div className="h-[90vh] relative lg:flex hidden  overflow-hidden  w-2/12">
+			<div className="h-[85vh] relative lg:flex hidden  overflow-hidden  w-2/12">
 				<div
 					id="sidebar"
 					className="w-full h-full overflow-auto flex flex-col scrollbar-none gap-3"
@@ -518,6 +518,7 @@ export default function DashboardPage() {
 	const [deleteSnippet, setDeleteSnippet] = useState<boolean>(false)
 	const [dropdownOpen, setDropdownOpen] = useState<boolean>(false)
 	const [updateSnippet, setUpdateSnippet] = useState<boolean>(false)
+	const [username, setUsername] = useState<string>('')
 	const router = useRouter()
 
 	useEffect(() => {
@@ -599,6 +600,32 @@ export default function DashboardPage() {
 		getSnippet()
 	}, [snippetToGet])
 
+	useEffect(() => {
+		const req = async () => {
+			const token = localStorage.getItem('ACCESS_TOKEN')
+			if (!token) {
+				router.push('/login')
+			} else {
+				setLoggedin(true)
+			}
+
+			if (IsTokenExpired(token ? token : '')) {
+				console.log('Session expired')
+				router.push('/login')
+				return
+			}
+
+			const username = await GetUsername(token ? token : '')
+			if (username === undefined) {
+				return
+			}
+
+			setUsername(username)
+		}
+
+		req()
+	}, [])
+
 	const LogoutHandler = async () => {
 		const token = localStorage.getItem('ACCESS_TOKEN')
 		if (!token) {
@@ -644,8 +671,9 @@ export default function DashboardPage() {
 							</Link>
 
 							<div className="h-7  w-0.5 rotate-12 bg-white bg-opacity-25" />
-							{/* username of user goes here */}
-							<p className='text-white text-lg font-bold'>Jack's CodeSnippets</p> 
+							<p className="text-white text-lg text-opacity-50 font-semibold tracking-wide antialiased">
+								{username}'s CodeSnippets
+							</p>
 						</div>
 
 						<button

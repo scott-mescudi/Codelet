@@ -19,6 +19,10 @@ interface ErrorResp {
 	code: number
 }
 
+interface GetUsernameResponse {
+	username: string
+}
+
 export async function Signup(
 	username: string,
 	email: string,
@@ -97,5 +101,32 @@ export async function Logout(token: string) {
 	} catch (err) {
 		console.error(err)
 		return
+	}
+}
+
+
+export async function GetUsername(token: string): Promise<string | undefined> {
+	if (token === '') return undefined
+
+	try {
+		const resp = await fetch(`http://localhost:3021/api/v1/username`, {
+			method: 'GET',
+			headers: {
+				Authorization: token
+			}
+		})
+
+		if (!resp.ok) {
+			const errResp = (await resp.json()) as ErrorResp
+			console.log(errResp)
+			return undefined
+		}
+		
+		const info = (await resp.json()) as GetUsernameResponse
+
+		return info.username
+	} catch (err) {
+		console.error(err)
+		return undefined
 	}
 }
