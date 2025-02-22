@@ -1,4 +1,4 @@
-import type { Config } from "tailwindcss";
+import type { Config } from "./$node_modules/tailwindcss/types/index.js";
 
 export default {
   content: [
@@ -14,5 +14,7 @@ export default {
       },
     },
   },
-  plugins: [require("tailwind-scrollbar")], 
+  plugins: [
+    require ("tailwind-scrollbar"),
+  ],
 } satisfies Config;
