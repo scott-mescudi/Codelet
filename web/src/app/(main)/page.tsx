@@ -1,3 +1,4 @@
+import { Safari } from "@/components/Browser";
 import { CodeBox } from "@/components/CodeBlock";
 import { InfiniteScrollAnimationPage } from "@/components/Marquee";
 import Link from "next/link";
@@ -59,13 +60,21 @@ export default function Home() {
           </div>
           <LinesBackground />
         </div>
-        <div className="h-fit w-2/3 relative flex flex-col  gap-3 border border-t-0  border-white/5">
-          <div className="absolute h-full w-2/12 bg-gradient-to-r z-10 from-[#0a0a0a]" />
-          <div className="absolute right-0 h-full w-2/12 bg-gradient-to-l z-10 from-[#0a0a0a]" />
-          <p className="w-full text-center pt-5 text-white font-bold  text-4xl">
+
+        <div className="h-fit w-2/3 relative flex flex-col items-center border border-t-0  border-white/5">
+          <p className="w-fit px-4 text-center border border-y-0 border-x-white/5 py-2 text-white font-bold  text-4xl">
             Syntax highlighting for all programming languages
           </p>
           <InfiniteScrollAnimationPage />
+        </div>
+
+        <div className="h-fit w-2/3 pb-5 flex flex-col items-center border-b-0 border border-t-0  border-white/5">
+          <p className="w-fit px-4 text-center border border-y-0 border-x-white/5 py-2 text-white font-bold  text-4xl">
+            Simple ui
+          </p>
+          <div className="h-fit w-full border flex items-center justify-center border-x-0 border-b-0 border-t-white/5 py-3">
+            <Safari imageSrc="/image.png" url="codelet.dev" />
+          </div>
         </div>
       </div>
     </>
