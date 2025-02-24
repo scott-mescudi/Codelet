@@ -27,6 +27,7 @@ code {
 
 pre {
 	padding-top: 0 !important;
+	background: none !important;
 }
 
 body::-webkit-scrollbar {
