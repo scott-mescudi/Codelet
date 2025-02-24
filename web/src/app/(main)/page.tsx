@@ -1,23 +1,21 @@
 import { CodeBox } from "@/components/CodeBlock";
+import { InfiniteScrollAnimationPage } from "@/components/Marquee";
 import Link from "next/link";
 
-const code = 
-`function HelloWorld () {
+const code = `function HelloWorld () {
   console.log("Hello Codelet!!")
 }`;
 
-const code2 = 
-`func HelloWorld() {
+const code2 = `func HelloWorld() {
   fmt.Println("Hello Codelet!!")
 }`;
 
-const code3 = 
-`void HelloWorld () {
+const code3 = `void HelloWorld () {
   printf("Hello Codelet!!")
 }`;
 
 const LinesBackground = () => {
-	return (
+  return (
     <>
       <div className="w-full -z-10 absolute h-full">
         <div className="w-full h-full  flex flex-row">
@@ -29,7 +27,7 @@ const LinesBackground = () => {
       </div>
     </>
   );
-}
+};
 
 export default function Home() {
   return (
@@ -61,9 +59,15 @@ export default function Home() {
           </div>
           <LinesBackground />
         </div>
-        
+        <div className="h-fit w-2/3 relative flex flex-col  gap-3 border border-t-0  border-white/5">
+          <div className="absolute h-full w-2/12 bg-gradient-to-r z-10 from-[#0a0a0a]" />
+          <div className="absolute right-0 h-full w-2/12 bg-gradient-to-l z-10 from-[#0a0a0a]" />
+          <p className="w-full text-center pt-5 text-white font-bold  text-4xl">
+            Syntax highlighting for all programming languages
+          </p>
+          <InfiniteScrollAnimationPage />
+        </div>
       </div>
-
     </>
   );
 }

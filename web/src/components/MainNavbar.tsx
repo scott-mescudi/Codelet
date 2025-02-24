@@ -33,35 +33,38 @@ export function MainNavbar() {
 
 
     return (
-		<>
-			<div className="w-2/3 h-12 flex flex-row overflow-hidden items-center px-5 rounded-xl sticky top-0  backdrop-blur-lg ">
-				<Link href={'/'} className="flex flex-row h-full items-center">
-					<div className="h-full aspect-square">
-						<Image
-							draggable={false}
-							src={logo}
-							className="h-full w-full "
-							alt="codelet logo"
-						/>
-					</div>
-				</Link>
+      <>
+        <div className="w-3/4 h-12 flex flex-row overflow-hidden items-center px-5 rounded-xl sticky top-0  backdrop-blur-lg ">
+          <Link href={"/"} className="flex flex-row h-full items-center">
+            <div className="h-full aspect-square">
+              <Image
+                draggable={false}
+                src={logo}
+                className="h-full w-full "
+                alt="codelet logo"
+              />
+            </div>
+            <p className="text-2xl select-none ml-2 text-white font-bold">
+              Codelet
+            </p>
+          </Link>
 
-				{isLoggedIn ? (
-					<Link
-						href={'/dashboard'}
-						className="bg-white hover:bg-opacity-80 duration-300 ease-in-out ml-auto h-fit py-1 px-5 text-lg font-semibold rounded-lg"
-					>
-						Dashboard
-					</Link>
-				) : (
-					<Link
-						href={'/signup'}
-						className="bg-white hover:bg-opacity-80 duration-300 ease-in-out ml-auto h-fit py-1 px-5 text-lg font-semibold rounded-lg"
-					>
-						Signup
-					</Link>
-				)}
-			</div>
-		</>
-	)
+          {isLoggedIn ? (
+            <Link
+              href={"/dashboard"}
+              className="bg-white hover:bg-opacity-80 duration-300 ease-in-out ml-auto h-fit py-1 px-5 text-lg font-semibold rounded-lg"
+            >
+              Dashboard
+            </Link>
+          ) : (
+            <Link
+              href={"/signup"}
+              className="bg-white hover:bg-opacity-80 duration-300 ease-in-out ml-auto h-fit py-1 px-5 text-lg font-semibold rounded-lg"
+            >
+              Signup
+            </Link>
+          )}
+        </div>
+      </>
+    );
 }
