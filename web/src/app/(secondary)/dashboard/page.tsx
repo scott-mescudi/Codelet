@@ -650,7 +650,7 @@ export default function DashboardPage() {
 	return (
     <>
       {loggedIn && (
-        <div className="flex h-full w-full flex-col gap-10 items-center">
+        <div className="flex h-screen w-full flex-col gap-10 items-center">
           <div className="w-full px-10 border border-white border-opacity-15 border-l-0 border-t-0 border-r-0 h-fit py-3  flex  items-center ">
             <div className="w-fit h-full flex flex-row gap-5 items-center">
               <Link href={"/"} className="flex flex-row h-full items-center">
