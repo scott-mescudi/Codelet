@@ -648,142 +648,134 @@ export default function DashboardPage() {
 	}
 
 	return (
-		<>
-			{loggedIn && (
-				<div className="flex h-full w-full flex-col gap-10 items-center">
-					<div className="w-full px-10 border border-white border-opacity-15 border-l-0 border-t-0 border-r-0 h-fit py-3  flex  items-center ">
-						<div className="w-fit h-full flex flex-row gap-5 items-center">
-							<Link
-								href={'/'}
-								className="flex flex-row h-full items-center"
-							>
-								<div className="h-full aspect-square">
-									<Image
-										draggable={false}
-										src={logo}
-										className="h-full w-full "
-										alt="codelet logo"
-									/>
-								</div>
-								<p className="text-2xl select-none ml-2 text-white font-bold">
-									Codelet
-								</p>
-							</Link>
+    <>
+      {loggedIn && (
+        <div className="flex h-full w-full flex-col gap-10 items-center">
+          <div className="w-full px-10 border border-white border-opacity-15 border-l-0 border-t-0 border-r-0 h-fit py-3  flex  items-center ">
+            <div className="w-fit h-full flex flex-row gap-5 items-center">
+              <Link href={"/"} className="flex flex-row h-full items-center">
+                <div className="h-full aspect-square">
+                  <Image
+                    draggable={false}
+                    src={logo}
+                    className="h-full w-full "
+                    alt="codelet logo"
+                  />
+                </div>
+                <p className="text-2xl select-none ml-2 text-white font-bold">
+                  Codelet
+                </p>
+              </Link>
 
-							<div className="h-7  w-0.5 rotate-12 bg-white bg-opacity-25" />
-							<p className="text-white text-lg text-opacity-50 font-semibold tracking-wide antialiased">
-								{username}'s CodeSnippets
-							</p>
-						</div>
+              <div className="h-7  w-0.5 rotate-12 bg-white bg-opacity-25" />
+              <p className="text-white text-lg text-opacity-50 font-semibold tracking-wide antialiased">
+                {username}'s CodeSnippets
+              </p>
+            </div>
 
-						<button
-							className="bg-white hover:bg-opacity-80 duration-300 ease-in-out ml-auto h-fit py-1 px-5 text-lg font-semibold rounded-lg"
-							onClick={() => setAddsnippet(true)}
-						>
-							new snippet
-						</button>
-						<div className="w-fit h-full relative">
-							<button
-								onClick={() => setDropdownOpen(prev => !prev)}
-								className="p-1 rounded-md ml-3 relative text-white"
-							>
-								<MenuIcon fontSize="large" />
-							</button>
-							{dropdownOpen && (
-								<div className="absolute mt-4 z-50 bg-black right-0 mr-2">
-									<div className="w-fit h-fit p-4 flex flex-col gap-2  border border-white border-opacity-15">
-										<DropdownItem
-											link="/"
-											title="Home"
-											subTitle="Back to home"
-											icon={
-												<HouseIcon fontSize="large" />
-											}
-										/>
-										<DropdownItem
-											onClick={LogoutHandler}
-											title="Logout"
-											subTitle="Secure Logout portal"
-											icon={
-												<LogoutIcon fontSize="large" />
-											}
-										/>
-									</div>
-								</div>
-							)}
-						</div>
-					</div>
+            <button
+              className="bg-white hover:bg-opacity-80 duration-300 ease-in-out ml-auto h-fit py-1 px-5 text-lg font-semibold rounded-lg"
+              onClick={() => setAddsnippet(true)}
+            >
+              new snippet
+            </button>
+            <div className="w-fit h-full relative">
+              <button
+                onClick={() => setDropdownOpen((prev) => !prev)}
+                className="p-1 rounded-md ml-3 relative text-white"
+              >
+                <MenuIcon fontSize="large" />
+              </button>
+              {dropdownOpen && (
+                <div className="absolute mt-4 z-0 bg-black right-0 mr-2">
+                  <div className="w-fit h-fit p-4 flex flex-col gap-2  border border-white border-opacity-15">
+                    <DropdownItem
+                      link="/"
+                      title="Home"
+                      subTitle="Back to home"
+                      icon={<HouseIcon fontSize="large" />}
+                    />
+                    <DropdownItem
+                      onClick={LogoutHandler}
+                      title="Logout"
+                      subTitle="Secure Logout portal"
+                      icon={<LogoutIcon fontSize="large" />}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
 
-					{snippets && snippets.length > 0 && (
-						<div
-							id="user-content"
-							className="lg:w-2/3 h-full gap-5 flex flex-row justify-center"
-						>
-							<UserContent
-								setUpdateSnippet={setUpdateSnippet}
-								deleteSnippet={deleteSnippet}
-								setDeleteSnippet={setDeleteSnippet}
-								snippets={snippets}
-								categories={categories}
-								setSnippetToGet={setSnippetToGet}
-								inViewSnippet={inViewSnippet}
-								setAddsnippet={setAddsnippet}
-							/>
-						</div>
-					)}
+          {snippets && snippets.length > 0 && (
+            <div
+              id="user-content"
+              className="lg:w-2/3 h-full gap-5 flex flex-row justify-center"
+            >
+              <UserContent
+                setUpdateSnippet={setUpdateSnippet}
+                deleteSnippet={deleteSnippet}
+                setDeleteSnippet={setDeleteSnippet}
+                snippets={snippets}
+                categories={categories}
+                setSnippetToGet={setSnippetToGet}
+                inViewSnippet={inViewSnippet}
+                setAddsnippet={setAddsnippet}
+              />
+            </div>
+          )}
 
-					{snippets.length <= 0 && (
-						<div className="p-3 bg-black border border-white border-opacity-15 rounded-lg">
-							<p className="text-white font-bold">
-								No Snippets added yet
-							</p>
-						</div>
-					)}
+          {snippets.length <= 0 && (
+            <div className="p-3 bg-black border border-white border-opacity-15 rounded-lg">
+              <p className="text-white font-bold">No Snippets added yet</p>
+            </div>
+          )}
 
-					{addSnippet && (
-						<div
-							id="parent"
-							className="fixed h-screen w-screen backdrop-blur-lg"
-						>
-							<div className="w-full h-full flex justify-center items-center">
-								<div
-									onClick={e => e.stopPropagation()}
-									className=" overflow-auto scrollbar-hidden rounded-xl  p-5  bg-neutral-950"
-								>
-									<SnippetForm
-										setAddsnippet={setAddsnippet}
-										router={router}
-									/>
-								</div>
-							</div>
-						</div>
-					)}
+          {addSnippet && (
+            <div
+              id="parent"
+              className="fixed h-screen w-screen backdrop-blur-lg"
+            >
+              <div className="w-full h-full flex justify-center items-center">
+                <div
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setDropdownOpen(false);
+                  }}
+                  className=" overflow-auto scrollbar-hidden rounded-xl  p-5  bg-neutral-950"
+                >
+                  <SnippetForm setAddsnippet={setAddsnippet} router={router} />
+                </div>
+              </div>
+            </div>
+          )}
 
-					{updateSnippet && (
-						<div
-							id="parent"
-							className="fixed h-screen w-screen backdrop-blur-lg"
-						>
-							<div className="w-full h-full flex justify-center items-center">
-								<div
-									onClick={e => e.stopPropagation()}
-									className=" overflow-auto scrollbar-hidden rounded-xl  p-5  bg-neutral-950"
-								>
-									<UpdateSnippetForm
-										snippet={
-											inViewSnippet
-												? inViewSnippet
-												: ({} as CodeSnippet)
-										}
-										setUpdateSnippet={setUpdateSnippet}
-										router={router}
-									/>
-								</div>
-							</div>
-						</div>
-					)}
-				</div>
-			)}
-		</>
-	)
+          {updateSnippet && (
+            <div
+              id="parent"
+              className="fixed h-screen w-screen backdrop-blur-lg"
+            >
+              <div className="w-full h-full flex justify-center items-center">
+                <div
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setDropdownOpen(false);
+                  }}
+                  className=" overflow-auto scrollbar-hidden rounded-xl  p-5  bg-neutral-950"
+                >
+                  <UpdateSnippetForm
+                    snippet={
+                      inViewSnippet ? inViewSnippet : ({} as CodeSnippet)
+                    }
+                    setUpdateSnippet={setUpdateSnippet}
+                    router={router}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </>
+  );
 }
