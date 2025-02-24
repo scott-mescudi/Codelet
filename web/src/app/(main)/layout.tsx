@@ -12,7 +12,9 @@ export default function RootLayout({
 }: Readonly<{children: React.ReactNode}>) {
 	return (
 		<>
-			<MainNavbar />
+			<div className='w-full flex py-2 justify-center border border-t-0 border-r-0 border-l-0 border-b-white/5'>
+				<MainNavbar />
+			</div>
 			{children}
 		</>
 	)
