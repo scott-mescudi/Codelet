@@ -8,6 +8,7 @@ export function InfiniteScrollAnimationPage() {
             <li key={idx} className="flex items-center gap-2">
               <div className="h-14 aspect-square ">
                 <img
+                draggable="false"
                   className="h-full w-full flex items-center justify-center"
                   src={logo.href}
                   alt={logo.alt}
