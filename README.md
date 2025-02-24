@@ -35,10 +35,14 @@ Stop wasting time searching. Access all your code snippets instantly, organized 
    ```
 3. Start the Backend:
    ```sh
-   Docker compose up -d
+   docker compose up -d
    ```
 4. Start the Frontend:
    ```sh
-   cd web && npm run dev
+   cd web && npm install && npm run dev
+   ```
+5. Access the application at:
+   ```
+   http://localhost:3000
    ```
 
