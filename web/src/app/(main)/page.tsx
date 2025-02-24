@@ -62,14 +62,14 @@ export default function Home() {
         </div>
 
         <div className="h-fit w-full lg:w-2/3 relative flex flex-col items-center border border-t-0  border-white/5">
-          <p className="w-fit px-4 text-center border border-y-0 border-x-white/5 py-2 text-white font-bold  text-4xl">
+          <p className="w-fit px-4 text-center border border-y-0 border-x-white/5 py-2 text-white font-bold  text-2xl sm:text-4xl">
             Syntax highlighting for all programming languages
           </p>
           <InfiniteScrollAnimationPage />
         </div>
 
         <div className="h-fit w-full lg:w-2/3 pb-5 flex flex-col items-center border-b-0 border border-t-0  border-white/5">
-          <p className="w-fit px-4 text-center border border-y-0 border-x-white/5 py-2 text-white font-bold  text-4xl">
+          <p className="w-fit px-4 text-center border border-y-0 border-x-white/5 py-2 text-white font-bold text-2xl sm:text-4xl">
             Simple ui
           </p>
           <div className="h-fit w-full px-2 border flex items-center justify-center border-x-0 border-b-0 border-t-white/5 py-3">
