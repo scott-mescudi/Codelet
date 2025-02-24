@@ -1,7 +1,7 @@
 # Codelet - An Open-Source Code Snippet App
 
-![Home Screen](./docs/image.png)
-![Dashboard](./docs/image2.png)
+![Home Screen](./docs/image2.png)
+![Dashboard](./docs/image.png)
 
 ## All Your Code Snippets, Organized
 
@@ -13,6 +13,15 @@ Stop wasting time searching. Access all your code snippets instantly, organized 
 - **Syntax Highlighting**: Enjoy beautifully formatted code with syntax highlighting.
 - **Categories**: Organize snippets by category for easy retrieval.
 - **Dashboard**: A clean and intuitive dashboard to manage all your saved snippets.
+
+## Tech Stack
+
+- **Frontend**: Next.js, Tailwind CSS
+- **Backend**: Golang
+- **Database**: PostgreSQL
+- **Containerization**: Docker
+- **Authentication**: JWT-based authentication
+- **Code Highlighting**: Prism.js
 
 ## Installation
 
@@ -28,7 +37,7 @@ Stop wasting time searching. Access all your code snippets instantly, organized 
    ```sh
    Docker compose up -d
    ```
-4. Start the Fontend:
+4. Start the Frontend:
    ```sh
    cd web && npm run dev
    ```
