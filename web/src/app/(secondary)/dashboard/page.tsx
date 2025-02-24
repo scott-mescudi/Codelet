@@ -417,7 +417,7 @@ export function UserContent({
 }: UserContentProps) {
 	return (
 		<>
-			<div className="h-[85vh] relative lg:flex hidden  overflow-hidden  w-2/12">
+			<div className="h-full relative lg:flex hidden  overflow-hidden pb-10  w-2/12">
 				<div
 					id="sidebar"
 					className="w-full h-full overflow-auto flex flex-col scrollbar-none gap-3"
@@ -451,7 +451,7 @@ export function UserContent({
 				</div>
 			</div>
 
-			<div className="h-[90vh] pb-10 w-full overflow-auto scrollbar-none">
+			<div className="h-full pb-10 w-full overflow-auto scrollbar-none">
 				<div className="w-full flex flex-col">
 					<div className="w-full flex flex-row items-center">
 						<p className="w-11/12 line-clamp-1 h-20 select-none text-white  text-6xl font-bold">
@@ -650,8 +650,8 @@ export default function DashboardPage() {
 	return (
 		<>
 			{loggedIn && (
-				<div className="flex  w-full flex-col gap-10 items-center">
-					<div className="w-full px-10 border border-white border-opacity-15 border-l-0 border-t-0 border-r-0 h-fit py-5  flex  items-center ">
+				<div className="flex h-full w-full flex-col gap-10 items-center">
+					<div className="w-full px-10 border border-white border-opacity-15 border-l-0 border-t-0 border-r-0 h-fit py-3  flex  items-center ">
 						<div className="w-fit h-full flex flex-row gap-5 items-center">
 							<Link
 								href={'/'}
@@ -665,7 +665,7 @@ export default function DashboardPage() {
 										alt="codelet logo"
 									/>
 								</div>
-								<p className="text-3xl select-none ml-2 text-white font-bold">
+								<p className="text-2xl select-none ml-2 text-white font-bold">
 									Codelet
 								</p>
 							</Link>
@@ -682,7 +682,7 @@ export default function DashboardPage() {
 						>
 							new snippet
 						</button>
-						<div className="w-fit relative">
+						<div className="w-fit h-full relative">
 							<button
 								onClick={() => setDropdownOpen(prev => !prev)}
 								className="p-1 rounded-md ml-3 relative text-white"

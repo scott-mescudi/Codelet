@@ -34,7 +34,7 @@ export function MainNavbar() {
 
     return (
 		<>
-			<div className="w-2/3 h-16 flex flex-row overflow-hidden items-center px-5 rounded-xl sticky top-0 mt-5 backdrop-blur-lg ">
+			<div className="w-2/3 h-12 flex flex-row overflow-hidden items-center px-5 rounded-xl sticky top-0 mt-5 backdrop-blur-lg ">
 				<Link href={'/'} className="flex flex-row h-full items-center">
 					<div className="h-full aspect-square">
 						<Image
