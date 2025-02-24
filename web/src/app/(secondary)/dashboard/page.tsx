@@ -416,96 +416,88 @@ export function UserContent({
 	setDeleteSnippet
 }: UserContentProps) {
 	return (
-		<>
-			<div className="h-full relative lg:flex hidden  overflow-hidden pb-10  w-2/12">
-				<div
-					id="sidebar"
-					className="w-full h-full overflow-auto flex flex-col scrollbar-none gap-3"
-				>
-					{snippets &&
-						snippets.length > 0 &&
-						categories.length > 0 &&
-						categories.map((category: string) => (
-							<Sidebar key={category} title={category}>
-								{snippets
-									.filter(
-										snippet => snippet.language === category
-									)
-									.map(snippet => (
-										<p
-											onClick={() =>
-												setSnippetToGet(snippet.id)
-											}
-											key={snippet.id}
-											className={`text-white py-1 w-full border ${
-												inViewSnippet?.id === snippet.id
-													? 'border-opacity-100 text-opacity-100'
-													: ' border-opacity-15 text-opacity-60 hover:text-opacity-100'
-											} border-l-white border-r-0 border-t-0 border-b-0 pl-5  duration-300 ease-in-out hover:cursor-pointer text-nowrap text-ellipsis overflow-hidden`}
-										>
-											{snippet.title}
-										</p>
-									))}
-							</Sidebar>
-						))}
-				</div>
-			</div>
+    <>
+      <div className="h-full relative lg:flex hidden  overflow-hidden pb-10  w-2/12">
+        <div
+          id="sidebar"
+          className="w-full h-full overflow-auto flex flex-col scrollbar-none gap-3"
+        >
+          {snippets &&
+            snippets.length > 0 &&
+            categories.length > 0 &&
+            categories.map((category: string) => (
+              <Sidebar key={category} title={category}>
+                {snippets
+                  .filter((snippet) => snippet.language === category)
+                  .map((snippet) => (
+                    <p
+                      onClick={() => setSnippetToGet(snippet.id)}
+                      key={snippet.id}
+                      className={`text-white py-1 w-full border ${
+                        inViewSnippet?.id === snippet.id
+                          ? "border-opacity-100 text-opacity-100"
+                          : " border-opacity-15 text-opacity-60 hover:text-opacity-100"
+                      } border-l-white border-r-0 border-t-0 border-b-0 pl-5  duration-300 ease-in-out hover:cursor-pointer text-nowrap text-ellipsis overflow-hidden`}
+                    >
+                      {snippet.title}
+                    </p>
+                  ))}
+              </Sidebar>
+            ))}
+        </div>
+      </div>
 
-			<div className="h-full lg:pb-10 w-10/12 overflow-auto scrollbar-none">
-				<div className="w-full flex flex-col items-center">
-					<div className="w-10/12 md:w-full flex flex-row items-center justify-center md:justify-start">
-						<p className="w-9/12 md:w-full md:h-20 select-none text-white text-justify text-4xl md:text-6xl font-bold">
-							{inViewSnippet?.title}
-						</p>
-						{inViewSnippet?.id && (
-							<>
-								<button
-									onClick={() => setUpdateSnippet(true)}
-									className="text-white h-fit w-fit"
-								>
-									<EditIcon fontSize="medium" />
-								</button>
+      <div className="h-full lg:pb-10 w-10/12 overflow-auto scrollbar-none">
+        <div className="w-full flex flex-col items-center">
+          <div className="w-10/12 md:w-full flex flex-row overflow-hidden items-center justify-center md:justify-start">
+            <p className="w-9/12 md:w-full md:h-20 select-none text-nowrap text-white text-justify text-4xl md:text-6xl font-bold">
+              {inViewSnippet?.title}
+            </p>
+            {inViewSnippet?.id && (
+              <>
+                <button
+                  onClick={() => setUpdateSnippet(true)}
+                  className="text-white h-fit w-fit"
+                >
+                  <EditIcon fontSize="medium" />
+                </button>
 
-								<DeleteButton
-									deleteSnippet={deleteSnippet}
-									setDeleteSnippet={setDeleteSnippet}
-									snippets={snippets}
-									setSnippetToGet={setSnippetToGet}
-									id={inViewSnippet.id}
-								/>
-							</>
-						)}
-					</div>
+                <DeleteButton
+                  deleteSnippet={deleteSnippet}
+                  setDeleteSnippet={setDeleteSnippet}
+                  snippets={snippets}
+                  setSnippetToGet={setSnippetToGet}
+                  id={inViewSnippet.id}
+                />
+              </>
+            )}
+          </div>
 
-					<div className="w-full select-none flex gap-5 sm:mt-3 mt-5 flex-row">
-						{inViewSnippet?.tags.map((tag: string, idx: number) => (
-							<p
-								key={idx}
-								className="text-white text-nowrap w-fit text-opacity-60 px-5 rounded-lg py-0.5 bg-neutral-900"
-							>
-								{tag}
-							</p>
-						))}
-					</div>
-					<p className="w-full pl-1 text-white   mt-4 text-opacity-80">
-						{inViewSnippet?.description}
-					</p>
-					{inViewSnippet && inViewSnippet?.code != '' && (
-						<div className="w-full px-2 mt-10 ">
-							<CodeBox
-								background="bg-neutral-950"
-								code={
-									inViewSnippet?.code
-										? inViewSnippet.code
-										: ''
-								}
-							/>
-						</div>
-					)}
-				</div>
-			</div>
-		</>
-	)
+          <div className="w-9/12 md:w-full select-none flex flex-wrap md:flex-nowrap  gap-5 sm:mt-3 mt-5 md:flex-row">
+            {inViewSnippet?.tags.map((tag: string, idx: number) => (
+              <p
+                key={idx}
+                className="text-white text-nowrap w-fit text-opacity-60 px-5 rounded-lg py-0.5 bg-neutral-900"
+              >
+                {tag}
+              </p>
+            ))}
+          </div>
+          <p className="w-9/12 md:w-full md:pl-1 text-white   mt-4 text-opacity-80">
+            {inViewSnippet?.description}
+          </p>
+          {inViewSnippet && inViewSnippet?.code != "" && (
+            <div className="w-9/12 md:w-full px-2 mt-10 ">
+              <CodeBox
+                background="bg-neutral-950"
+                code={inViewSnippet?.code ? inViewSnippet.code : ""}
+              />
+            </div>
+          )}
+        </div>
+      </div>
+    </>
+  );
 }
 
 export default function DashboardPage() {
