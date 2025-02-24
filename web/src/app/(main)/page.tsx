@@ -47,7 +47,7 @@ export default function Home() {
               </p>
               <Link
                 href={"/signup"}
-                className="bg-yellow-100 mt-5 w-fit px-4 py-2 rounded-lg text-2xl font-bold hover:bg-yellow-500 duration-300 ease-in-out will-change-transform"
+                className="bg-yellow-300 mt-5 w-fit px-4 py-2 rounded-lg text-2xl font-bold hover:bg-yellow-600 duration-300 ease-in-out will-change-transform"
               >
                 Get started
               </Link>
