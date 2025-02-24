@@ -352,7 +352,7 @@ export function DeleteButton({
 		<>
 			<button
 				onClick={handleClick}
-				className="text-red-700 ml-auto h-fit w-fit"
+				className="text-red-700  h-fit w-fit"
 			>
 				<Delete fontSize="medium" />
 			</button>
@@ -451,17 +451,17 @@ export function UserContent({
 				</div>
 			</div>
 
-			<div className="h-full pb-10 w-full overflow-auto scrollbar-none">
-				<div className="w-full flex flex-col">
-					<div className="w-full flex flex-row items-center">
-						<p className="w-11/12 line-clamp-1 h-20 select-none text-white  text-6xl font-bold">
+			<div className="h-full lg:pb-10 w-10/12 overflow-auto scrollbar-none">
+				<div className="w-full flex flex-col items-center">
+					<div className="w-10/12 md:w-full flex flex-row items-center justify-center md:justify-start">
+						<p className="w-9/12 md:w-full md:h-20 select-none text-white text-justify text-4xl md:text-6xl font-bold">
 							{inViewSnippet?.title}
 						</p>
 						{inViewSnippet?.id && (
 							<>
 								<button
 									onClick={() => setUpdateSnippet(true)}
-									className="text-white ml-auto h-fit w-fit"
+									className="text-white h-fit w-fit"
 								>
 									<EditIcon fontSize="medium" />
 								</button>
@@ -491,7 +491,7 @@ export function UserContent({
 						{inViewSnippet?.description}
 					</p>
 					{inViewSnippet && inViewSnippet?.code != '' && (
-						<div className="w-full mt-10 ">
+						<div className="w-full px-2 mt-10 ">
 							<CodeBox
 								background="bg-neutral-950"
 								code={
@@ -650,11 +650,11 @@ export default function DashboardPage() {
 	return (
     <>
       {loggedIn && (
-        <div className="flex h-screen w-full flex-col gap-10 items-center">
+        <div className="flex lg:h-screen pb-10 lg:pb-0 w-full flex-col gap-10 items-center">
           <div className="w-full px-2 lg:px-10 border border-white border-opacity-15 border-l-0 border-t-0 border-r-0 h-fit py-3  flex  items-center ">
             <div className="w-fit h-full flex flex-row gap-5 items-center">
               <Link href={"/"} className="flex flex-row h-full items-center">
-                <div className="h-full aspect-square">
+                <div className="h-10 lg:h-full aspect-square">
                   <Image
                     draggable={false}
                     src={logo}
