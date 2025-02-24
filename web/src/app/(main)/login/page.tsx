@@ -40,26 +40,26 @@ export default function LoginPage() {
 	}, [err])
 
 	return (
-		<>
-			<div className="w-full h-full flex items-center justify-center">
-				<div className="flex flex-col h-fit w-fit items-center justify-center ">
-					<LoginForm
-						onSubmit={submit}
-						href="/signup"
-						email={email}
-						password={password}
-						setEmail={setEmail}
-						setPassword={setPassword}
-					/>
-					<p
-						className={`text-red-700 min-h-[24px] ${
-							err === '' ? 'opacity-0' : 'wiggle'
-						}`}
-					>
-						{err}
-					</p>
-				</div>
-			</div>
-		</>
-	)
+    <>
+      <div className="w-full h-[calc(100vh-5rem)] flex items-center justify-center">
+        <div className="flex flex-col h-fit w-fit items-center justify-center ">
+          <LoginForm
+            onSubmit={submit}
+            href="/signup"
+            email={email}
+            password={password}
+            setEmail={setEmail}
+            setPassword={setPassword}
+          />
+          <p
+            className={`text-red-700 min-h-[24px] ${
+              err === "" ? "opacity-0" : "wiggle"
+            }`}
+          >
+            {err}
+          </p>
+        </div>
+      </div>
+    </>
+  );
 }

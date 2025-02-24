@@ -35,7 +35,7 @@ export default function Home() {
   return (
     <>
       <div className="w-full flex flex-col items-center">
-        <div className="h-fit  overflow-hidden w-2/3 relative flex flex-col justify-center border border-t-0 border-r-0 border-white/5">
+        <div className="h-fit overflow-hidden w-2/3 relative flex flex-col justify-center border border-t-0 border-r-0 border-white/5">
           <div className="h-full w-full mb-20 mt-10 flex flex-row items-center p-5">
             <div className="h-3/4 w-1/2 flex  flex-col gap-2">
               <p className="w-full text-white font-bold text-5xl">
@@ -53,7 +53,7 @@ export default function Home() {
                 Create a account
               </Link>
             </div>
-            <div className="h-3/4 w-1/2 px-2 flex flex-col gap-2">
+            <div className="h-3/4 relative w-1/2 px-2 flex flex-col gap-2">
               <CodeBox background="bg-neutral-950" code={code} />
               <CodeBox background="bg-orange-950" code={code2} />
               <CodeBox background="bg-blue-950" code={code3} />
@@ -61,7 +61,9 @@ export default function Home() {
           </div>
           <LinesBackground />
         </div>
+        
       </div>
+
     </>
   );
 }
