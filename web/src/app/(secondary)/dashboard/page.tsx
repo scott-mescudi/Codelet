@@ -651,7 +651,7 @@ export default function DashboardPage() {
     <>
       {loggedIn && (
         <div className="flex h-screen w-full flex-col gap-10 items-center">
-          <div className="w-full px-10 border border-white border-opacity-15 border-l-0 border-t-0 border-r-0 h-fit py-3  flex  items-center ">
+          <div className="w-full px-2 lg:px-10 border border-white border-opacity-15 border-l-0 border-t-0 border-r-0 h-fit py-3  flex  items-center ">
             <div className="w-fit h-full flex flex-row gap-5 items-center">
               <Link href={"/"} className="flex flex-row h-full items-center">
                 <div className="h-full aspect-square">
@@ -662,13 +662,13 @@ export default function DashboardPage() {
                     alt="codelet logo"
                   />
                 </div>
-                <p className="text-2xl select-none ml-2 text-white font-bold">
+                <p className="text-2xl hidden lg:flex select-none ml-2 text-white font-bold">
                   Codelet
                 </p>
               </Link>
 
-              <div className="h-7  w-0.5 rotate-12 bg-white bg-opacity-25" />
-              <p className="text-white text-lg text-opacity-50 font-semibold tracking-wide antialiased">
+              <div className="h-7 hidden lg:flex w-0.5 rotate-12 bg-white bg-opacity-25" />
+              <p className="text-white hidden lg:flex text-lg text-opacity-50 font-semibold tracking-wide antialiased">
                 {username}'s CodeSnippets
               </p>
             </div>
