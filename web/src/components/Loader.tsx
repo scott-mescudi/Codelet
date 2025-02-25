@@ -15,7 +15,7 @@ export function Loader() {
   }, []);
 
   return (
-    <div className="text-6xl text-white select-none transition-all duration-300 ease-in-out opacity-50">
+    <div className="text-4xl text-white select-none transition-all duration-300 ease-in-out opacity-50">
       {chars[index]}
     </div>
   );
