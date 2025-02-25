@@ -50,7 +50,7 @@ export function LoginForm({
             href={href ? href : "#"}
             className="text-blue-600 w-full text-center hover:underline"
           >
-            Don't have an account? Sign Up
+            Don&apos;t have an account? Sign Up
           </Link>
         </form>
       </div>

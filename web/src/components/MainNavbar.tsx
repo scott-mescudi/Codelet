@@ -14,6 +14,7 @@ function isTokenExpired(token: string): boolean {
 
     return decoded.exp !== undefined ? decoded.exp < now : true;
   } catch (error) {
+    console.error(error)
     return true;
   }
 }

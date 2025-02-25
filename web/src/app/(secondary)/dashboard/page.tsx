@@ -282,6 +282,8 @@ interface DeleteProps {
   snippets: SmallSnippets;
   setDeleteSnippet: React.Dispatch<React.SetStateAction<boolean>>;
   deleteSnippet: boolean;
+  isSure: boolean;
+  setIsSure: React.Dispatch<React.SetStateAction<boolean>>;
   setSnippetToGet: React.Dispatch<React.SetStateAction<number | undefined>>;
   id: number;
 }
@@ -291,13 +293,13 @@ export function DeleteButton({
   snippets,
   setDeleteSnippet,
   setSnippetToGet,
+  isSure,
+  setIsSure,
 }: DeleteProps) {
   if (id < 0) {
     console.error("invalid id in delete button", id);
     return;
   }
-
-  const [isSure, setIsSure] = useState<boolean>(false);
 
   const HandleDelete = async () => {
     setDeleteSnippet(true);
@@ -401,6 +403,8 @@ interface UserContentProps {
   setDeleteSnippet: React.Dispatch<React.SetStateAction<boolean>>;
   setUpdateSnippet: React.Dispatch<React.SetStateAction<boolean>>;
   itemView: boolean;
+  isSure: boolean;
+  setIsSure: React.Dispatch<React.SetStateAction<boolean>>;
   setItemView: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
@@ -413,6 +417,8 @@ export function UserContent({
   setUpdateSnippet,
   setDeleteSnippet,
   itemView,
+  isSure,
+  setIsSure,
   setItemView,
 }: UserContentProps) {
   return (
@@ -506,6 +512,8 @@ export function UserContent({
                 </button>
 
                 <DeleteButton
+                  isSure={isSure}
+                  setIsSure={setIsSure}
                   deleteSnippet={deleteSnippet}
                   setDeleteSnippet={setDeleteSnippet}
                   snippets={snippets}
@@ -554,6 +562,7 @@ export default function DashboardPage() {
   const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
   const [updateSnippet, setUpdateSnippet] = useState<boolean>(false);
   const [itemView, setItemView] = useState<boolean>(false);
+  const [isSure, setIsSure] = useState<boolean>(false);
   const [username, setUsername] = useState<string>("");
   const router = useRouter();
 
@@ -702,7 +711,7 @@ export default function DashboardPage() {
 
               <div className="h-7 hidden lg:flex w-0.5 rotate-12 bg-white bg-opacity-25" />
               <p className="text-white hidden md:flex text-lg text-opacity-50 font-semibold tracking-wide antialiased">
-                {username}'s CodeSnippets
+                {username}&apos;s CodeSnippets
               </p>
             </div>
 
@@ -757,6 +766,8 @@ export default function DashboardPage() {
               className="md:w-10/12 w-full h-full gap-5 flex flex-row justify-center"
             >
               <UserContent
+                isSure={isSure}
+                setIsSure={setIsSure}
                 setItemView={setItemView}
                 itemView={itemView}
                 setUpdateSnippet={setUpdateSnippet}

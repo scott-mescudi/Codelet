@@ -1,7 +1,6 @@
 
 interface SidebarProps {
   title: string;
-  key?: any
   children?: React.ReactNode;
 }
 

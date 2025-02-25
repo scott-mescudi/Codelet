@@ -50,6 +50,7 @@ export async function Signup(
 
 		return 200
 	} catch (err) {
+		console.error(err);
 		return 500
 	}
 }
@@ -78,6 +79,7 @@ export async function Login(email: string, password: string): Promise<number> {
 
 		return 200
 	} catch (err) {
+		console.error(err);
 		return 500
 	}
 }
