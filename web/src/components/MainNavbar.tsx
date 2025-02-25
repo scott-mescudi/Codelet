@@ -14,7 +14,7 @@ function isTokenExpired(token: string): boolean {
 
     return decoded.exp !== undefined ? decoded.exp < now : true;
   } catch (error) {
-    console.error(error)
+    console.error(error);
     return true;
   }
 }
@@ -49,7 +49,8 @@ export function MainNavbar() {
         </Link>
         <div className="w-full h-full flex flex-row gap-2 justify-end items-center">
           <Link
-          id="github"
+          aria-label="github"
+            id="github"
             href={"https://github.com/scott-mescudi/Codelet"}
             target="_blank"
             className="h-full aspect-square flex items-center text-white justify-center"
