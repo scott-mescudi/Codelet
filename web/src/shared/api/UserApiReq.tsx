@@ -27,7 +27,7 @@ export async function Signup(
 	username: string,
 	email: string,
 	password: string
-): Promise<boolean> {
+): Promise<number> {
 	const data: SignupRequest = {
 		username,
 		email,
@@ -45,16 +45,16 @@ export async function Signup(
 		})
 
 		if (!resp.ok) {
-			return false
+			return resp.status
 		}
 
-		return true
+		return 200
 	} catch (err) {
-		return false
+		return 500
 	}
 }
 
-export async function Login(email: string, password: string): Promise<boolean> {
+export async function Login(email: string, password: string): Promise<number> {
 	const data: LoginRequest = {
 		email,
 		password
@@ -70,15 +70,15 @@ export async function Login(email: string, password: string): Promise<boolean> {
 		})
 
 		if (!resp.ok) {
-			return false
+			return resp.status
 		}
 
 		const token = (await resp.json()) as LoginResponse
 		localStorage.setItem('ACCESS_TOKEN', token.access_token)
 
-		return true
+		return 200
 	} catch (err) {
-		return false
+		return 500
 	}
 }
 
