@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { CodeBox } from "@/components/CodeBlock";
 import MenuIcon from "@mui/icons-material/Menu";
 import HouseIcon from "@mui/icons-material/House";
-import CloseIcon from '@mui/icons-material/Close';
+import CloseIcon from "@mui/icons-material/Close";
 
 import logo from "@public/logo.svg";
 import Image from "next/image";
@@ -146,7 +146,7 @@ export function UpdateSnippetForm({
           value={code}
           onChange={(e) => setCode(e.target.value)}
           placeholder="Paste code here..."
-          className="p-5 bg-neutral-900 focus:ring-blue-500 outline-none focus:ring-2 scrollbar-thin min-h-96 max-h-96 rounded-lg text-white whitespace-pre aspect-video"
+          className="p-5 bg-neutral-900 focus:ring-blue-500 outline-none focus:ring-2 scrollbar-thin md:min-h-96 md:max-h-96 max-h-52 rounded-lg text-white whitespace-pre aspect-video"
           required
         />
 
@@ -254,7 +254,7 @@ export function SnippetForm({ setAddsnippet, router }: SnippetFormProps) {
           value={code}
           onChange={(e) => setCode(e.target.value)}
           placeholder="Paste code here..."
-          className="p-5 bg-neutral-900 focus:ring-blue-500 outline-none focus:ring-2 scrollbar-thin min-h-96 max-h-96 rounded-lg text-white whitespace-pre aspect-video"
+          className="p-5 bg-neutral-900 focus:ring-blue-500 outline-none focus:ring-2 scrollbar-thin md:min-h-96 md:max-h-96 max-h-52 rounded-lg text-white whitespace-pre aspect-video"
           required
         />
 
@@ -454,9 +454,12 @@ export function UserContent({
               id="sidebar"
               className="w-full h-full relative overflow-auto flex pb-10 flex-col scrollbar-none gap-3"
             >
-				<button onClick={() => setItemView(false)} className="absolute text-white z-50 hover:scale-105 duration-300 ease-in-out top-0 right-0">
-					<CloseIcon fontSize="large" />
-				</button>
+              <button
+                onClick={() => setItemView(false)}
+                className="absolute text-white z-50 hover:scale-105 duration-300 ease-in-out top-0 right-0"
+              >
+                <CloseIcon fontSize="large" />
+              </button>
               {snippets &&
                 snippets.length > 0 &&
                 categories.length > 0 &&
@@ -777,17 +780,22 @@ export default function DashboardPage() {
           {addSnippet && (
             <div
               id="parent"
-              className="fixed h-screen w-screen backdrop-blur-lg"
+              className="fixed py-5 h-screen w-screen backdrop-blur-lg"
             >
-              <div className="w-full h-full flex justify-center items-center">
-                <div
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setDropdownOpen(false);
-                  }}
-                  className=" overflow-auto scrollbar-hidden rounded-xl  p-5  bg-neutral-950"
-                >
-                  <SnippetForm setAddsnippet={setAddsnippet} router={router} />
+              <div className="w-full md:h-full flex items-center justify-center">
+                <div className="w-full md:w-full h-full  flex justify-center items-center">
+                  <div
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setDropdownOpen(false);
+                    }}
+                    className="overflow-auto h-fit md:h-full md:w-fit w-11/12 scrollbar-hidden rounded-xl  p-5  bg-neutral-950"
+                  >
+                    <SnippetForm
+                      setAddsnippet={setAddsnippet}
+                      router={router}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
@@ -796,23 +804,25 @@ export default function DashboardPage() {
           {updateSnippet && (
             <div
               id="parent"
-              className="fixed h-screen w-screen backdrop-blur-lg"
+              className="fixed py-5 h-screen w-screen backdrop-blur-lg"
             >
-              <div className="w-full h-full flex justify-center items-center">
-                <div
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setDropdownOpen(false);
-                  }}
-                  className=" overflow-auto scrollbar-hidden rounded-xl  p-5  bg-neutral-950"
-                >
-                  <UpdateSnippetForm
-                    snippet={
-                      inViewSnippet ? inViewSnippet : ({} as CodeSnippet)
-                    }
-                    setUpdateSnippet={setUpdateSnippet}
-                    router={router}
-                  />
+              <div className="w-full md:h-full flex items-center justify-center">
+                <div className="w-full md:w-full h-full  flex justify-center items-center">
+                  <div
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setDropdownOpen(false);
+                    }}
+                    className=" overflow-auto h-fit md:h-full md:w-fit w-11/12 scrollbar-hidden rounded-xl  p-5  bg-neutral-950"
+                  >
+                    <UpdateSnippetForm
+                      snippet={
+                        inViewSnippet ? inViewSnippet : ({} as CodeSnippet)
+                      }
+                      setUpdateSnippet={setUpdateSnippet}
+                      router={router}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
