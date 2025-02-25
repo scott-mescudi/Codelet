@@ -56,11 +56,11 @@ interface UpdateSnippetFromProps {
   router: AppRouterInstance;
 }
 
-export function UpdateSnippetForm({
+const UpdateSnippetForm = ({
   setUpdateSnippet,
   router,
   snippet,
-}: UpdateSnippetFromProps) {
+}: UpdateSnippetFromProps) => {
   const [language, setLanguage] = useState<string>(snippet.language);
   const [title, setTitle] = useState<string>(snippet.title);
   const [tags, setTags] = useState<string>(snippet.tags.join(","));
@@ -170,7 +170,7 @@ export function UpdateSnippetForm({
   );
 }
 
-export function SnippetForm({ setAddsnippet, router }: SnippetFormProps) {
+const SnippetForm = ({ setAddsnippet, router }: SnippetFormProps) => {
   const [language, setLanguage] = useState<string>("");
   const [title, setTitle] = useState<string>("");
   const [tags, setTags] = useState<string>("");
@@ -287,15 +287,14 @@ interface DeleteProps {
   setSnippetToGet: React.Dispatch<React.SetStateAction<number | undefined>>;
   id: number;
 }
-
-export function DeleteButton({
+const DeleteButton = ({
   id,
   snippets,
   setDeleteSnippet,
   setSnippetToGet,
   isSure,
   setIsSure,
-}: DeleteProps) {
+}: DeleteProps) => {
   if (id < 0) {
     console.error("invalid id in delete button", id);
     return;
@@ -408,7 +407,7 @@ interface UserContentProps {
   setItemView: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export function UserContent({
+const UserContent = ({
   snippets,
   categories,
   setSnippetToGet,
@@ -420,7 +419,7 @@ export function UserContent({
   isSure,
   setIsSure,
   setItemView,
-}: UserContentProps) {
+}: UserContentProps) => {
   return (
     <>
       <div className="h-full relative lg:flex hidden  overflow-hidden pb-10  w-2/12">
