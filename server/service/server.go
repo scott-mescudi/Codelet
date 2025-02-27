@@ -13,13 +13,7 @@ import (
 )
 
 func NewCodeletServer() (*http.ServeMux, func()) {
-	file, err := os.OpenFile("/src/logs/codelet_server_logs.json", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
-	if err != nil {
-		log.Fatal().Err(err).Msg("Failed to open log file")
-	}
-
-	log.Logger = zerolog.New(file).With().Timestamp().Logger()
-
+	log.Logger = zerolog.New(os.Stdout).With().Timestamp().Logger()
 	logger := log.Logger
 
 	app := http.NewServeMux()
